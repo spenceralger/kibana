@@ -1,7 +1,12 @@
 <div ng-controller="discover" class="app-container">
   <kbn-taskbar>
     <div class="controls">
-      <div class="title">{{opts.savedSearch.id}}</div>
+      <div class="title">
+        {{opts.savedSearch.id}}
+        {{opts.savedSearch.id ? '-' : ''}}
+        {{(hits || 0) | number:0}}
+        <ng-pluralize count="hits" when="{'1':'hit', 'other':'hits'}"></ng-pluralize>
+      </div>
       <div class="spacer"></div>
       <kbn-tooltip text="New Search" placement="bottom" append-to-body="1">
         <button
@@ -52,7 +57,7 @@
   </kbn-taskbar>
   <kbn-taskbar>
     <div class="controls">
-      <discover-search></discover-search>
+      <kbn-taskbar-search history-id="discover" on-submit="fetch()" ng-model="state.query"></kbn-taskbar-search>
     </div>
   </kbn-taskbar>
 
@@ -81,9 +86,6 @@
             <span ng-bind="::opts.savedSearch.title"></span>
             <i aria-label="Reload Saved Search" tooltip="Reload Saved Search" ng-click="resetQuery();" class="fa fa-undo small"></i>
           </span>
-
-          <strong class="discover-info-hits">{{(hits || 0) | number:0}}</strong>
-          <ng-pluralize count="hits" when="{'1':'hit', 'other':'hits'}"></ng-pluralize>
         </div>
 
         <div class="discover-content">
