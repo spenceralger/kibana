@@ -2,6 +2,8 @@ import $ from 'jquery';
 
 import UiModules from 'ui/modules';
 import ConfigTemplate from 'ui/ConfigTemplate';
+import kbnChromeHtml from './kbn_chrome.html';
+import './kbn_chrome.less';
 
 export default function (chrome, internals) {
 
@@ -10,8 +12,8 @@ export default function (chrome, internals) {
   .directive('kbnChrome', function ($rootScope) {
     return {
       template($el) {
-        const $content = $(require('ui/chrome/chrome.html'));
-        const $app = $content.find('.application');
+        const $content = $(kbnChromeHtml);
+        const $app = $content.find('kbn-app-container');
 
         if (internals.rootController) {
           $app.attr('ng-controller', internals.rootController);
@@ -46,9 +48,6 @@ export default function (chrome, internals) {
         // and some local values
         $scope.httpActive = $http.pendingRequests;
         $scope.notifList = require('ui/notify')._notifs;
-        $scope.appSwitcherTemplate = new ConfigTemplate({
-          switcher: '<app-switcher></app-switcher>'
-        });
 
         return chrome;
       }
