@@ -40,12 +40,6 @@
 
         <li ng-if="chrome.getBrand('title')" class="navbar-brand">{{ chrome.getBrand('title') }}</li>
 
-        <li ng-repeat="tab in chrome.getTabs()" ng-class="{ active: tab.active }">
-          <a ng-href="{{ tab.href() }}" ng-style="{ 'border-bottom-color': tab.activeIndicatorColor }">
-            {{ tab.title }}
-          </a>
-        </li>
-
         <li class="to-body" ng-class="{ active: appSwitcherTemplate.is('switcher') }" ng-if="chrome.getShowAppsLink()">
           <a ng-click="appSwitcherTemplate.toggle('switcher')">
             <i class="fa fa-th" alt="Show app switcher"></i>
