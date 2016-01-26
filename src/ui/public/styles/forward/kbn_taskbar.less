@@ -1,3 +1,32 @@
 kbn-taskbar {
-  color: blue;
+  padding: 7px;
+  color: yellow;
+
+  > .controls {
+    // background-color: red;
+
+    button {
+      background-color: blue;
+      border-radius: 0;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    > span:first-of-type button {
+      background-color: orange;
+    }
+  }
+
+
+  kbn-taskbar-search {
+    padding: 0;
+
+    input.form-control {
+      border: none;
+    }
+
+  }
+
+
+  
 }
