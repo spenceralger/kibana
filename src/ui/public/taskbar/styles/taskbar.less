@@ -1,3 +1,5 @@
+@basic-padding: 3px 5px;
+
 kbn-taskbar {
   display: flex;
   flex-direction: column;
@@ -19,7 +21,15 @@ kbn-taskbar {
 
     button {
       background: transparent;
-      padding: 3px 5px;
+      padding: @basic-padding;
+    }
+
+    kbn-taskbar-search {
+      padding: @basic-padding;
+      &, div, form {
+        display: flex;
+        flex: 1 1 auto;
+      }
     }
   }
 }
