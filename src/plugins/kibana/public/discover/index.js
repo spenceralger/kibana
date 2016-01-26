@@ -7,7 +7,6 @@ define(function (require, module, exports) {
   require('plugins/kibana/discover/controllers/discover');
   require('plugins/kibana/discover/styles/main.less');
   require('ui/taskbar');
-  require('ui/styles/forward/timefilter');
 
   // preload
   require('ui/doc_table/components/table_row');
