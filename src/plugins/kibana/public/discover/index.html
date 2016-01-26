@@ -1,69 +1,60 @@
 <div ng-controller="discover" class="app-container">
-  <navbar name="discover">
-    <form role="form" class="fill inline-form" ng-submit="fetch()" name="discoverSearch">
-      <div class="typeahead" kbn-typeahead="discover">
-        <div class="input-group"
-          ng-class="discoverSearch.$invalid ? 'has-error' : ''">
-          <input
-            parse-query
-            input-focus
-            kbn-typeahead-input
-            ng-model="state.query"
-            placeholder="Search..."
-            aria-label="Search input"
-            type="text"
-            class="form-control">
-          <button type="submit"
-            ng-disabled="discoverSearch.$invalid"
-            aria-label="Search">
-            <span aria-hidden="true" class="fa fa-search"></span></button>
-        </div>
-        <kbn-typeahead-items></kbn-typeahead-items>
-      </div>
-    </form>
-
-    <div class="button-group" role="toolbar">
+  <kbn-taskbar>
+    <div class="controls">
+      <div class="title">{{opts.savedSearch.id}}</div>
+      <div class="spacer"></div>
       <kbn-tooltip text="New Search" placement="bottom" append-to-body="1">
         <button
+          type="button"
           ng-click="newQuery()"
           aria-label="New Search">
-          <i aria-hidden="true" class="fa fa-file-new-o"></i>
-        </button>
-      </kbn-tooltip>
-      <kbn-tooltip text="Save Search" placement="bottom" append-to-body="1">
-        <button
-          ng-click="configTemplate.toggle('save');"
-          ng-class="{active: configTemplate.is('save')}"
-          aria-haspopup="true"
-          aria-expanded="{{ configTemplate.is('save') }}"
-          aria-label="Save Search">
-          <i aria-hidden="true" class="fa fa-save"></i>
+          New
         </button>
       </kbn-tooltip>
       <kbn-tooltip text="Load Saved Search" placement="bottom" append-to-body="1">
         <button
+          type="button"
           aria-haspopup="true"
           aria-expanded="{{ configTemplate.is('load') }}"
           ng-click="configTemplate.toggle('load');"
           ng-class="{active: configTemplate.is('load')}"
           aria-label="Load Saved Search">
-          <i aria-hidden="true" class="fa fa-folder-open-o"></i>
+          Open
+      </button>
+    </kbn-tooltip>
+      <kbn-tooltip text="Save Search" placement="bottom" append-to-body="1">
+        <button
+          type="button"
+          ng-click="configTemplate.toggle('save');"
+          ng-class="{active: configTemplate.is('save')}"
+          aria-haspopup="true"
+          aria-expanded="{{ configTemplate.is('save') }}"
+          aria-label="Save Search">
+          Save
         </button>
       </kbn-tooltip>
       <kbn-tooltip text="Share" placement="bottom" append-to-body="1">
         <button
+          type="button"
           aria-label="Share Search"
           aria-haspopup="true"
           aria-expanded="{{ configTemplate.is('share') }}"
           ng-class="{active: configTemplate.is('share')}"
           ng-click="configTemplate.toggle('share');">
-          <i aria-hidden="true" class="fa fa-external-link"></i>
+          Share
         </button>
       </kbn-tooltip>
+      <kbn-timefilter-toggle>{{timepicker.text}}</kbn-timefilter-toggle>
     </div>
-  </navbar>
 
-  <config config-template="configTemplate" config-object="opts" config-close="configClose"></config>
+    <kbn-timefilter-config></kbn-timefilter-config>
+    <config config-template="configTemplate" config-object="opts" config-close="configClose"></config>
+  </kbn-taskbar>
+  <kbn-taskbar>
+    <div class="controls">
+      <discover-search></discover-search>
+    </div>
+  </kbn-taskbar>
 
   <div class="container-fluid" role="main">
     <div class="row">

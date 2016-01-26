@@ -14,7 +14,8 @@ define(function (require) {
   require('ui/timepicker/quick_ranges');
   require('ui/timepicker/refresh_intervals');
   require('ui/timepicker/time_units');
-  require('ui/timepicker/toggle');
+  require('ui/timefilter/directive/timefilter_toggle');
+  require('ui/timefilter/directive/timefilter_config');
 
   module.directive('kbnTimepicker', function (quickRanges, timeUnits, refreshIntervals) {
     return {

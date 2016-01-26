@@ -1,4 +1,6 @@
 define(function (require) {
+  var ConfigTemplate = require('ui/ConfigTemplate');
+
   require('ui/routes')
   .addSetupWork(function (timefilter) {
     return timefilter.init();
@@ -58,6 +60,11 @@ define(function (require) {
           self.time = newTime;
           self.refreshInterval = newRefreshInterval;
         });
+      });
+
+      self.configTemplate = new ConfigTemplate({
+        filter: require('./directive/timefilter_config_filter.html'),
+        interval: require('./directive/timefilter_config_interval.html'),
       });
 
       $rootScope.$$timefilter = self;

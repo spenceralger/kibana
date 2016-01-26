@@ -36,7 +36,7 @@ chrome
 .setNavBackground('#222222')
 .setTabDefaults({
   resetWhenActive: true,
-  lastUrlStore: window.sessionStorage,
+  lastUrlStore: window.sessionStore,
   activeIndicatorColor: '#656a76'
 })
 .setTabs([

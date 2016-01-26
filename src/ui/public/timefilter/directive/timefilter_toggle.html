@@ -1,0 +1,30 @@
+<div ng-show="toggle.enabled()">
+  <button
+    ng-click="toggle.toggleRefresh()"
+    ng-show="toggle.refreshSet()">
+
+    <i class="fa" ng-class="toggle.refreshPaused() ? 'fa-play' : 'fa-pause'"></i>
+  </button>
+</div>
+
+<div
+  ng-class="{active: toggle.isOpenTo('interval') }"
+  ng-show="toggle.enabled() && (toggle.refreshSet() || toggle.isOpen())">
+
+  <button ng-click="toggle.toggleFilterTemplate('interval')">
+    <span ng-show="!toggle.refreshSet()"><i class="fa fa-repeat"></i> Auto-refresh</span>
+    <span ng-show="toggle.refreshSet()">{{timefilter.refreshInterval.display}}</span>
+  </button>
+</div>
+
+<div
+  ng-show="toggle.enabled()"
+  ng-class="{ active: toggle.isOpenTo('filter') }">
+  <button
+    ng-click="toggle.toggleFilterTemplate('filter')"
+    aria-haspopup="true"
+    aria-expanded="false">
+    <i aria-hidden="true" class="fa fa-clock-o"></i>
+    <pretty-duration from="toggle.timefilter.time.from" to="toggle.timefilter.time.to"></pretty-duration>
+  </button>
+</div>
