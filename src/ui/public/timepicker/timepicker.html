@@ -1,29 +1,9 @@
 <div class="kbn-timepicker">
-  <style>
-    .kbn-timepicker [kbn-time-input] {
-      text-align: center;
-    }
-    .kbn-timepicker-modes {
-      text-transform: capitalize;
-    }
-    .kbn-timepicker-section {
-      float: left;
-      padding: 0px 15px;
-    }
-    .kbn-refresh-section {
-      float: left;
-      padding: 0px 15px;
-    }
-    .kbn-timepicket-alert {
-      width: 100px;
-    }
-  </style>
-
   <div class="tab-content">
 
     <!-- Filters -->
     <div ng-show="activeTab === 'filter'" role="tabpanel" class="tab-pane active">
-      <br>
+
       <div class="row">
         <div class="col-md-2">
           <ul class="nav nav-pills nav-stacked kbn-timepicker-modes">
@@ -45,7 +25,7 @@
 
               <div ng-repeat="list in quickLists" class="kbn-timepicker-section">
                 <ul class="list-unstyled">
-                  <li ng-repeat="option in list">
+                  <li ng-repeat="option in list" ng-class="{active:to === option.to && from === option.from}">
                     <a ng-click="setQuick(option.from, option.to)" ng-bind="::option.display"></a>
                   </li>
                 </ul>

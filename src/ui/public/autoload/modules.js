@@ -1,6 +1,5 @@
 require('angular');
 require('ui/chrome');
-require('ui/chrome/context');
 require('ui/bind');
 require('ui/bound_to_config_obj');
 require('ui/config');

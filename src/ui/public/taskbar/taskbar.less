@@ -1,0 +1,38 @@
+@basic-padding: 3px 5px;
+
+kbn-taskbar {
+  display: flex;
+  flex-direction: column;
+  background: #c2c2c2;
+  color: #454545;
+
+  > .controls {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    > .task-group {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+    }
+
+    button {
+      background: transparent;
+      padding: @basic-padding;
+    }
+  }
+
+  &-search {
+    padding: @basic-padding;
+    &, div, form {
+      display: flex;
+      flex: 1 1 auto;
+    }
+  }
+
+  .input-group {
+    display: flex;
+  }
+}

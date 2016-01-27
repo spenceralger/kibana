@@ -1,0 +1,128 @@
+kbn-taskbar {
+  background-color: @color-gray-bg;
+  font-size: 1.4rem;
+  font-weight: 600;
+
+  > .controls.primary {
+
+    .task-group:first-child {
+      margin-left: 10px;
+    }
+
+    button {
+      border-radius: 0;
+      padding: 5px 10px;
+      box-shadow: none;
+
+      &:focus,
+      &:hover {
+        outline: 0;
+        color: @color-gray-6;
+      }
+    }
+
+  }
+
+  // "Auto-refresh" & "Last 15 Minutes"
+  kbn-taskbar-config-toggle.active {
+    button {
+      background-color: @color-gray-bg-light;
+    }
+  }
+
+  kbn-taskbar-search {
+    padding: 10px;
+    padding-top: 0; // Reduce padding on top when config-open is not set (see below)
+    input.form-control {
+      border: none;
+    }
+
+    button[type="submit"] {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      padding: 0 8px;
+      background-color: @color-gray-3;
+      color: #fff;
+      &:focus {
+        outline: 0;
+        background-color: @color-gray-4;
+      }
+    }
+
+  }
+
+  // Add padding-top to kbn-taskbar-search when config is open
+  &.config-open {
+    kbn-taskbar-search {
+      padding-top: 10px;
+    }
+  }
+
+}
+
+
+
+kbn-taskbar-config {
+
+  .config {
+    background-color: transparent;
+    box-shadow: none;
+    background-color: @color-gray-bg-light;
+    
+    // There's more than one of these nested in this section
+    .container-fluid {
+      background-color: transparent;
+      padding: 0;
+    }
+
+  }
+
+  .config-close {
+    background-color: transparent;
+    box-shadow: none;
+    width: auto;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: @color-gray-6;
+    padding: 20px 10px 8px 20px;
+  }
+
+  .kbn-timepicker .row {
+    margin: 0 auto;
+    margin-top: 1.5em; 
+    max-width: 1200px;
+  }
+
+  .kbn-timepicker [kbn-time-input] {
+    text-align: center;
+  }
+
+  .kbn-timepicker-modes {
+    text-transform: capitalize;
+  }
+
+  .kbn-timepicker-section {
+    float: left;
+    width: 200px;
+    padding-right: 30px;
+
+    li {
+      margin-top: 2px; // only needed if we keep the border on hover effect
+      .toggle-item(@color-gold);
+    }
+  }
+
+  .kbn-refresh-section {
+    float: left;
+    padding: 0px 15px;
+  }
+
+  .kbn-timepicket-alert {
+    width: 100px;
+  }
+
+  
+}
+
+

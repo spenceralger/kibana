@@ -18,6 +18,7 @@ define(function (require) {
   require('ui/index_patterns');
   require('ui/state_management/app_state');
   require('ui/timefilter');
+  require('ui/timepicker');
   require('ui/highlight/highlight_tags');
   require('ui/share');
 

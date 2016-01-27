@@ -21,15 +21,19 @@ define(function (require) {
       restrict: 'E',
       scope: {
         configTemplate: '=',
-        configClose: '=',
+        configClose: '&',
         configSubmit: '=',
-        configObject: '='
+        configObject: '=',
+        configName: '@?',
       },
       link: function ($scope, element, attr) {
         var tmpScope = $scope.$new();
 
-        $scope.$watch('configObject', function (newVal) {
-          $scope[attr.configObject] = $scope.configObject;
+        $scope.$watchMulti([
+          'configObject',
+          'configName'
+        ], function () {
+          $scope[$scope.configName || attr.configObject] = $scope.configObject;
         });
 
         var wrapTmpl = function (tmpl) {
@@ -58,7 +62,7 @@ define(function (require) {
               '<div class="config" ng-show="configTemplate">' +
                 wrapTmpl(tmpl) +
               '  <div class="config-close remove" ng-click="close()">' +
-              '    <i class="fa fa-chevron-up"></i>' +
+              '    <i class="fa fa-chevron-circle-up"></i>' +
               '  </div>' +
               '</div>' +
               ''

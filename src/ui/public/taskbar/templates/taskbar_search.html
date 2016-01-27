@@ -1,0 +1,21 @@
+<form role="form" class="inline-form" ng-submit="search.onSubmit()" name="form">
+  <div class="typeahead" kbn-typeahead="{{search.historyId}}">
+    <div class="input-group"
+      ng-class="form.$invalid ? 'has-error' : ''">
+      <input
+        parse-query
+        input-focus
+        kbn-typeahead-input
+        ng-model="search.ngModel"
+        placeholder="Search..."
+        aria-label="Search input"
+        type="text"
+        class="form-control">
+      <button type="submit"
+        ng-disabled="form.$invalid"
+        aria-label="Search">
+        <span aria-hidden="true" class="fa fa-search"></span></button>
+    </div>
+    <kbn-typeahead-items></kbn-typeahead-items>
+  </div>
+</form>
