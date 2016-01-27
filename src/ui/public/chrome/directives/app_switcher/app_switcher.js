@@ -1,7 +1,7 @@
 var parse = require('url').parse;
 var bindKey = require('lodash').bindKey;
 
-require('../app_switcher/app_switcher.less');
+require('./app_switcher.less');
 var DomLocationProvider = require('ui/domLocation');
 
 require('ui/modules')
@@ -39,7 +39,7 @@ require('ui/modules')
     };
   }];
 })
-.directive('appSwitcher', function () {
+.directive('kbnAppSwitcher', function () {
   return {
     restrict: 'E',
     template: require('./app_switcher.html'),

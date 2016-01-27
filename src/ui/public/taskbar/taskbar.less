@@ -10,26 +10,35 @@ kbn-taskbar {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 
-    > * {
+    > .task-group {
       flex: 0 0 auto;
-    }
-
-    > .spacer {
-      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
     }
 
     button {
       background: transparent;
       padding: @basic-padding;
     }
+  }
 
-    kbn-taskbar-search {
-      padding: @basic-padding;
-      &, div, form {
-        display: flex;
-        flex: 1 1 auto;
-      }
+  &-config-toggle {
+    &.active {
+      background-color: blue;
     }
+  }
+
+  &-search {
+    padding: @basic-padding;
+    &, div, form {
+      display: flex;
+      flex: 1 1 auto;
+    }
+  }
+
+  .input-group {
+    display: flex;
   }
 }
