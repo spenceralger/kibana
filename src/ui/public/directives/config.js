@@ -21,7 +21,7 @@ define(function (require) {
       restrict: 'E',
       scope: {
         configTemplate: '=',
-        configClose: '=',
+        configClose: '&',
         configSubmit: '=',
         configObject: '='
       },

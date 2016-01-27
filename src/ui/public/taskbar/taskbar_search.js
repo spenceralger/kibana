@@ -1,5 +1,7 @@
 import UiModules from 'ui/modules';
 
+import template from './templates/taskbar_search.html';
+
 UiModules
 .get('kibana')
 .directive('kbnTaskbarSearch', function () {
@@ -10,7 +12,7 @@ UiModules
       historyId: '@',
       ngModel: '='
     },
-    template: require('./search.html'),
+    template,
     bindToController: true,
     controllerAs: 'search',
     controller() {}

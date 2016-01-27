@@ -1,59 +1,45 @@
 <div ng-controller="discover" class="app-container">
-  <kbn-taskbar>
+  <kbn-taskbar config-template="configTemplate" config-object="opts">
     <div class="controls">
-      <div class="title">
-        {{opts.savedSearch.id}}
-        {{opts.savedSearch.id ? '-' : ''}}
-        {{(hits || 0) | number:0}}
-        <ng-pluralize count="hits" when="{'1':'hit', 'other':'hits'}"></ng-pluralize>
+      <div class="task-group">
+        <div class="title">
+          {{opts.savedSearch.id}}
+          {{opts.savedSearch.id ? '-' : ''}}
+          {{(hits || 0) | number:0}}
+          <ng-pluralize count="hits" when="{'1':'hit', 'other':'hits'}"></ng-pluralize>
+        </div>
       </div>
-      <div class="spacer"></div>
-      <kbn-tooltip text="New Search" placement="bottom" append-to-body="1">
-        <button
-          type="button"
+
+      <div class="task-group">
+        <kbn-taskbar-button
           ng-click="newQuery()"
-          aria-label="New Search">
+          description="New Search">
           New
-        </button>
-      </kbn-tooltip>
-      <kbn-tooltip text="Load Saved Search" placement="bottom" append-to-body="1">
-        <button
-          type="button"
-          aria-haspopup="true"
-          aria-expanded="{{ configTemplate.is('load') }}"
-          ng-click="configTemplate.toggle('load');"
-          ng-class="{active: configTemplate.is('load')}"
-          aria-label="Load Saved Search">
+        </kbn-taskbar-button>
+
+        <kbn-taskbar-config-toggle
+          template-name="load"
+          description="Open Saved Search">
           Open
-      </button>
-    </kbn-tooltip>
-      <kbn-tooltip text="Save Search" placement="bottom" append-to-body="1">
-        <button
-          type="button"
-          ng-click="configTemplate.toggle('save');"
-          ng-class="{active: configTemplate.is('save')}"
-          aria-haspopup="true"
-          aria-expanded="{{ configTemplate.is('save') }}"
-          aria-label="Save Search">
+        </kbn-taskbar-config-toggle>
+
+        <kbn-taskbar-config-toggle
+          template-name="save"
+          description="Save Search">
           Save
-        </button>
-      </kbn-tooltip>
-      <kbn-tooltip text="Share" placement="bottom" append-to-body="1">
-        <button
-          type="button"
-          aria-label="Share Search"
-          aria-haspopup="true"
-          aria-expanded="{{ configTemplate.is('share') }}"
-          ng-class="{active: configTemplate.is('share')}"
-          ng-click="configTemplate.toggle('share');">
+        </kbn-taskbar-config-toggle>
+
+        <kbn-taskbar-config-toggle
+          template-name="share"
+          description="Share Search">
           Share
-        </button>
-      </kbn-tooltip>
-      <kbn-timefilter-toggle>{{timepicker.text}}</kbn-timefilter-toggle>
+        </kbn-taskbar-config-toggle>
+
+        <kbn-taskbar-timefilter-toggle></kbn-taskbar-timefilter-toggle>
+      </div>
     </div>
 
-    <kbn-timefilter-config></kbn-timefilter-config>
-    <config config-template="configTemplate" config-object="opts" config-close="configClose"></config>
+    <kbn-taskbar-config></kbn-taskbar-config>
 
     <div class="controls">
       <kbn-taskbar-search history-id="discover" on-submit="fetch()" ng-model="state.query"></kbn-taskbar-search>

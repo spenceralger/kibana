@@ -54,7 +54,7 @@
   <config
     config-template="appSwitcherTemplate"
     config-object="chrome"
-    config-close="appSwitcherTemplate.close">
+    config-close="appSwitcherTemplate.close()">
   </config>
 
   <div class="application" ng-class="'tab-' + chrome.getActiveTabId('-none-') + ' ' + chrome.getApplicationClasses()" ng-view></div>

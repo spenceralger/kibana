@@ -29,6 +29,10 @@ define(function (require) {
     template.toString = function () {
       return template.current;
     };
+
+    template.add = function (name, template) {
+      templates[name] = template;
+    };
   }
 
   return ConfigTemplate;
