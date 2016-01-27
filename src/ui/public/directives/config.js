@@ -23,13 +23,17 @@ define(function (require) {
         configTemplate: '=',
         configClose: '&',
         configSubmit: '=',
-        configObject: '='
+        configObject: '=',
+        configName: '@?',
       },
       link: function ($scope, element, attr) {
         var tmpScope = $scope.$new();
 
-        $scope.$watch('configObject', function (newVal) {
-          $scope[attr.configObject] = $scope.configObject;
+        $scope.$watchMulti([
+          'configObject',
+          'configName'
+        ], function () {
+          $scope[$scope.configName || attr.configObject] = $scope.configObject;
         });
 
         var wrapTmpl = function (tmpl) {

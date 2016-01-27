@@ -19,6 +19,8 @@ UiModules
     },
     bindToController: true,
     controllerAs: 'taskbar',
-    controller() {}
+    controller($attrs) {
+      this.configObjectName = $attrs.configObjectName || $attrs.configObject;
+    }
   };
 });
