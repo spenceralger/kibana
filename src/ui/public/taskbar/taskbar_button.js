@@ -1,5 +1,7 @@
 import UiModules from 'ui/modules';
 
+import taskbarButtonHtml from './templates/taskbar_button.html';
+
 UiModules
 .get('kibana')
 .directive('kbnTaskbarButton', function () {
@@ -19,17 +21,6 @@ UiModules
     link($scope, $el, $attr, taskbar) {
       $scope.taskbar = taskbar;
     },
-    template:`
-      <kbn-tooltip text="{{ button.description }}" placement="bottom" append-to-body="1">
-        <button
-          type="button"
-          ng-class="button.ngClass"
-          aria-haspopup="{{ button.ariaHasPopup }}"
-          aria-expanded="{{ button.ariaExpanded }}"
-          aria-label="{{ button.description }}">
-          <ng-transclude></ng-transclude>
-        </button>
-      </kbn-tooltip>
-    `
+    template: taskbarButtonHtml
   };
 });

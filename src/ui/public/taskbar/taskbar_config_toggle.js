@@ -1,5 +1,7 @@
 import UiModules from 'ui/modules';
 
+import taskbarConfigToggleHtml from './templates/taskbar_config_toggle.html';
+
 UiModules
 .get('kibana')
 .directive('kbnTaskbarConfigToggle', function () {
@@ -20,14 +22,6 @@ UiModules
         $el.toggleClass('active', active);
       });
     },
-    template:`
-      <kbn-taskbar-button
-        description="{{ configToggle.description }}"
-        ng-click="taskbar.configTemplate.toggle(configToggle.templateName);"
-        aria-haspopup="true"
-        aria-expanded="taskbar.configTemplate.is(configToggle.templateName)">
-        <ng-transclude></ng-transclude>
-      </kbn-tooltip>
-    `
+    template: taskbarConfigToggleHtml
   };
 });

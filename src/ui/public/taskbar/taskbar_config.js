@@ -1,5 +1,7 @@
 import UiModules from 'ui/modules';
 
+import taskbarConfigHtml from './templates/taskbar_config.html';
+
 UiModules
 .get('kibana')
 .directive('kbnTaskbarConfig', function () {
@@ -13,12 +15,6 @@ UiModules
       $scope.taskbar = taskbar;
     },
     controller() {},
-    template:`
-      <config
-        config-template="taskbar.configTemplate"
-        config-object="taskbar.configObject"
-        config-close="taskbar.configTemplate.close()">
-      </config>
-    `
+    template: taskbarConfigHtml
   };
 });
