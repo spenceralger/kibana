@@ -1,12 +1,72 @@
+// Basic Colors
+@color-gold: #FBCE47;
+
+// Shades of Gray
+@color-gray-1: #F6F6F6;
+@color-gray-2: #E4E4E4;
+@color-gray-3: #BEBEBE;
+@color-gray-4: #9C9C9C;
+@color-gray-5: #5A5A5A;
+@color-gray-6: #2D2D2D;
+
+// Gray Context
+@color-gray-bg-light: @color-gray-1;
+@color-gray-bg: @color-gray-2;
+
+// Text
+@default-text-color: @color-gray-5;
+@anchor-color: #328CAA;
+
+
+.highlight-text {
+
+}
+
+
+.toggle-item(@color) {
+  display: block;
+  a {
+    display: block;
+    color: inherit;
+    padding: 3px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    &:hover {
+      background-color: transparent;
+      border: 1px solid @color;
+    }
+  }
+  &.active a {
+    color: inherit;
+    background-color: @color;
+    padding: 3px 10px;
+  }
+}
+
+
+
 // ID only exists to hook into for this CSS override project. Gives us
 // much higher chance of specificity so we don't have to use !important
 // too much
 #kbn-forward {
 
+  body {
+    color: @default-text-color;
+  }
+
+  // A new default style for anchors
+  a {
+    color: @anchor-color;
+    &:hover {
+      color: red; // temp until Jurgen gets a color
+    }
+  }
+
+
+ 
+
+  @import "./bootstrap_overrides";
   @import "./kbn_taskbar";
   @import "./timefilter";
-
-
-
   
 }

@@ -19,8 +19,12 @@ UiModules
     },
     bindToController: true,
     controllerAs: 'taskbar',
-    controller($attrs) {
+    controller($attrs, $scope, $element) {
       this.configObjectName = $attrs.configObjectName || $attrs.configObject;
+
+      $scope.$watch('taskbar.configTemplate.current', (template) => {
+        $element.toggleClass('config-open', !!template);
+      });
     }
   };
 });
