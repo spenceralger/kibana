@@ -7,14 +7,14 @@ import HitSortFnProv from 'plugins/kibana/discover/_hit_sort_fn';
 import NoDigestPromises from 'testUtils/noDigestPromises';
 import StubbedSearchSourceProvider from 'fixtures/stubbed_search_source';
 
-import SegmentedRequestProvider from '../segmented';
+import EsSegmentedRequestProvider from '../es_segmented_request';
 
 describe('Segmented Request Index Selection', function () {
   let Promise;
-  let $rootScope;
-  let SegmentedReq;
-  let MockSource;
   let HitSortFn;
+  let $rootScope;
+  let MockSource;
+  let EsSegmentedReq;
 
   NoDigestPromises.activateForSuite();
 
@@ -23,7 +23,7 @@ describe('Segmented Request Index Selection', function () {
     Promise = $injector.get('Promise');
     HitSortFn = Private(HitSortFnProv);
     $rootScope = $injector.get('$rootScope');
-    SegmentedReq = Private(SegmentedRequestProvider);
+    EsSegmentedReq = Private(EsSegmentedRequestProvider);
 
     MockSource = class {
       constructor() {
@@ -43,7 +43,7 @@ describe('Segmented Request Index Selection', function () {
       { index: 'five', min: 0, max: 1 },
     ]));
 
-    const req = new SegmentedReq(search);
+    const req = new EsSegmentedReq(search);
     req._handle.setDirection('desc');
     req._handle.setSortFn(new HitSortFn('desc'));
     req._handle.setSize(500);
@@ -94,7 +94,7 @@ describe('Segmented Request Index Selection', function () {
       { index: 'five', min: 5, max: 50 },
     ]));
 
-    const req = new SegmentedReq(search);
+    const req = new EsSegmentedReq(search);
     req._handle.setDirection('desc');
     req._handle.setSortFn(new HitSortFn('desc'));
     req._handle.setSize(10);

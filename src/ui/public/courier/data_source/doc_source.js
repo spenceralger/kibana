@@ -5,18 +5,18 @@ import 'ui/storage';
 
 import DocSendToEsProvider from './_doc_send_to_es';
 import AbstractDataSourceProvider from './_abstract';
-import DocRequestProvider from '../fetch/request/doc';
-import DocStrategyProvider from '../fetch/strategy/doc';
+import EsDocRequestProvider from '../fetch_types/es_doc_request';
+import EsDocStrategyProvider from '../fetch_types/es_doc_strategy';
 
 export default function DocSourceFactory(Private, Promise, es, sessionStorage) {
   var sendToEs = Private(DocSendToEsProvider);
   var SourceAbstract = Private(AbstractDataSourceProvider);
-  var DocRequest = Private(DocRequestProvider);
-  var docStrategy = Private(DocStrategyProvider);
+  var EsDocRequest = Private(EsDocRequestProvider);
+  var esDocStrategy = Private(EsDocStrategyProvider);
 
   _.class(DocSource).inherits(SourceAbstract);
   function DocSource(initialState) {
-    DocSource.Super.call(this, initialState, docStrategy);
+    DocSource.Super.call(this, initialState, esDocStrategy);
   }
 
   DocSource.prototype.onUpdate = SourceAbstract.prototype.onResults;
@@ -27,7 +27,7 @@ export default function DocSourceFactory(Private, Promise, es, sessionStorage) {
    *****/
 
   DocSource.prototype._createRequest = function (defer) {
-    return new DocRequest(this, defer);
+    return new EsDocRequest(this, defer);
   };
 
   /**

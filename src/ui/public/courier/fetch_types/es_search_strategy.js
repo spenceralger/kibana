@@ -2,19 +2,24 @@ import _ from 'lodash';
 import angular from 'angular';
 
 import { toJson } from 'ui/utils/aggressive_parse';
+import EsAbstractStrategyProvider from './es_abstract_strategy';
 
 export default function FetchStrategyForSearch(Private, Promise, timefilter) {
+  const EsAbstractStrategy = Private(EsAbstractStrategyProvider);
 
-  return {
-    clientMethod: 'msearch',
+  return new class EsSearchStrategy extends EsAbstractStrategy {
+    constructor() {
+      super();
+      this.clientMethod = 'msearch';
+    }
 
     /**
-     * Flatten a series of requests into as ES request body
-     *
-     * @param  {array} requests - the requests to serialize
-     * @return {Promise} - a promise that is fulfilled by the request body
-     */
-    reqsFetchParamsToBody: function (reqsFetchParams) {
+    * Flatten a series of requests into as ES request body
+    *
+    * @param  {array} requests - the requests to serialize
+    * @return {Promise} - a promise that is fulfilled by the request body
+    */
+    reqsFetchParamsToBody(reqsFetchParams) {
       return Promise.map(reqsFetchParams, function (fetchParams) {
         return Promise.resolve(fetchParams.index)
         .then(function (indexList) {
@@ -50,14 +55,14 @@ export default function FetchStrategyForSearch(Private, Promise, timefilter) {
       .then(function (requests) {
         return requests.join('\n') + '\n';
       });
-    },
+    }
 
     /**
-     * Fetch the multiple responses from the ES Response
-     * @param  {object} resp - The response sent from Elasticsearch
-     * @return {array} - the list of responses
-     */
-    getResponses: function (resp) {
+    * Fetch the multiple responses from the ES Response
+    * @param  {object} resp - The response sent from Elasticsearch
+    * @return {array} - the list of responses
+    */
+    getResponses(resp) {
       return resp.responses;
     }
   };

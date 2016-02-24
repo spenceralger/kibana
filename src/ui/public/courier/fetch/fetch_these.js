@@ -1,6 +1,5 @@
 import NotifierProvider from './notifier';
 import ForEachStrategyProvider from './for_each_strategy';
-import CallClientProvider from './call_client';
 import CallResponseHandlersProvider from './call_response_handlers';
 import ContinueIncompleteProvider from './continue_incomplete';
 import ReqStatusProvider from './req_status';
@@ -10,7 +9,6 @@ export default function FetchTheseProvider(Private, Promise) {
   const forEachStrategy = Private(ForEachStrategyProvider);
 
   // core tasks
-  const callClient = Private(CallClientProvider);
   const callResponseHandlers = Private(CallResponseHandlersProvider);
   const continueIncomplete = Private(ContinueIncompleteProvider);
 
@@ -36,7 +34,7 @@ export default function FetchTheseProvider(Private, Promise) {
 
     return startRequests(requests)
     .then(function () {
-      return callClient(strategy, requests);
+      return strategy.execute(requests);
     })
     .then(function (responses) {
       return callResponseHandlers(requests, responses);

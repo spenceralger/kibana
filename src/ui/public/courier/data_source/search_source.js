@@ -1,22 +1,22 @@
 import _ from 'lodash';
 
-import NormalizeSortRequestProvider from './_normalize_sort_request';
 import rootSearchSource from './_root_search_source';
 import AbstractDataSourceProvider from './_abstract';
-import SearchRequestProvider from '../fetch/request/search';
-import SegmentedRequestProvider from '../fetch/request/segmented';
-import SearchStrategyProvider from '../fetch/strategy/search';
+import EsSearchRequestProvider from '../fetch_types/es_search_request';
+import EsSegmentedRequestProvider from '../fetch_types/es_segmented_request';
+import EsSearchStrategyProvider from '../fetch_types/es_search_strategy';
+import NormalizeSortRequestProvider from './_normalize_sort_request';
 
 export default function SearchSourceFactory(Promise, Private) {
   var SourceAbstract = Private(AbstractDataSourceProvider);
-  var SearchRequest = Private(SearchRequestProvider);
-  var SegmentedRequest = Private(SegmentedRequestProvider);
-  var searchStrategy = Private(SearchStrategyProvider);
+  var SearchRequest = Private(EsSearchRequestProvider);
+  var SegmentedRequest = Private(EsSegmentedRequestProvider);
+  var esSearchStrategy = Private(EsSearchStrategyProvider);
   var normalizeSortRequest = Private(NormalizeSortRequestProvider);
 
   _.class(SearchSource).inherits(SourceAbstract);
   function SearchSource(initialState) {
-    SearchSource.Super.call(this, initialState, searchStrategy);
+    SearchSource.Super.call(this, initialState, esSearchStrategy);
   }
 
   /*****

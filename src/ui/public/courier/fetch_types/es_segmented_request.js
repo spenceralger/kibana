@@ -3,18 +3,18 @@ import { isNumber } from 'lodash';
 
 import Notifier from 'ui/notify/notifier';
 
-import SearchRequestProvider from './search';
-import SegmentedHandleProvider from './segmented_handle';
+import EsSearchRequestProvider from './es_search_request';
+import EsSegmentedRequestHandleProvider from './es_segmented_request_handle';
 
 export default function SegmentedReqProvider(es, Private, Promise, timefilter, config) {
-  const SearchReq = Private(SearchRequestProvider);
-  const SegmentedHandle = Private(SegmentedHandleProvider);
+  const EsSearchReq = Private(EsSearchRequestProvider);
+  const EsSegmentedRequestHandle = Private(EsSegmentedRequestHandleProvider);
 
   const notify = new Notifier({
     location: 'Segmented Fetch'
   });
 
-  class SegmentedReq extends SearchReq {
+  class SegmentedReq extends EsSearchReq {
     constructor(source, defer, initFn) {
       super(source, defer);
 
@@ -28,7 +28,7 @@ export default function SegmentedReqProvider(es, Private, Promise, timefilter, c
       this._direction = 'desc';
       this._sortFn = null;
       this._queueCreated = false;
-      this._handle = new SegmentedHandle(this);
+      this._handle = new EsSegmentedRequestHandle(this);
 
       this._hitWindow = null;
 
@@ -98,7 +98,9 @@ export default function SegmentedReqProvider(es, Private, Promise, timefilter, c
     }
 
     handleResponse(resp) {
-      return this._consumeSegment(resp);
+      if (!resp.error) {
+        return this._consumeSegment(resp);
+      }
     }
 
     filterError(resp) {

@@ -4,14 +4,14 @@ import ngMock from 'ngMock';
 
 import StubbedSearchSourceProvider from 'fixtures/stubbed_search_source';
 
-import SegmentedRequestProvider from '../segmented';
+import EsSegmentedRequestProvider from '../es_segmented_request';
 
 describe('ui/courier/fetch/request/segmented/_createQueue', () => {
 
   let Promise;
-  let $rootScope;
-  let SegmentedReq;
   let MockSource;
+  let $rootScope;
+  let EsSegmentedReq;
 
   require('testUtils/noDigestPromises').activateForSuite();
 
@@ -19,7 +19,7 @@ describe('ui/courier/fetch/request/segmented/_createQueue', () => {
   beforeEach(ngMock.inject((Private, $injector) => {
     Promise = $injector.get('Promise');
     $rootScope = $injector.get('$rootScope');
-    SegmentedReq = Private(SegmentedRequestProvider);
+    EsSegmentedReq = Private(EsSegmentedRequestProvider);
 
     MockSource = class {
       constructor() {
@@ -29,7 +29,7 @@ describe('ui/courier/fetch/request/segmented/_createQueue', () => {
   }));
 
   it('manages the req._queueCreated flag', async function () {
-    const req = new SegmentedReq(new MockSource());
+    const req = new EsSegmentedReq(new MockSource());
     req._queueCreated = null;
 
     const promise = req._createQueue();
@@ -44,7 +44,7 @@ describe('ui/courier/fetch/request/segmented/_createQueue', () => {
     const indices = [1,2,3];
     sinon.stub(ip, 'toDetailedIndexList').returns(Promise.resolve(indices));
 
-    const req = new SegmentedReq(source);
+    const req = new EsSegmentedReq(source);
     const output = await req._createQueue();
     expect(output).to.equal(indices);
   });
@@ -52,7 +52,7 @@ describe('ui/courier/fetch/request/segmented/_createQueue', () => {
   it('tells the index pattern its direction', async function () {
     const source = new MockSource();
     const ip = source.get('index');
-    const req = new SegmentedReq(source);
+    const req = new EsSegmentedReq(source);
     sinon.stub(ip, 'toDetailedIndexList').returns(Promise.resolve([1,2,3]));
 
     req.setDirection('asc');
