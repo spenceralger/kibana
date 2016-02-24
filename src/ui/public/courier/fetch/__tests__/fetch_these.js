@@ -3,9 +3,11 @@ import sinon from 'auto-release-sinon';
 import expect from 'expect.js';
 import ngMock from 'ngMock';
 
-import FetchTheseProvider from '../fetch/fetch_these';
+import FetchTheseProvider from '../fetch_these';
+import ContinueIncompleteProvider from '../continue_incomplete';
+import CallResponseHandlersProvider from '../call_response_handlers';
 
-describe('ui/courier/fetch/_fetch_these', () => {
+describe('ui/courier - fetch_these', () => {
 
   let Promise;
   let $rootScope;
@@ -24,9 +26,8 @@ describe('ui/courier/fetch/_fetch_these', () => {
       return fakeResponses;
     }
 
-    PrivateProvider.swap(require('ui/courier/fetch/_call_client'), FakeResponsesProvider);
-    PrivateProvider.swap(require('ui/courier/fetch/_call_response_handlers'), FakeResponsesProvider);
-    PrivateProvider.swap(require('ui/courier/fetch/_continue_incomplete'), FakeResponsesProvider);
+    PrivateProvider.swap(CallResponseHandlersProvider, FakeResponsesProvider);
+    PrivateProvider.swap(ContinueIncompleteProvider, FakeResponsesProvider);
   }));
 
   beforeEach(ngMock.inject((Private, $injector) => {
@@ -53,7 +54,7 @@ describe('ui/courier/fetch/_fetch_these', () => {
       expect(request.start.callCount).to.be(1);
       expect(fakeResponses.callCount).to.be(0);
       $rootScope.$apply();
-      expect(fakeResponses.callCount).to.be(3);
+      expect(fakeResponses.callCount).to.be(2);
     });
 
     it('invokes request failure handler if starting fails', () => {
@@ -77,7 +78,7 @@ describe('ui/courier/fetch/_fetch_these', () => {
       expect(request.continue.callCount).to.be(1);
       expect(fakeResponses.callCount).to.be(0);
       $rootScope.$apply();
-      expect(fakeResponses.callCount).to.be(3);
+      expect(fakeResponses.callCount).to.be(2);
     });
     it('invokes request failure handler if continuing fails', () => {
       request.continue = sinon.stub().returns(Promise.reject('some error'));
@@ -89,7 +90,10 @@ describe('ui/courier/fetch/_fetch_these', () => {
 
   function mockRequest() {
     return {
-      strategy: 'mock',
+      strategy: {
+        type: 'mock',
+        execute() {}
+      },
       started: true,
       aborted: false,
       handleFailure: sinon.spy(),

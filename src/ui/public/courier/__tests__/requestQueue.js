@@ -3,19 +3,19 @@ import expect from 'expect.js';
 import sinon from 'auto-release-sinon';
 
 import RequestQueueProv from '../_request_queue';
-import SearchStrategyProv from '../fetch/strategy/search';
-import DocStrategyProv from '../fetch/strategy/doc';
+import EsDocStrategyProv from '../fetch_types/es_doc_strategy';
+import EsSearchStrategyProv from '../fetch_types/es_search_strategy';
 
 describe('Courier Request Queue', function () {
-  let docStrategy;
   let requestQueue;
-  let searchStrategy;
+  let esDocStrategy;
+  let esSearchStrategy;
 
   beforeEach(ngMock.module('kibana'));
   beforeEach(ngMock.inject(function (Private) {
-    docStrategy = Private(DocStrategyProv);
     requestQueue = Private(RequestQueueProv);
-    searchStrategy = Private(SearchStrategyProv);
+    esDocStrategy = Private(EsDocStrategyProv);
+    esSearchStrategy = Private(EsSearchStrategyProv);
   }));
 
   class MockReq {
@@ -29,20 +29,20 @@ describe('Courier Request Queue', function () {
   describe('#getStartable(strategy)', function () {
     it('only returns requests that match one of the passed strategies', function () {
       requestQueue.push(
-        new MockReq(docStrategy),
-        new MockReq(searchStrategy),
-        new MockReq(searchStrategy),
-        new MockReq(searchStrategy)
+        new MockReq(esDocStrategy),
+        new MockReq(esSearchStrategy),
+        new MockReq(esSearchStrategy),
+        new MockReq(esSearchStrategy)
       );
 
-      expect(requestQueue.getStartable(docStrategy)).to.have.length(1);
-      expect(requestQueue.getStartable(searchStrategy)).to.have.length(3);
+      expect(requestQueue.getStartable(esDocStrategy)).to.have.length(1);
+      expect(requestQueue.getStartable(esSearchStrategy)).to.have.length(3);
     });
 
     it('returns all requests when no strategy passed', function () {
       requestQueue.push(
-        new MockReq(docStrategy),
-        new MockReq(searchStrategy)
+        new MockReq(esDocStrategy),
+        new MockReq(esSearchStrategy)
       );
 
       expect(requestQueue.getStartable()).to.have.length(2);
@@ -50,8 +50,8 @@ describe('Courier Request Queue', function () {
 
     it('returns only startable requests', function () {
       requestQueue.push(
-        new MockReq(docStrategy, true),
-        new MockReq(searchStrategy, false)
+        new MockReq(esDocStrategy, true),
+        new MockReq(esSearchStrategy, false)
       );
 
       expect(requestQueue.getStartable()).to.have.length(1);
@@ -61,20 +61,20 @@ describe('Courier Request Queue', function () {
   describe('#get(strategy)', function () {
     it('only returns requests that match one of the passed strategies', function () {
       requestQueue.push(
-        new MockReq(docStrategy),
-        new MockReq(searchStrategy),
-        new MockReq(searchStrategy),
-        new MockReq(searchStrategy)
+        new MockReq(esDocStrategy),
+        new MockReq(esSearchStrategy),
+        new MockReq(esSearchStrategy),
+        new MockReq(esSearchStrategy)
       );
 
-      expect(requestQueue.get(docStrategy)).to.have.length(1);
-      expect(requestQueue.get(searchStrategy)).to.have.length(3);
+      expect(requestQueue.get(esDocStrategy)).to.have.length(1);
+      expect(requestQueue.get(esSearchStrategy)).to.have.length(3);
     });
 
     it('returns all requests when no strategy passed', function () {
       requestQueue.push(
-        new MockReq(docStrategy),
-        new MockReq(searchStrategy)
+        new MockReq(esDocStrategy),
+        new MockReq(esSearchStrategy)
       );
 
       expect(requestQueue.get()).to.have.length(2);
@@ -82,8 +82,8 @@ describe('Courier Request Queue', function () {
 
     it('returns startable and not-startable requests', function () {
       requestQueue.push(
-        new MockReq(docStrategy, true),
-        new MockReq(searchStrategy, false)
+        new MockReq(esDocStrategy, true),
+        new MockReq(esSearchStrategy, false)
       );
 
       expect(requestQueue.get()).to.have.length(2);

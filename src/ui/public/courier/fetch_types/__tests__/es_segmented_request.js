@@ -2,30 +2,30 @@ import sinon from 'auto-release-sinon';
 import expect from 'expect.js';
 import ngMock from 'ngMock';
 
-import SegmentedRequestProvider from '../segmented';
-import SearchRequestProvider from '../search';
+import EsSegmentedRequestProvider from '../es_segmented_request';
+import EsSearchRequestProvider from '../es_search_request';
 
 describe('ui/courier/fetch/request/segmented', () => {
   let Promise;
   let $rootScope;
-  let SegmentedReq;
-  let segmentedReq;
-  let searchReqStart;
+  let EsSegmentedReq;
+  let esSegmentedReq;
+  let esSearchReqStart;
 
   beforeEach(ngMock.module('kibana'));
 
   beforeEach(ngMock.inject((Private, $injector) => {
     Promise = $injector.get('Promise');
     $rootScope = $injector.get('$rootScope');
-    SegmentedReq = Private(SegmentedRequestProvider);
-    searchReqStart = sinon.spy(Private(SearchRequestProvider).prototype, 'start');
+    EsSegmentedReq = Private(EsSegmentedRequestProvider);
+    esSearchReqStart = sinon.spy(Private(EsSearchRequestProvider).prototype, 'start');
   }));
 
   describe('#start()', () => {
     let returned;
     beforeEach(() => {
       init();
-      returned = segmentedReq.start();
+      returned = esSegmentedReq.start();
     });
 
     it('returns promise', () => {
@@ -33,14 +33,14 @@ describe('ui/courier/fetch/request/segmented', () => {
     });
 
     it('does not call super.start() until promise is resolved', () => {
-      expect(searchReqStart.called).to.be(false);
+      expect(esSearchReqStart.called).to.be(false);
       $rootScope.$apply();
-      expect(searchReqStart.called).to.be(true);
+      expect(esSearchReqStart.called).to.be(true);
     });
   });
 
   function init() {
-    segmentedReq = new SegmentedReq(mockSource());
+    esSegmentedReq = new EsSegmentedReq(mockSource());
   }
 
   function mockSource() {

@@ -3,21 +3,21 @@ import sinon from 'auto-release-sinon';
 import expect from 'expect.js';
 import ngMock from 'ngMock';
 
-import SearchStrategyProvider from '../search';
+import EsSearchStrategyProvider from '../es_search_strategy';
 
 describe('ui/courier es_search_strategy', () => {
 
   let Promise;
   let $rootScope;
-  let search;
   let reqsFetchParams;
+  let esSearchStrategy;
 
   beforeEach(ngMock.module('kibana'));
 
   beforeEach(ngMock.inject((Private, $injector) => {
     Promise = $injector.get('Promise');
     $rootScope = $injector.get('$rootScope');
-    search = Private(SearchStrategyProvider);
+    esSearchStrategy = Private(EsSearchStrategyProvider);
     reqsFetchParams = [
       {
         index: ['logstash-123'],
@@ -30,14 +30,14 @@ describe('ui/courier es_search_strategy', () => {
 
   describe('#clientMethod', () => {
     it('is msearch', () => {
-      expect(search.clientMethod).to.equal('msearch');
+      expect(esSearchStrategy.clientMethod).to.equal('msearch');
     });
   });
 
   describe('#reqsFetchParamsToBody()', () => {
     it('filters out any body properties that begin with $', () => {
       let value;
-      search.reqsFetchParamsToBody(reqsFetchParams).then(val => value = val);
+      esSearchStrategy.reqsFetchParamsToBody(reqsFetchParams).then(val => value = val);
       $rootScope.$apply();
       expect(_.includes(value, 'foo')).to.be(true);
       expect(_.includes(value, '$foo')).to.be(false);
@@ -46,7 +46,7 @@ describe('ui/courier es_search_strategy', () => {
     context('when indexList is not empty', () => {
       it('includes the index', () => {
         let value;
-        search.reqsFetchParamsToBody(reqsFetchParams).then(val => value = val);
+        esSearchStrategy.reqsFetchParamsToBody(reqsFetchParams).then(val => value = val);
         $rootScope.$apply();
         expect(_.includes(value, '"index":["logstash-123"]')).to.be(true);
       });
@@ -57,7 +57,7 @@ describe('ui/courier es_search_strategy', () => {
 
       it('queries .kibana-devnull instead', () => {
         let value;
-        search.reqsFetchParamsToBody(reqsFetchParams).then(val => value = val);
+        esSearchStrategy.reqsFetchParamsToBody(reqsFetchParams).then(val => value = val);
         $rootScope.$apply();
         expect(_.includes(value, '"index":[".kibana-devnull"]')).to.be(true);
       });
@@ -67,7 +67,7 @@ describe('ui/courier es_search_strategy', () => {
   describe('#getResponses()', () => {
     it('returns the `responses` property of the given arg', () => {
       const responses = [{}];
-      const returned = search.getResponses({ responses });
+      const returned = esSearchStrategy.getResponses({ responses });
       expect(returned).to.be(responses);
     });
   });

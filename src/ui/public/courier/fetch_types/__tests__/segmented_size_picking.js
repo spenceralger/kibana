@@ -7,14 +7,14 @@ import HitSortFnProv from 'plugins/kibana/discover/_hit_sort_fn';
 import NoDigestPromises from 'testUtils/noDigestPromises';
 import StubbedSearchSourceProvider from 'fixtures/stubbed_search_source';
 
-import SegmentedRequestProvider from '../segmented';
+import EsSegmentedRequestProvider from '../es_segmented_request';
 
 describe('Segmented Request Size Picking', function () {
   let Promise;
-  let $rootScope;
-  let SegmentedReq;
-  let MockSource;
   let HitSortFn;
+  let $rootScope;
+  let MockSource;
+  let EsSegmentedReq;
 
   NoDigestPromises.activateForSuite();
 
@@ -23,7 +23,7 @@ describe('Segmented Request Size Picking', function () {
     Promise = $injector.get('Promise');
     HitSortFn = Private(HitSortFnProv);
     $rootScope = $injector.get('$rootScope');
-    SegmentedReq = Private(SegmentedRequestProvider);
+    EsSegmentedReq = Private(EsSegmentedRequestProvider);
 
     MockSource = class {
       constructor() {
@@ -34,7 +34,7 @@ describe('Segmented Request Size Picking', function () {
 
   context('without a size', function () {
     it('does not set the request size', async function () {
-      const req = new SegmentedReq(new MockSource());
+      const req = new EsSegmentedReq(new MockSource());
       req._handle.setDirection('desc');
       req._handle.setSortFn(new HitSortFn('desc'));
       await req.start();
@@ -45,7 +45,7 @@ describe('Segmented Request Size Picking', function () {
 
   context('with a size', function () {
     it('sets the request size to the entire desired size', async function () {
-      const req = new SegmentedReq(new MockSource());
+      const req = new EsSegmentedReq(new MockSource());
       req._handle.setDirection('desc');
       req._handle.setSize(555);
       req._handle.setSortFn(new HitSortFn('desc'));

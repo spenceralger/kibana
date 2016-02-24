@@ -2,10 +2,10 @@ import sinon from 'auto-release-sinon';
 import expect from 'expect.js';
 import ngMock from 'ngMock';
 
-import DocSourceProvider from '../../data_source/doc_source';
-import DocRequestProvider from '../request/doc';
+import EsDocSourceProvider from '../../data_source/doc_source';
+import EsDocRequestProvider from '../es_doc_request';
 
-describe('Courier DocFetchRequest class', function () {
+describe('Courier EsDocFetchRequest class', function () {
   let storage;
   let source;
   let defer;
@@ -15,8 +15,8 @@ describe('Courier DocFetchRequest class', function () {
 
   beforeEach(ngMock.module('kibana'));
   beforeEach(ngMock.inject(function (Private, Promise, $injector) {
-    const DocSource = Private(DocSourceProvider);
-    const DocFetchRequest = Private(DocRequestProvider);
+    const EsDocSource = Private(EsDocSourceProvider);
+    const EsDocFetchRequest = Private(EsDocRequestProvider);
 
     storage =
     $injector.get('localStorage').store =
@@ -27,22 +27,22 @@ describe('Courier DocFetchRequest class', function () {
       clear: sinon.stub()
     };
 
-    source = new DocSource({})
+    source = new EsDocSource({})
     .set('index', 'doc-index')
     .set('type', 'doc-type')
     .set('id', 'doc-id');
 
     defer = Promise.defer();
 
-    req = new DocFetchRequest(source, defer);
+    req = new EsDocFetchRequest(source, defer);
 
     /**
      * Setup the version numbers for tests. There are two versions for the
      * purposes of these tests.
      *
-     * @param {number} mine - the version that the DocSource most
+     * @param {number} mine - the version that the EsDocSource most
      *                      recently received from elasticsearch.
-     * @param {number} theirs - the version that other DocSources have
+     * @param {number} theirs - the version that other EsDocSources have
      *                        received from elasticsearfch.
      */
     setVersion = function (mine, theirs) {
