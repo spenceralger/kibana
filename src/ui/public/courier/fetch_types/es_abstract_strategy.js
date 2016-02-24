@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { SearchTimeout, ShardFailure } from 'ui/errors';
+import { RequestFailure, SearchTimeout, ShardFailure } from 'ui/errors';
 
 import IsRequestProvider from '../fetch/is_request';
 import ReqStatusProvider from '../fetch/req_status';
@@ -92,7 +92,11 @@ export default function EsClientExecutorProvider(Private, Promise, es, esShardTi
       let esPromise;
       const defer = Promise.defer();
 
-      const warnAboutEsErrors = (resp) => {
+      const checkForEsError = (req, resp) => {
+        if (resp.error && req.filterError && !req.filterError(resp)) {
+          return new RequestFailure(null, resp);
+        }
+
         if (resp.timed_out) {
           notify.warning(new SearchTimeout());
         }
@@ -100,6 +104,8 @@ export default function EsClientExecutorProvider(Private, Promise, es, esShardTi
         if (resp._shards && resp._shards.failed) {
           notify.warning(new ShardFailure(resp));
         }
+
+        return resp;
       };
 
       // for each respond with either the response or ABORTED
@@ -112,9 +118,7 @@ export default function EsClientExecutorProvider(Private, Promise, es, esShardTi
             case DUPLICATE:
               return req._uniq.resp;
             default:
-              const response = responses[_.findIndex(executable, req)];
-              warnAboutEsErrors(response);
-              return response;
+              return checkForEsError(req, responses[_.findIndex(executable, req)]);
           }
         })
         .then(

@@ -5,7 +5,7 @@ import ngMock from 'ngMock';
 
 import SearchStrategyProvider from '../search';
 
-describe('ui/courier/fetch/strategy/search', () => {
+describe('ui/courier es_search_strategy', () => {
 
   let Promise;
   let $rootScope;

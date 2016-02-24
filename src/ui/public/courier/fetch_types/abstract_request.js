@@ -51,15 +51,6 @@ export default function AbstractRequestProvider(Private, Promise) {
     }
 
     /**
-     * Determine if a response should be considered an error
-     *
-     * @return {Boolean}
-     */
-    filterError(resp) {
-      return false;
-    }
-
-    /**
      * Mark the request as successful
      *
      * @return {undefined}

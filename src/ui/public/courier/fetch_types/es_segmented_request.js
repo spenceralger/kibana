@@ -98,7 +98,9 @@ export default function SegmentedReqProvider(es, Private, Promise, timefilter, c
     }
 
     handleResponse(resp) {
-      return this._consumeSegment(resp);
+      if (!resp.error) {
+        return this._consumeSegment(resp);
+      }
     }
 
     filterError(resp) {

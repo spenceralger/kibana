@@ -1,5 +1,3 @@
-import { RequestFailure } from 'ui/errors';
-
 import 'ui/promises';
 
 import ReqStatusProvider from './req_status';
@@ -28,16 +26,12 @@ export default function CourierFetchCallResponseHandlers(Private, Promise) {
         return resp;
       }
 
-      if (resp.error) {
-        if (req.filterError(resp)) {
-          return progress();
-        } else {
-          return req.handleFailure(new RequestFailure(null, resp));
-        }
-      }
-
       return Promise.try(function () {
-        return req.handleResponse(resp);
+        if (resp instanceof Error) {
+          return req.handleFailure(resp);
+        } else {
+          return req.handleResponse(resp);
+        }
       })
       .then(progress);
     });
