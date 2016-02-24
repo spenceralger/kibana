@@ -1,11 +1,11 @@
 import FetchProvider from '../fetch';
-import SearchStrategyProvider from '../fetch/strategy/search';
+import EsSearchStrategyProvider from '../fetch_types/es_search_strategy';
 import RequestQueueProvider from '../_request_queue';
 import LooperProvider from './_looper';
 
 export default function SearchLooperService(Private, Promise, Notifier, $rootScope) {
   var fetch = Private(FetchProvider);
-  var searchStrategy = Private(SearchStrategyProvider);
+  var esSearchStrategy = Private(EsSearchStrategyProvider);
   var requestQueue = Private(RequestQueueProvider);
 
   var Looper = Private(LooperProvider);
@@ -18,7 +18,7 @@ export default function SearchLooperService(Private, Promise, Notifier, $rootSco
   var searchLooper = new Looper(null, function () {
     $rootScope.$broadcast('courier:searchRefresh');
     return fetch.these(
-      requestQueue.getInactive(searchStrategy)
+      requestQueue.getInactive(esSearchStrategy)
     );
   });
 

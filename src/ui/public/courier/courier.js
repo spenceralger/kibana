@@ -10,7 +10,7 @@ import Notifier from 'ui/notify/notifier';
 
 import DocSourceProvider from './data_source/doc_source';
 import SearchSourceProvider from './data_source/search_source';
-import SearchStrategyProvider from './fetch/strategy/search';
+import EsSearchStrategyProvider from './fetch_types/es_search_strategy';
 import RequestQueueProvider from './_request_queue';
 import ErrorHandlersProvider from './_error_handlers';
 import FetchProvider from './fetch';
@@ -28,7 +28,7 @@ uiModules.get('kibana/courier')
 
     var DocSource = Private(DocSourceProvider);
     var SearchSource = Private(SearchSourceProvider);
-    var searchStrategy = Private(SearchStrategyProvider);
+    var esSearchStrategy = Private(EsSearchStrategyProvider);
 
     var requestQueue = Private(RequestQueueProvider);
     var errorHandlers = Private(ErrorHandlersProvider);
@@ -75,7 +75,7 @@ uiModules.get('kibana/courier')
      * individual errors are routed to their respective requests.
      */
     self.fetch = function () {
-      fetch.fetchQueued(searchStrategy).then(function () {
+      fetch.fetchQueued(esSearchStrategy).then(function () {
         searchLooper.restart();
       });
     };

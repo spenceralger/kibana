@@ -1,19 +1,19 @@
 import _ from 'lodash';
 
-import DocStrategyProvider from '../strategy/doc';
-import AbstractRequestProvider from './request';
+import EsDocStrategyProvider from './es_doc_strategy';
+import DataSourceRequestProvider from './data_source_request';
 
 export default function DocRequestProvider(Private) {
 
-  const docStrategy = Private(DocStrategyProvider);
-  const AbstractRequest = Private(AbstractRequestProvider);
+  const esDocStrategy = Private(EsDocStrategyProvider);
+  const DataSourceRequest = Private(DataSourceRequestProvider);
 
-  class DocRequest extends AbstractRequest {
+  return class EsDocRequest extends DataSourceRequest {
     constructor(...args) {
       super(...args);
 
-      this.type = 'doc';
-      this.strategy = docStrategy;
+      this.type = 'es_doc';
+      this.strategy = esDocStrategy;
     }
 
     canStart() {
@@ -39,7 +39,5 @@ export default function DocRequestProvider(Private) {
 
       return super.handleResponse(resp);
     }
-  }
-
-  return DocRequest;
+  };
 };

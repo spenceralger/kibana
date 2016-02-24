@@ -1,4 +1,6 @@
-import { RequestFailure, SearchTimeout, ShardFailure } from 'ui/errors';
+import { RequestFailure } from 'ui/errors';
+
+import 'ui/promises';
 
 import ReqStatusProvider from './req_status';
 import NotifierProvider from './notifier';
@@ -15,15 +17,7 @@ export default function CourierFetchCallResponseHandlers(Private, Promise) {
         return ABORTED;
       }
 
-      let resp = responses[i];
-
-      if (resp.timed_out) {
-        notify.warning(new SearchTimeout());
-      }
-
-      if (resp._shards && resp._shards.failed) {
-        notify.warning(new ShardFailure(resp));
-      }
+      const resp = responses[i];
 
       function progress() {
         if (req.isIncomplete()) {
@@ -43,10 +37,6 @@ export default function CourierFetchCallResponseHandlers(Private, Promise) {
       }
 
       return Promise.try(function () {
-        return req.transformResponse(resp);
-      })
-      .then(function () {
-        resp = arguments[0];
         return req.handleResponse(resp);
       })
       .then(progress);
