@@ -1,6 +1,5 @@
 import d3 from 'd3';
 import _ from 'lodash';
-import errors from 'ui/errors';
 import VislibComponentsZeroInjectionInjectZerosProvider from 'ui/vislib/components/zero_injection/inject_zeros';
 import VislibComponentsZeroInjectionOrderedXKeysProvider from 'ui/vislib/components/zero_injection/ordered_x_keys';
 import VislibComponentsLabelsLabelsProvider from 'ui/vislib/components/labels/labels';

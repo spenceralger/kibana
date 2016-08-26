@@ -1,4 +1,3 @@
-import angular from 'angular';
 import _ from 'lodash';
 import d3 from 'd3';
 import ngMock from 'ng_mock';

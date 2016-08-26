@@ -1,5 +1,4 @@
 import UiModules from 'ui/modules';
-import angular from 'angular';
 
 const spinnerTemplate = '<div class="spinner" ng-show="chrome.httpActive.length"></div>';
 

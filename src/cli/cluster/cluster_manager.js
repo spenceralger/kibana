@@ -1,8 +1,6 @@
-import cluster from 'cluster';
 const {
   resolve
 } = require('path');
-import Hapi from 'hapi';
 const {
   debounce,
   invoke,

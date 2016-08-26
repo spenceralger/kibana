@@ -1,5 +1,3 @@
-import moment from 'moment';
-import $ from 'jquery';
 import _ from 'lodash';
 import 'ui/visualize';
 import 'ui/doc_table';
