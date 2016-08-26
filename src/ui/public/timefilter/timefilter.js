@@ -4,7 +4,6 @@ import dateMath from '@elastic/datemath';
 import 'ui/state_management/global_state';
 import 'ui/config';
 import EventsProvider from 'ui/events';
-import UtilsDiffTimePickerValsProvider from 'ui/utils/diff_time_picker_vals';
 import TimefilterLibDiffTimeProvider from 'ui/timefilter/lib/diff_time';
 import TimefilterLibDiffIntervalProvider from 'ui/timefilter/lib/diff_interval';
 import uiRoutes from 'ui/routes';
@@ -91,7 +90,7 @@ uiModules
     return filter;
   };
 
-  Timefilter.prototype.getBounds = function() {
+  Timefilter.prototype.getBounds = function () {
     return {
       min: dateMath.parse(this.time.from),
       max: dateMath.parse(this.time.to, true)

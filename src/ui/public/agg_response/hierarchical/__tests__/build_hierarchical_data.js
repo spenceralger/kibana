@@ -5,7 +5,6 @@ import sinon from 'auto-release-sinon';
 import expect from 'expect.js';
 import ngMock from 'ng_mock';
 import VisProvider from 'ui/vis';
-import VisAggConfigsProvider from 'ui/vis/agg_configs';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 import AggResponseHierarchicalBuildHierarchicalDataProvider from 'ui/agg_response/hierarchical/build_hierarchical_data';
 
@@ -23,7 +22,6 @@ describe('buildHierarchicalData', function () {
     sinon.stub(Notifier.prototype, 'error');
 
     Vis = Private(VisProvider);
-    AggConfigs = Private(VisAggConfigsProvider);
     indexPattern = Private(FixturesStubbedLogstashIndexPatternProvider);
     buildHierarchicalData = Private(AggResponseHierarchicalBuildHierarchicalDataProvider);
   }));

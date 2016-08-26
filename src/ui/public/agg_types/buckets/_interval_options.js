@@ -1,4 +1,3 @@
-import moment from 'moment';
 import 'ui/directives/input_whole_number';
 export default function IntervalOptionsService() {
   return [

@@ -56,10 +56,9 @@ describe('paginated table', function () {
   };
 
   beforeEach(ngMock.module('kibana'));
-  beforeEach(ngMock.inject(function (_$rootScope_, _$compile_, $filter) {
+  beforeEach(ngMock.inject(function (_$rootScope_, _$compile_) {
     $rootScope = _$rootScope_;
     $compile = _$compile_;
-    $orderBy = $filter('orderBy');
     $scope = $rootScope.$new();
   }));
 

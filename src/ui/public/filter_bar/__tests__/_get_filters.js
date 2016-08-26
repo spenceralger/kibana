@@ -28,8 +28,7 @@ describe('get filters', function () {
     }
   ));
 
-  beforeEach(ngMock.inject(function (_$rootScope_, Private) {
-    $rootScope = _$rootScope_;
+  beforeEach(ngMock.inject(function (Private) {
     queryFilter = Private(FilterBarQueryFilterProvider);
   }));
 

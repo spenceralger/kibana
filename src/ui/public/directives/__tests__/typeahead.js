@@ -50,8 +50,6 @@ const init = function () {
 
     $elem = angular.element(markup);
 
-    PersistedLog = $injector.get('PersistedLog');
-
     $compile($elem)($parentScope);
     $elem.scope().$digest();
     $typeaheadScope = $elem.isolateScope();

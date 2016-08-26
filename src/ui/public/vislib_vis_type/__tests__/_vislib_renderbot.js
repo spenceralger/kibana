@@ -8,7 +8,6 @@ import VislibVisProvider from 'ui/vislib/vis';
 import VisRenderbotProvider from 'ui/vis/renderbot';
 import VislibVisTypeVislibRenderbotProvider from 'ui/vislib_vis_type/vislib_renderbot';
 import PersistedStatePersistedStateProvider from 'ui/persisted_state/persisted_state';
-import AggResponseIndexProvider from 'ui/agg_response/index';
 describe('renderbot', function exportWrapper() {
   let vislib;
   let Vis;
@@ -28,7 +27,6 @@ describe('renderbot', function exportWrapper() {
       Renderbot = Private(VisRenderbotProvider);
       VislibRenderbot = Private(VislibVisTypeVislibRenderbotProvider);
       persistedState = new (Private(PersistedStatePersistedStateProvider))();
-      normalizeChartData = Private(AggResponseIndexProvider);
     });
   }
 

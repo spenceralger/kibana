@@ -4,7 +4,7 @@ const spinnerTemplate = '<div class="spinner" ng-show="chrome.httpActive.length"
 
 UiModules
 .get('ui/kibana')
-.directive('kbnLoadingIndicator', function() {
+.directive('kbnLoadingIndicator', function () {
   return {
     restrict: 'E',
     template: spinnerTemplate,

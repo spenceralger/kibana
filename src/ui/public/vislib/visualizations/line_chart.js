@@ -319,7 +319,7 @@ export default function LineChartFactory(Private) {
 
         self.addClipPath(svg, width, height);
         if (self._attr.drawLinesBetweenPoints) {
-          lines = self.addLines(svg, data.series);
+          self.addLines(svg, data.series);
         }
         circles = self.addCircles(svg, layers);
         self.addCircleEvents(circles, svg);

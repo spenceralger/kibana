@@ -11,8 +11,6 @@ describe('Url shortener', () => {
 
   beforeEach(ngMock.module('kibana'));
   beforeEach(ngMock.inject(function (_$rootScope_, _$location_, _$httpBackend_, Private) {
-    $location = _$location_;
-    $rootScope = _$rootScope_;
     $httpBackend = _$httpBackend_;
     urlShortener = Private(LibUrlShortenerProvider);
   }));

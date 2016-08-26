@@ -16,7 +16,6 @@ describe('ui/courier/fetch/request/segmented/_createQueue', () => {
   beforeEach(ngMock.module('kibana'));
   beforeEach(ngMock.inject((Private, $injector) => {
     Promise = $injector.get('Promise');
-    $rootScope = $injector.get('$rootScope');
     SegmentedReq = Private(SegmentedRequestProvider);
 
     MockSource = class {

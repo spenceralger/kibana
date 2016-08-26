@@ -27,7 +27,6 @@ describe('fancy forms', function () {
     $scope.$apply();
 
     ngForm = $el.controller('form');
-    ngModel = $el.find('input').controller('ngModel');
   }));
 
   describe('ngFormController', function () {

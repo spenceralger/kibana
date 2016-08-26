@@ -15,7 +15,6 @@ describe('ui/courier/fetch/request/segmented', () => {
 
   beforeEach(ngMock.inject((Private, $injector) => {
     Promise = $injector.get('Promise');
-    $rootScope = $injector.get('$rootScope');
     SegmentedReq = Private(SegmentedRequestProvider);
     searchReqStart = sinon.spy(Private(SearchRequestProvider).prototype, 'start');
   }));

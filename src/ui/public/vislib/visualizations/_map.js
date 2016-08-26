@@ -101,7 +101,7 @@ export default function MapFactory(Private, tilemap, $sanitize) {
       options: {
         position: 'topleft'
       },
-      onAdd: function() {
+      onAdd: function () {
         $(fitContainer).html('<a class="fa fa-crop" href="#" title="Fit Data Bounds"></a>')
         .on('click', function (e) {
           e.preventDefault();
@@ -110,7 +110,7 @@ export default function MapFactory(Private, tilemap, $sanitize) {
 
         return fitContainer;
       },
-      onRemove: function() {
+      onRemove: function () {
         $(fitContainer).off('click');
       }
     });

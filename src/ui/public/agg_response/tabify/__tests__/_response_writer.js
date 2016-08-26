@@ -5,7 +5,6 @@ import ngMock from 'ng_mock';
 import AggResponseTabifyResponseWriterProvider from 'ui/agg_response/tabify/_response_writer';
 import AggResponseTabifyTableGroupProvider from 'ui/agg_response/tabify/_table_group';
 import AggResponseTabifyBucketsProvider from 'ui/agg_response/tabify/_buckets';
-import AggResponseTabifyTableProvider from 'ui/agg_response/tabify/_table';
 import VisProvider from 'ui/vis';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 describe('ResponseWriter class', function () {
@@ -30,7 +29,6 @@ describe('ResponseWriter class', function () {
       ResponseWriter = Private(AggResponseTabifyResponseWriterProvider);
       TableGroup = Private(AggResponseTabifyTableGroupProvider);
       Buckets = Private(AggResponseTabifyBucketsProvider);
-      Table = Private(AggResponseTabifyTableProvider);
       Vis = Private(VisProvider);
       indexPattern = Private(FixturesStubbedLogstashIndexPatternProvider);
     }));

@@ -3,7 +3,6 @@ import _ from 'lodash';
 import expect from 'expect.js';
 import ngMock from 'ng_mock';
 import VisProvider from 'ui/vis';
-import VisAggConfigProvider from 'ui/vis/agg_config';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 import AggTypesBucketsCreateFilterFiltersProvider from 'ui/agg_types/buckets/create_filter/filters';
 
@@ -16,7 +15,6 @@ describe('AggConfig Filters', function () {
     beforeEach(ngMock.module('kibana'));
     beforeEach(ngMock.inject(function (Private) {
       Vis = Private(VisProvider);
-      AggConfig = Private(VisAggConfigProvider);
       indexPattern = Private(FixturesStubbedLogstashIndexPatternProvider);
       createFilter = Private(AggTypesBucketsCreateFilterFiltersProvider);
     }));

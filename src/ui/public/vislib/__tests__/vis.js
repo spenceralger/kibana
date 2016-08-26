@@ -132,8 +132,8 @@ dataArray.forEach(function (data, i) {
 
       beforeEach(function () {
         listeners = [
-          listener1 = function () {},
-          listener2 = function () {}
+          function () {},
+          function () {}
         ];
 
         // Add event and listeners to chart
@@ -168,7 +168,7 @@ dataArray.forEach(function (data, i) {
       it('should cause a listener for each event to be attached to each chart', function () {
         const charts = vis.handler.charts;
 
-        charts.forEach(function(chart) {
+        charts.forEach(function (chart) {
           expect(chart.events.listenerCount(beforeEvent)).to.be.above(0);
           expect(chart.events.listenerCount(afterEvent)).to.be.above(0);
         });

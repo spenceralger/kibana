@@ -15,8 +15,7 @@ let EventEmitter;
 describe('Query Filter', function () {
   describe('Module', function () {
     beforeEach(ngMock.module('kibana'));
-    beforeEach(ngMock.inject(function (_$rootScope_, Private) {
-      $rootScope = _$rootScope_;
+    beforeEach(ngMock.inject(function (Private) {
       queryFilter = Private(FilterBarQueryFilterProvider);
       EventEmitter = Private(EventsProvider);
     }));

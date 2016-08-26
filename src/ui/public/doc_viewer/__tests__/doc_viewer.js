@@ -28,12 +28,6 @@ describe('docViewer', function () {
 
       PrivateProvider.swap(docViewsRegistry, stubRegistry);
     });
-
-    // Create the scope
-    ngMock.inject(function ($injector) {
-      $rootScope = $injector.get('$rootScope');
-      $compile = $injector.get('$compile');
-    });
   });
 
   beforeEach(function () {

@@ -2,8 +2,7 @@ import d3 from 'd3';
 import _ from 'lodash';
 import $ from 'jquery';
 import SimpleEmitter from 'ui/utils/simple_emitter';
-import VislibComponentsTooltipProvider from 'ui/vislib/components/tooltip';
-export default function DispatchClass(Private) {
+export default function DispatchClass() {
   /**
    * Handles event responses
    *

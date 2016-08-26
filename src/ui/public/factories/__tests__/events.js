@@ -14,8 +14,6 @@ describe('Events', function () {
 
   beforeEach(ngMock.module('kibana'));
   beforeEach(ngMock.inject(function ($injector, Private) {
-    $rootScope = $injector.get('$rootScope');
-    Notifier = $injector.get('Notifier');
     Promise = $injector.get('Promise');
     Events = Private(EventsProvider);
   }));

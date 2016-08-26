@@ -11,8 +11,6 @@ function init() {
 
   ngMock.inject(function ($injector, _$timeout_) {
     $timeout = _$timeout_;
-    $timeoutSpy = sinon.spy($timeout);
-
     debounce = $injector.get('debounce');
   });
 }

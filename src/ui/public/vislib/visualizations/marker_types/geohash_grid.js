@@ -17,7 +17,7 @@ export default function GeohashGridMarkerFactory(Private) {
     GeohashGridMarker.Super.apply(this, arguments);
 
     this._createMarkerGroup({
-      pointToLayer: function(feature) {
+      pointToLayer: function (feature) {
         const geohashRect = feature.properties.rectangle;
         // get bounds from northEast[3] and southWest[1]
         // corners in geohash rectangle

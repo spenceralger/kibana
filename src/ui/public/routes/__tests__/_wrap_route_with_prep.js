@@ -30,7 +30,6 @@ describe('wrapRouteWithPrep fn', function () {
       let $injector;
 
       ngMock.inject(function ($rootScope, _Private_, _Promise_, _$injector_) {
-        Private = _Private_;
         Promise = _Promise_;
         $injector = _$injector_;
       });
@@ -38,7 +37,7 @@ describe('wrapRouteWithPrep fn', function () {
 
       routes
       .addSetupWork(function () {
-        return new Promise(function(resolve) {
+        return new Promise(function (resolve) {
           setTimeout(function () {
             setupComplete = true;
             resolve();

@@ -29,7 +29,7 @@ module.exports = function (kibana) {
           'docViews'
         ],
 
-        injectVars: function(server) {
+        injectVars: function (server) {
           const config = server.config();
           return {
             kbnDefaultAppId: config.get('kibana.defaultAppId'),
@@ -80,7 +80,7 @@ module.exports = function (kibana) {
       },
     },
 
-    init: function(server) {
+    init: function (server) {
       ingest(server);
       search(server);
       settings(server);

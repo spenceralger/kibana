@@ -129,7 +129,7 @@ Tooltip.prototype.render = function () {
 
     const $chart = self.$getChart();
     if ($chart) {
-      self.binder.jqOn($chart, 'mouseleave', function() {
+      self.binder.jqOn($chart, 'mouseleave', function () {
         // only clear when we leave the chart, so that
         // moving between points doesn't make it reposition
         $chart.removeData('previousPlacement');

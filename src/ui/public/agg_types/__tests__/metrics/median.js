@@ -1,6 +1,5 @@
 import expect from 'expect.js';
 import ngMock from 'ng_mock';
-import AggTypeMetricMedianProvider from 'ui/agg_types/metrics/median';
 import VisProvider from 'ui/vis';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 
@@ -12,7 +11,6 @@ describe('AggTypeMetricMedianProvider class', function () {
   beforeEach(ngMock.inject(function (Private) {
     const Vis = Private(VisProvider);
     indexPattern = Private(FixturesStubbedLogstashIndexPatternProvider);
-    aggTypeMetricMedian = Private(AggTypeMetricMedianProvider);
 
     const vis = new Vis(indexPattern, {
       'title': 'New Visualization',

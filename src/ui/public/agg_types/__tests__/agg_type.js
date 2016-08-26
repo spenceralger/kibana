@@ -7,7 +7,6 @@ import AggParamsPM from 'ui/agg_types/agg_params';
 import VisProvider from 'ui/vis';
 import RegistryFieldFormatsProvider from 'ui/registry/field_formats';
 import AggTypesAggTypeProvider from 'ui/agg_types/agg_type';
-import VisAggConfigProvider from 'ui/vis/agg_config';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 describe('AggType Class', function () {
   let AggType;
@@ -25,7 +24,6 @@ describe('AggType Class', function () {
     Vis = Private(VisProvider);
     fieldFormat = Private(RegistryFieldFormatsProvider);
     AggType = Private(AggTypesAggTypeProvider);
-    AggConfig = Private(VisAggConfigProvider);
     indexPattern = Private(FixturesStubbedLogstashIndexPatternProvider);
   }));
 

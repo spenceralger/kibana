@@ -34,7 +34,7 @@ uiRoutes
 .when('/dashboard', {
   template: indexTemplate,
   resolve: {
-    dash: function(savedDashboards) {
+    dash: function (savedDashboards) {
       return savedDashboards.get();
     }
   }

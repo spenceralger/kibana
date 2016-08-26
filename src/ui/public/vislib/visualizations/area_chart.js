@@ -334,7 +334,7 @@ export default function AreaChartFactory(Private) {
         self.createEndZones(svg);
 
         // add path
-        path = self.addPath(svg, layers);
+        self.addPath(svg, layers);
 
         if (yMin < 0 && self._attr.mode !== 'wiggle' && self._attr.mode !== 'silhouette') {
 
