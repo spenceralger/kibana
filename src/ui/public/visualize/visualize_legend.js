@@ -18,7 +18,7 @@ uiModules.get('kibana')
   return {
     restrict: 'E',
     template: html,
-    link: function ($scope, $elem) {
+    link: function($scope) {
       const $state = getAppState();
       const clickHandler = filterBarClickHandler($state);
       $scope.open = $scope.uiState.get('vis.legendOpen', true);

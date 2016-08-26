@@ -26,7 +26,7 @@ const dataTypesArray = [
   ['stackedSeries', 'stacked', stackedSeries],
 ];
 
-dataTypesArray.forEach(function (dataType, i) {
+dataTypesArray.forEach(function(dataType) {
   const name = dataType[0];
   const mode = dataType[1];
   const data = dataType[2];
@@ -98,7 +98,7 @@ dataTypesArray.forEach(function (dataType, i) {
       });
 
       it('should returned grouped bars', function () {
-        vis.handler.charts.forEach(function (chart) {});
+        vis.handler.charts.forEach(function() {});
       });
     });
 

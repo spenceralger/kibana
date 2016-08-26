@@ -168,7 +168,7 @@ define(function (require) {
               ]
             }
           })
-          .then((res) => {
+          .then(() => {
             return request.post('/kibana/names/_data?pipeline=true')
             .attach('csv', 'test/unit/fixtures/fake_names.csv')
             .expect(200);

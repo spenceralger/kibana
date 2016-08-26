@@ -14,7 +14,7 @@ export default function HeatmapMarkerFactory(Private) {
    * @param params {Object}
    */
   _.class(HeatmapMarker).inherits(BaseMarker);
-  function HeatmapMarker(map, geoJson, params) {
+  function HeatmapMarker() {
     const self = this;
     this._disableTooltips = false;
     HeatmapMarker.Super.apply(this, arguments);

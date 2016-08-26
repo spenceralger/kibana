@@ -46,7 +46,7 @@ describe('plugins/elasticsearch', function () {
         });
 
         it('should resolve buildNum to pkg.buildNum config', function () {
-          return upgrade(response).then(function (resp) {
+          return upgrade(response).then(function() {
             sinon.assert.calledOnce(client.create);
             const params = client.create.args[0][0];
             expect(params.body).to.have.property('buildNum', get('pkg.buildNum'));
@@ -54,7 +54,7 @@ describe('plugins/elasticsearch', function () {
         });
 
         it('should resolve version to pkg.version config', function () {
-          return upgrade(response).then(function (resp) {
+          return upgrade(response).then(function() {
             const params = client.create.args[0][0];
             expect(params).to.have.property('id', get('pkg.version'));
           });
@@ -69,14 +69,14 @@ describe('plugins/elasticsearch', function () {
         });
 
         it('should resolve buildNum to pkg.buildNum config', function () {
-          return upgrade(response).then(function (resp) {
+          return upgrade(response).then(function() {
             const params = client.create.args[0][0];
             expect(params.body).to.have.property('buildNum', get('pkg.buildNum'));
           });
         });
 
         it('should resolve version to pkg.version config', function () {
-          return upgrade(response).then(function (resp) {
+          return upgrade(response).then(function() {
             const params = client.create.args[0][0];
             expect(params).to.have.property('id', get('pkg.version'));
           });
@@ -95,7 +95,7 @@ describe('plugins/elasticsearch', function () {
       get.withArgs('pkg.buildNum').returns(9833);
       client.create.returns(Promise.resolve());
       const response = { hits: { hits: [ { _id: '4.0.1-alpha3' }, { _id: '4.0.1-beta1' }, { _id: '4.0.0-SNAPSHOT1' } ] } };
-      return upgrade(response).then(function (resp) {
+      return upgrade(response).then(function() {
         sinon.assert.calledOnce(client.create);
         const params = client.create.args[0][0];
         expect(params).to.have.property('body');
@@ -110,7 +110,7 @@ describe('plugins/elasticsearch', function () {
       get.withArgs('pkg.buildNum').returns(5801);
       client.create.returns(Promise.resolve());
       const response = { hits: { hits: [ { _id: '4.0.0', _source: { buildNum: 1 } } ] } };
-      return upgrade(response).then(function (resp) {
+      return upgrade(response).then(function() {
         sinon.assert.calledOnce(client.create);
         const params = client.create.args[0][0];
         expect(params).to.have.property('body');
@@ -125,7 +125,7 @@ describe('plugins/elasticsearch', function () {
       get.withArgs('pkg.buildNum').returns(5801);
       client.create.returns(Promise.resolve());
       const response = { hits: { hits: [ { _id: '4.0.0', _source: { buildNum: 1 } } ] } };
-      return upgrade(response).then(function (resp) {
+      return upgrade(response).then(function() {
         sinon.assert.calledOnce(server.log);
         expect(server.log.args[0][0]).to.eql(['plugin', 'elasticsearch']);
         const msg = server.log.args[0][1];
@@ -139,7 +139,7 @@ describe('plugins/elasticsearch', function () {
       get.withArgs('pkg.buildNum').returns(5801);
       client.create.returns(Promise.resolve());
       const response = { hits: { hits: [ { _id: '4.0.0', _source: { buildNum: 1, defaultIndex: 'logstash-*' } } ] } };
-      return upgrade(response).then(function (resp) {
+      return upgrade(response).then(function() {
         sinon.assert.calledOnce(client.create);
         const params = client.create.args[0][0];
         expect(params).to.have.property('body');

@@ -484,7 +484,7 @@ export default class VisualizePage {
 
 
   // The current test shows dots, not a line.  This function gets the dots and normalizes their height.
-  getLineChartData(cssPart) {
+  getLineChartData() {
     const self = this.remote;
     let yAxisLabel = 0;
     let yAxisHeight;

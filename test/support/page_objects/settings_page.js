@@ -51,7 +51,7 @@ export default class SettingsPage {
     .then(() => {
       return PageObjects.common.sleep(1000);
     })
-    .then(function setAdvancedSettingsClickPropertyValue(selectList) {
+    .then(function setAdvancedSettingsClickPropertyValue() {
       return self.remote.setFindTimeout(defaultFindTimeout)
       .findByCssSelector('option[label="' + propertyValue + '"]')
       .click();

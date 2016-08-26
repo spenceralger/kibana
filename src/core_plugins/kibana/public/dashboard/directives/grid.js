@@ -184,7 +184,7 @@ app.directive('dashboardGrid', function ($compile, Notifier) {
       }
 
       // when gridster tell us it made a change, update each of the panel objects
-      function readGridsterChangeHandler(e, ui, $widget) {
+      function readGridsterChangeHandler() {
         // ensure that our panel objects keep their size in sync
         gridster.$widgets.each(function (i, el) {
           const panel = getPanelFor(el);

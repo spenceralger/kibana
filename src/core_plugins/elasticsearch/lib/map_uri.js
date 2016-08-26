@@ -3,7 +3,7 @@ import { resolve } from 'url';
 import filterHeaders from './filter_headers';
 import setHeaders from './set_headers';
 
-export default function mapUri(server, prefix) {
+export default function mapUri(server) {
 
   const config = server.config();
   return function (request, done) {

@@ -13,7 +13,7 @@ export default function ShadedCircleMarkerFactory(Private) {
    * @return {Leaflet object} featureLayer
    */
   _.class(ShadedCircleMarker).inherits(BaseMarker);
-  function ShadedCircleMarker(map, geoJson, params) {
+  function ShadedCircleMarker() {
     const self = this;
     ShadedCircleMarker.Super.apply(this, arguments);
 

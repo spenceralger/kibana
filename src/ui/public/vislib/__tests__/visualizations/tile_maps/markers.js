@@ -146,7 +146,7 @@ describe('Marker Tests', function () {
         let content;
         const sample = _.sample(mapData.features);
 
-        const stub = sinon.stub(markerLayer, '_tooltipFormatter', function (val) {
+        const stub = sinon.stub(markerLayer, '_tooltipFormatter', function() {
           return;
         });
 
@@ -163,7 +163,7 @@ describe('Marker Tests', function () {
 
       beforeEach(function () {
         addToSpy = sinon.spy();
-        leafletControlStub = sinon.stub(L, 'control', function (options) {
+        leafletControlStub = sinon.stub(L, 'control', function() {
           return {
             addTo: addToSpy
           };

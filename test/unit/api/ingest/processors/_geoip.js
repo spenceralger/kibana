@@ -1,4 +1,4 @@
-define(function (require) {
+define(function() {
   const testPipeline = {
     processors: [{
       processor_id: 'processor1',
@@ -10,7 +10,7 @@ define(function (require) {
   };
 
 
-  return function (bdd, scenarioManager, request) {
+  return function(bdd) {
     bdd.describe('simulate - geoip processor', () => {
   //TODO: These tests can be re-added when we address
   // installing plugins for integration tests

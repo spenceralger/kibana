@@ -59,7 +59,7 @@ export default function IngestProvider($rootScope, $http, config, $q, Private, i
 
     return $http.post(`${ingestAPIPrefix}/simulate`, pack(pipeline))
     .then(unpack)
-    .catch(err => {
+    .catch(() => {
       return $q.reject(new Error('Error simulating pipeline'));
     });
   };
@@ -71,7 +71,7 @@ export default function IngestProvider($rootScope, $http, config, $q, Private, i
 
     return $http.get(`${ingestAPIPrefix}/processors`)
     .then(unpack)
-    .catch(err => {
+    .catch(() => {
       return $q.reject(new Error('Error fetching enabled processors'));
     });
   };

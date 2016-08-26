@@ -13,7 +13,7 @@ export default function GeohashGridMarkerFactory(Private) {
    * @param params {Object}
    */
   _.class(GeohashGridMarker).inherits(BaseMarker);
-  function GeohashGridMarker(map, geoJson, params) {
+  function GeohashGridMarker() {
     const self = this;
     GeohashGridMarker.Super.apply(this, arguments);
 
@@ -22,7 +22,7 @@ export default function GeohashGridMarkerFactory(Private) {
     const max = this.geoJson.properties.allmax;
 
     this._createMarkerGroup({
-      pointToLayer: function (feature, latlng) {
+      pointToLayer: function(feature) {
         const geohashRect = feature.properties.rectangle;
         // get bounds from northEast[3] and southWest[1]
         // corners in geohash rectangle

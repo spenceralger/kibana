@@ -25,7 +25,7 @@ export function registerDelete(server) {
         })
       ])
       .then(
-        function (pattern) {
+        function() {
           reply({success: true});
         },
         function (error) {

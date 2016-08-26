@@ -3,7 +3,7 @@ import _ from 'lodash';
 import sequencer from 'ui/utils/sequencer';
 import EventsProvider from 'ui/events';
 import ReflowWatcherProvider from 'ui/reflow_watcher';
-export default function ResizeCheckerFactory(Private, Notifier, $rootScope) {
+export default function ResizeCheckerFactory(Private, Notifier) {
 
   const EventEmitter = Private(EventsProvider);
   const reflowWatcher = Private(ReflowWatcherProvider);
