@@ -1,5 +1,4 @@
 define(function (require) {
-  const Promise = require('bluebird');
   const _ = require('intern/dojo/node!lodash');
   const expect = require('intern/dojo/node!expect.js');
   const fakeNamesIndexTemplate = require('intern/dojo/node!../../fixtures/fake_names_index_template.json');

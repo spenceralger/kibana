@@ -1,7 +1,6 @@
 module.exports = function (grunt) {
   const { map, fromNode } = require('bluebird');
   const { resolve } = require('path');
-  const { pluck } = require('lodash');
   const { createWriteStream } = require('fs');
   const { createGunzip } = require('zlib');
   const { Extract } = require('tar');

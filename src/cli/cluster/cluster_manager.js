@@ -1,8 +1,15 @@
 import cluster from 'cluster';
-const { join, resolve } = require('path');
-const { format: formatUrl } = require('url');
+const {
+  resolve
+} = require('path');
 import Hapi from 'hapi';
-const { debounce, compact, get, invoke, bindAll, once, sample, uniq } = require('lodash');
+const {
+  debounce,
+  invoke,
+  bindAll,
+  once,
+  uniq
+} = require('lodash');
 
 import Log from '../log';
 import Worker from './worker';
