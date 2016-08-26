@@ -5,8 +5,6 @@ import VisProvider from 'ui/vis';
 import VisAggConfigProvider from 'ui/vis/agg_config';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 describe('AggConfigResult', function () {
-
-  let AggConfig;
   let indexPattern;
   let Vis;
 

@@ -133,8 +133,6 @@ dataArray.forEach(function (data, i) {
         afterEvent
       ];
       let listeners;
-      let listener1;
-      let listener2;
 
       beforeEach(function () {
         listeners = [

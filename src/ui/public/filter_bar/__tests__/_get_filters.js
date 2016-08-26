@@ -9,7 +9,6 @@ describe('get filters', function () {
     global: 'globalState'
   };
   let queryFilter;
-  let $rootScope;
   let appState;
   let globalState;
 

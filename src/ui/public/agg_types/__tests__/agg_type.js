@@ -12,7 +12,6 @@ import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logsta
 describe('AggType Class', function () {
   let AggType;
   let AggParams;
-  let AggConfig;
   let indexPattern;
   let fieldFormat;
   let Vis;
@@ -186,5 +185,4 @@ describe('AggType Class', function () {
     });
 
   });
-
 });

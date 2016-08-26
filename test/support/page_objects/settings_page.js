@@ -69,7 +69,6 @@ export default class SettingsPage {
   }
 
   getAdvancedSettings(propertyName) {
-    const self = this;
     PageObjects.common.debug('in setAdvancedSettings');
     return PageObjects.common.findTestSubject('advancedSetting&' + propertyName + ' currentValue')
     .getVisibleText();

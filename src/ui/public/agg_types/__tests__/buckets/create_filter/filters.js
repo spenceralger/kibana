@@ -9,7 +9,6 @@ import AggTypesBucketsCreateFilterFiltersProvider from 'ui/agg_types/buckets/cre
 
 describe('AggConfig Filters', function () {
   describe('filters', function () {
-    let AggConfig;
     let indexPattern;
     let Vis;
     let createFilter;
@@ -45,6 +44,5 @@ describe('AggConfig Filters', function () {
       expect(filter.meta).to.have.property('index', indexPattern.id);
 
     });
-
   });
 });

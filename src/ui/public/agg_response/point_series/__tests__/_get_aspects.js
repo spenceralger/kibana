@@ -8,9 +8,7 @@ import VisAggConfigProvider from 'ui/vis/agg_config';
 import AggResponsePointSeriesGetAspectsProvider from 'ui/agg_response/point_series/_get_aspects';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 describe('getAspects', function () {
-
   let Vis;
-  let Table;
   let AggConfig;
   let indexPattern;
   let getAspects;

@@ -286,7 +286,6 @@ export default function XAxisFactory(Private) {
     const self = this;
     const ordered = self.ordered;
     let axis;
-    let labels;
 
     return function (selection) {
       selection.each(function () {
@@ -317,7 +316,6 @@ export default function XAxisFactory(Private) {
     const barWidth = self.xScale.rangeBand();
     const maxRotatedLength = 120;
     const xAxisPadding = 15;
-    let svg;
     const lengths = [];
     let length;
     self._attr.isRotated = false;
@@ -440,7 +438,6 @@ export default function XAxisFactory(Private) {
     const visEls = $('.vis-wrapper');
     let xAxisChartTitle;
     let yAxisChartTitle;
-    let text;
     let titles;
 
     return function () {

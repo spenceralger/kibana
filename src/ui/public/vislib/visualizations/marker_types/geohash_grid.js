@@ -14,12 +14,7 @@ export default function GeohashGridMarkerFactory(Private) {
    */
   _.class(GeohashGridMarker).inherits(BaseMarker);
   function GeohashGridMarker() {
-    const self = this;
     GeohashGridMarker.Super.apply(this, arguments);
-
-    // super min and max from all chart data
-    const min = this.geoJson.properties.allmin;
-    const max = this.geoJson.properties.allmax;
 
     this._createMarkerGroup({
       pointToLayer: function(feature) {

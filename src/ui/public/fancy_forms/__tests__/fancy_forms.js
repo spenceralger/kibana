@@ -8,7 +8,6 @@ describe('fancy forms', function () {
   let $compile;
   let $rootScope;
   let ngForm;
-  let ngModel;
 
   function generateEl() {
     return $('<form>').html(

@@ -42,7 +42,6 @@ uiModules.get('apps/management')
 
         $q.all(services).then(function (data) {
           $scope.services = sortBy(data, 'title');
-          let tab = $scope.services[0];
           if ($state.tab) $scope.currentTab = tab = find($scope.services, {title: $state.tab});
 
           $scope.$watch('state.tab', function (tab) {

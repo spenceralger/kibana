@@ -8,7 +8,6 @@ import orderAggTemplate from 'ui/agg_types/controls/order_agg.html';
 import orderAndSizeTemplate from 'ui/agg_types/controls/order_and_size.html';
 export default function TermsAggDefinition(Private) {
   const BucketAggType = Private(AggTypesBucketsBucketAggTypeProvider);
-  const bucketCountBetween = Private(AggTypesBucketsBucketCountBetweenProvider);
   const AggConfig = Private(VisAggConfigProvider);
   const Schemas = Private(VisSchemasProvider);
   const createFilter = Private(AggTypesBucketsCreateFilterTermsProvider);
@@ -94,7 +93,6 @@ export default function TermsAggDefinition(Private) {
 
           function updateOrderAgg() {
             const agg = $scope.agg;
-            const aggs = agg.vis.aggs;
             const params = agg.params;
             const orderBy = params.orderBy;
             const paramDef = agg.type.params.byName.orderAgg;

@@ -51,8 +51,6 @@ bdd.describe('visualize app', function describeIndexTests() {
     const vizName1 = 'Visualization LineChart';
 
     bdd.it('should be able to save and load', function pageHeader() {
-      const remote = this.remote;
-
       return PageObjects.visualize.saveVisualization(vizName1)
       .then(function (message) {
         PageObjects.common.debug('Saved viz message = ' + message);
@@ -71,9 +69,6 @@ bdd.describe('visualize app', function describeIndexTests() {
 
 
     bdd.it('should show correct chart, take screenshot', function pageHeader() {
-
-      const remote = this.remote;
-
       // this test only verifies the numerical part of this data
       // it could also check the legend to verify the extensions
       const expectedChartData = ['jpg 9,109', 'css 2,159', 'png 1,373', 'gif 918', 'php 445'];
@@ -97,8 +92,6 @@ bdd.describe('visualize app', function describeIndexTests() {
     });
 
     bdd.it('should show correct data', function pageHeader() {
-
-      const remote = this.remote;
       const expectedChartData = ['jpg 9,109', 'css 2,159', 'png 1,373', 'gif 918', 'php 445'];
 
       return PageObjects.visualize.collapseChart()

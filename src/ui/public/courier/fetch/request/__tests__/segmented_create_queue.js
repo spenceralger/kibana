@@ -7,9 +7,7 @@ import StubbedSearchSourceProvider from 'fixtures/stubbed_search_source';
 import SegmentedRequestProvider from '../segmented';
 
 describe('ui/courier/fetch/request/segmented/_createQueue', () => {
-
   let Promise;
-  let $rootScope;
   let SegmentedReq;
   let MockSource;
 

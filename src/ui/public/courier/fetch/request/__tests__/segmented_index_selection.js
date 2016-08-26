@@ -11,7 +11,6 @@ import SegmentedRequestProvider from '../segmented';
 
 describe('Segmented Request Index Selection', function () {
   let Promise;
-  let $rootScope;
   let SegmentedReq;
   let MockSource;
   let HitSortFn;

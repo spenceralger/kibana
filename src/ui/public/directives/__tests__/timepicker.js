@@ -17,7 +17,6 @@ let $scope;
 
 let $elem;
 const anchor = '2014-01-01T06:06:06.666Z';
-let clock;
 
 const init = function () {
   // Load the application

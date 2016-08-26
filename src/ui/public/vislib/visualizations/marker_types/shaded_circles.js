@@ -17,10 +17,6 @@ export default function ShadedCircleMarkerFactory(Private) {
     const self = this;
     ShadedCircleMarker.Super.apply(this, arguments);
 
-    // super min and max from all chart data
-    const min = this.geoJson.properties.allmin;
-    const max = this.geoJson.properties.allmax;
-
     // multiplier to reduce size of all circles
     const scaleFactor = 0.8;
 

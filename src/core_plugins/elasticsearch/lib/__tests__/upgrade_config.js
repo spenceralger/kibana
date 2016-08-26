@@ -9,7 +9,6 @@ describe('plugins/elasticsearch', function () {
     let get;
     let server;
     let client;
-    let config;
     let upgrade;
 
     beforeEach(function () {
@@ -145,6 +144,5 @@ describe('plugins/elasticsearch', function () {
         expect(params.body).to.have.property('defaultIndex', 'logstash-*');
       });
     });
-
   });
 });

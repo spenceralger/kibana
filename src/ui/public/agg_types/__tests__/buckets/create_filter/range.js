@@ -7,7 +7,6 @@ import AggTypesBucketsCreateFilterRangeProvider from 'ui/agg_types/buckets/creat
 describe('AggConfig Filters', function () {
 
   describe('range', function () {
-    let AggConfig;
     let indexPattern;
     let Vis;
     let createFilter;

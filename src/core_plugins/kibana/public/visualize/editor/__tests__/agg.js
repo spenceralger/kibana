@@ -8,7 +8,6 @@ import 'plugins/kibana/visualize/editor/agg';
 
 describe('Vis-Editor-Agg plugin directive', function () {
   const $parentScope = {};
-  let $scope;
   let $elem;
 
   function makeConfig(which) {

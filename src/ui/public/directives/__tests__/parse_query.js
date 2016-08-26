@@ -5,9 +5,7 @@ import ngMock from 'ng_mock';
 // Load the kibana app dependencies.
 
 let $rootScope;
-let $timeout;
 let $compile;
-let Promise;
 let Private;
 let config;
 let $elemScope;

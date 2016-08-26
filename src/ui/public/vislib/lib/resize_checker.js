@@ -176,8 +176,6 @@ export default function ResizeCheckerFactory(Private, Notifier) {
     }
 
     const check = this.check; // already bound
-    const tick = this._tick;
-    const notify = this.notify;
     const ms = this._currentSchedule[this._tick];
     return (this._timerId = setTimeout(function () {
       check();

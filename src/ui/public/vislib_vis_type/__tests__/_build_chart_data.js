@@ -7,10 +7,8 @@ import AggResponseTabifyTableGroupProvider from 'ui/agg_response/tabify/_table_g
 import AggResponseIndexProvider from 'ui/agg_response/index';
 import VislibVisTypeBuildChartDataProvider from 'ui/vislib_vis_type/build_chart_data';
 describe('renderbot#buildChartData', function () {
-
   let buildChartData;
   let aggResponse;
-  let TableGroup;
   let Table;
 
   beforeEach(ngMock.module('kibana'));

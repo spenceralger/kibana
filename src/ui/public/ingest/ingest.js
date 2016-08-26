@@ -5,9 +5,7 @@ import angular from 'angular';
 import chrome from 'ui/chrome';
 
 export default function IngestProvider($rootScope, $http, config, $q, Private, indexPatterns) {
-
   const ingestAPIPrefix = chrome.addBasePath('/api/kibana/ingest');
-  const refreshKibanaIndex = Private(RefreshKibanaIndexProvider);
 
   this.save = function (indexPattern, pipeline) {
     if (_.isEmpty(indexPattern)) {
@@ -101,5 +99,4 @@ export default function IngestProvider($rootScope, $http, config, $q, Private, i
       headers: {'Content-Type': undefined}
     });
   };
-
 }

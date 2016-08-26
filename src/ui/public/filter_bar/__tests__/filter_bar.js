@@ -12,10 +12,8 @@ import FilterBarQueryFilterProvider from 'ui/filter_bar/query_filter';
 describe('Filter Bar Directive', function () {
   let $rootScope;
   let $compile;
-  let $timeout;
   let Promise;
   let appState;
-  let queryFilter;
   let mapFilter;
   let $el;
   let $scope;

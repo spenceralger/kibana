@@ -13,7 +13,6 @@ describe('Vislib ChartTitle Class Test Suite', function () {
   let persistedState;
   let chartTitle;
   let el;
-  let dataObj;
   const data = {
     hits: 621,
     label: '',
@@ -114,5 +113,4 @@ describe('Vislib ChartTitle Class Test Suite', function () {
       expect(_.isFunction(chartTitle.draw())).to.be(true);
     });
   });
-
 });

@@ -10,8 +10,6 @@ describe('paginated table', function () {
   let $rootScope;
   let $compile;
   let $scope;
-  let $elScope;
-  let $orderBy;
   const defaultPerPage = 10;
 
   const makeData = function (colCount, rowCount) {

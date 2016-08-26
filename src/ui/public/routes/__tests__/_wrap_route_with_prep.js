@@ -26,7 +26,6 @@ describe('wrapRouteWithPrep fn', function () {
       let setupComplete = false;
       let userWorkComplete = false;
       let route;
-      let Private;
       let Promise;
       let $injector;
 

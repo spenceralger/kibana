@@ -8,7 +8,6 @@ import AggTypesBucketsCreateFilterDateRangeProvider from 'ui/agg_types/buckets/c
 
 describe('AggConfig Filters', function () {
   describe('Date range', function () {
-    let AggConfig;
     let indexPattern;
     let Vis;
     let createFilter;

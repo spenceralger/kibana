@@ -9,9 +9,7 @@ import AggResponseTabifyTableProvider from 'ui/agg_response/tabify/_table';
 import VisProvider from 'ui/vis';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 describe('ResponseWriter class', function () {
-
   let Vis;
-  let Table;
   let Buckets;
   let Private;
   let TableGroup;

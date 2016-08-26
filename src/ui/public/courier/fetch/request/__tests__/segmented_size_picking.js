@@ -8,8 +8,6 @@ import StubbedSearchSourceProvider from 'fixtures/stubbed_search_source';
 import SegmentedRequestProvider from '../segmented';
 
 describe('Segmented Request Size Picking', function () {
-  let Promise;
-  let $rootScope;
   let SegmentedReq;
   let MockSource;
   let HitSortFn;

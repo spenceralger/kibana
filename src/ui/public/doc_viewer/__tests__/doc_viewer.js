@@ -9,8 +9,6 @@ import Registry from 'ui/registry/_registry';
 import 'ui/doc_viewer';
 
 describe('docViewer', function () {
-  let $rootScope;
-  let $compile;
   let stubRegistry;
   let $elem;
   let init;

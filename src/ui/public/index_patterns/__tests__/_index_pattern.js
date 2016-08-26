@@ -19,7 +19,6 @@ describe('index pattern', function () {
   let mappingSetup;
   let mockLogstashFields;
   let DocSource;
-  let config;
   let docSourceResponse;
   const indexPatternId = 'test-pattern';
   let indexPattern;
@@ -150,7 +149,6 @@ describe('index pattern', function () {
     require('test_utils/no_digest_promises').activateForSuite();
     const indexPatternId = 'test-pattern';
     let indexPattern;
-    let fieldLength;
     let truncatedFields;
 
     beforeEach(function () {

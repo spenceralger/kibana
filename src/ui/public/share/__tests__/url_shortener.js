@@ -5,9 +5,6 @@ import chrome from 'ui/chrome';
 import LibUrlShortenerProvider from 'ui/share/lib/url_shortener';
 
 describe('Url shortener', () => {
-  let $rootScope;
-  let $location;
-  let $http;
   let urlShortener;
   let $httpBackend;
   const shareId = 'id123';

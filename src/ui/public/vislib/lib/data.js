@@ -387,7 +387,6 @@ export default function DataFactory(Private) {
    */
   Data.prototype.getYMin = function (getValue) {
     const self = this;
-    const arr = [];
 
     if (this._attr.mode === 'percentage' || this._attr.mode === 'wiggle' ||
       this._attr.mode === 'silhouette') {
@@ -427,7 +426,6 @@ export default function DataFactory(Private) {
    */
   Data.prototype.getYMax = function (getValue) {
     const self = this;
-    const arr = [];
 
     if (self._attr.mode === 'percentage') {
       return 1;

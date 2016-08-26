@@ -227,8 +227,6 @@ describe('Vislib Data Class Test Suite', function () {
     let rowIn;
     let colIn;
     let serOut;
-    let rowOut;
-    let colOut;
 
     beforeEach(function () {
       serIn = new Data(seriesData, {}, persistedState);

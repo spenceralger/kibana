@@ -16,11 +16,8 @@ describe('kibana cli', function () {
       };
 
       describe('cleanPrevious', function () {
-        let cleaner;
         let errorStub;
         let logger;
-        let progress;
-        let request;
 
         beforeEach(function () {
           errorStub = sinon.stub();
@@ -105,12 +102,9 @@ describe('kibana cli', function () {
             expect(errorStub.called).to.be(false);
           });
         });
-
       });
 
       describe('cleanArtifacts', function () {
-        let logger;
-
         beforeEach(function () {
           logger = new Logger(settings);
         });
@@ -133,7 +127,6 @@ describe('kibana cli', function () {
 
           expect(cleanArtifacts).withArgs(settings).to.not.throwError();
         });
-
       });
 
     });

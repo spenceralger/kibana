@@ -6,11 +6,8 @@ import AggResponseTabifyTableGroupProvider from 'ui/agg_response/tabify/_table_g
 import VisProvider from 'ui/vis';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 describe('Integration', function () {
-
   let $rootScope;
-  let TableGroup;
   let $compile;
-  let $scope;
   let $el;
   let Vis;
   let indexPattern;

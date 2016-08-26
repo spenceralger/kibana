@@ -22,8 +22,6 @@ uiModules
   });
 
 
-  const brushEvent = Private(UtilsBrushEventProvider);
-
   const getPanelId = function (panel) {
     return ['P', panel.panelIndex].join('-');
   };

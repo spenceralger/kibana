@@ -15,7 +15,6 @@ export default function HeatmapMarkerFactory(Private) {
    */
   _.class(HeatmapMarker).inherits(BaseMarker);
   function HeatmapMarker() {
-    const self = this;
     this._disableTooltips = false;
     HeatmapMarker.Super.apply(this, arguments);
 
@@ -187,7 +186,6 @@ export default function HeatmapMarkerFactory(Private) {
    */
   HeatmapMarker.prototype._dataToHeatArray = function (max) {
     const self = this;
-    const mapData = this.geoJson;
 
     return this.geoJson.features.map(function (feature) {
       const lat = feature.properties.center[0];

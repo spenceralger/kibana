@@ -7,7 +7,6 @@ import SearchRequestProvider from '../search';
 
 describe('ui/courier/fetch/request/segmented', () => {
   let Promise;
-  let $rootScope;
   let SegmentedReq;
   let segmentedReq;
   let searchReqStart;

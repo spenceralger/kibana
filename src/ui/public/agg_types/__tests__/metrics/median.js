@@ -5,10 +5,7 @@ import VisProvider from 'ui/vis';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 
 describe('AggTypeMetricMedianProvider class', function () {
-
-  let vis;
   let indexPattern;
-  let aggTypeMetricMedian;
   let aggDsl;
 
   beforeEach(ngMock.module('kibana'));
@@ -57,5 +54,4 @@ describe('AggTypeMetricMedianProvider class', function () {
   it ('asks Elasticsearch for array-based values in the aggregation response', function () {
     expect(aggDsl.percentiles.keyed).to.be(false);
   });
-
 });

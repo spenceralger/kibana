@@ -14,8 +14,6 @@ import VislibVisualizationsMarkerTypesHeatmapProvider from 'ui/vislib/visualizat
 const defaultSWCoords = [13.496, -143.789];
 const defaultNECoords = [55.526, -57.919];
 const bounds = {};
-let MarkerType;
-let map;
 
 angular.module('MarkerFactory', ['kibana']);
 
@@ -142,7 +140,6 @@ describe('Marker Tests', function () {
 
     describe('showTooltip', function () {
       it('should use the tooltip formatter', function () {
-        let content;
         const sample = _.sample(mapData.features);
 
         const stub = sinon.stub(markerLayer, '_tooltipFormatter', function() {

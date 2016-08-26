@@ -5,7 +5,6 @@ import ngMock from 'ng_mock';
 
 let debounce;
 let $timeout;
-let $timeoutSpy;
 
 function init() {
   ngMock.module('kibana');

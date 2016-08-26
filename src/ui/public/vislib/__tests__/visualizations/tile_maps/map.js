@@ -43,7 +43,6 @@ describe('TileMap Map Tests', function () {
   }));
 
   describe('instantiation', function () {
-    let map;
     let createStub;
 
     beforeEach(function () {
@@ -109,8 +108,6 @@ describe('TileMap Map Tests', function () {
   });
 
   describe('attachEvents', function () {
-    let map;
-
     beforeEach(function () {
       sinon.stub(TileMapMap.prototype, '_createMap', function () {
         this._tileLayer = leafletMocks.tileLayer;

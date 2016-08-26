@@ -10,10 +10,6 @@ import 'angular-sanitize';
 uiModules
 .get('kibana/directive', ['ngSanitize'])
 .directive('visualize', function (Notifier, SavedVis, indexPatterns, Private, config, $timeout) {
-
-
-  const visTypes = Private(RegistryVisTypesProvider);
-
   const notify = new Notifier({
     location: 'Visualize'
   });

@@ -26,7 +26,6 @@ const names = [
 
 dateHistogramArray.forEach(function (data, i) {
   describe('Vislib Handler Test Suite for ' + names[i] + ' Data', function () {
-    let Handler;
     let vis;
     let persistedState;
     const events = [
@@ -154,6 +153,5 @@ dateHistogramArray.forEach(function (data, i) {
       });
 
     });
-
   });
 });

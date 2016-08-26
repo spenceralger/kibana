@@ -9,7 +9,6 @@ import VisProvider from 'ui/vis';
 import VisAggConfigsProvider from 'ui/vis/agg_configs';
 import FixturesStubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 
-let AggConfigs;
 let Vis;
 let indexPattern;
 

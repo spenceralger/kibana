@@ -104,7 +104,6 @@ export default function PointSeriesChartProvider(Private) {
     const height = attr.height;
     const width = attr.width;
     const margin = attr.margin;
-    const color = '#004c99';
 
     // we don't want to draw endzones over our min and max values, they
     // are still a part of the dataset. We want to start the endzones just

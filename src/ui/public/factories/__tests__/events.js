@@ -9,9 +9,7 @@ import EventsProvider from 'ui/events';
 describe('Events', function () {
   require('test_utils/no_digest_promises').activateForSuite();
 
-  let $rootScope;
   let Events;
-  let Notifier;
   let Promise;
 
   beforeEach(ngMock.module('kibana'));

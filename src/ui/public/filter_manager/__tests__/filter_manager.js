@@ -5,7 +5,6 @@ import expect from 'expect.js';
 import ngMock from 'ng_mock';
 import FilterManagerProvider from 'ui/filter_manager';
 import FilterBarQueryFilterProvider from 'ui/filter_bar/query_filter';
-let $rootScope;
 let queryFilter;
 let filterManager;
 let appState;

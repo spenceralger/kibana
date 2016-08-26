@@ -8,7 +8,6 @@ import AggTypesBucketsCreateFilterHistogramProvider from 'ui/agg_types/buckets/c
 
 describe('AggConfig Filters', function () {
   describe('histogram', function () {
-    let AggConfig;
     let indexPattern;
     let Vis;
     let createFilter;

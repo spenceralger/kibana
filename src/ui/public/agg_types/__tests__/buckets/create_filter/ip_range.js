@@ -7,7 +7,6 @@ import AggTypesBucketsCreateFilterIpRangeProvider from 'ui/agg_types/buckets/cre
 describe('AggConfig Filters', function () {
 
   describe('IP range', function () {
-    let AggConfig;
     let indexPattern;
     let Vis;
     let createFilter;
