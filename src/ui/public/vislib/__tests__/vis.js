@@ -128,10 +128,6 @@ dataArray.forEach(function (data, i) {
     });
 
     describe('on Method', function () {
-      const events = [
-        beforeEvent,
-        afterEvent
-      ];
       let listeners;
 
       beforeEach(function () {

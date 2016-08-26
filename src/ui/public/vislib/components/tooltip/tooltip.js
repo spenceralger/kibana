@@ -123,8 +123,6 @@ Tooltip.prototype.render = function () {
     const id = self.id;
     const order = self.order;
 
-    const tooltipSelection = d3.select($tooltip.get(0));
-
     if (self.container === undefined || self.container !== d3.select(self.el).select('.' + self.containerClass)) {
       self.container = d3.select(self.el).select('.' + self.containerClass);
     }

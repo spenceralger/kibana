@@ -168,9 +168,10 @@ export default function HeatmapMarkerFactory(Private) {
       showTip = true;
     }
 
-    const testScale = d3.scale.pow().exponent(0.2)
+    d3.scale.pow().exponent(0.2)
     .domain([1, 18])
     .range([1500000, 50]);
+
     return showTip;
   };
 

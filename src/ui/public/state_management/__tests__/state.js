@@ -81,7 +81,6 @@ describe('State Management', function () {
       });
       state.test = 'foo';
       state.save();
-      const search = $location.search();
       $rootScope.$apply();
     });
   });

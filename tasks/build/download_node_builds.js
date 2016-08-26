@@ -20,7 +20,7 @@ module.exports = function (grunt) {
     }
 
     const resp = await fromNode(cb => {
-      const req = wreck.request('GET', platform.nodeUrl, null, function (err, resp) {
+      wreck.request('GET', platform.nodeUrl, null, function (err, resp) {
         if (err) {
           return cb(err);
         }

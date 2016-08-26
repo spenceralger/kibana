@@ -118,7 +118,6 @@ export default (function () {
             return self.getConfigId();
           });
         } else {
-          const docMapString = JSON.stringify(docMap);
           return Try.try(function () {
             return self.updateConfigDoc(docMap);
           });

@@ -105,7 +105,6 @@ bdd.describe('index result field sort', function describeIndexTests() {
     });
 
     bdd.it('should have the correct number of rows per page', function () {
-      const pageCount = Math.ceil(expectedFieldCount / expectedDefaultPageSize);
       const chain = pages.reduce(function (chain, val) {
         return chain.then(function () {
           return PageObjects.settings.goToPage(val)

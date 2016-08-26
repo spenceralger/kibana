@@ -355,8 +355,7 @@ export default function AreaChartFactory(Private) {
         // add click and hover events to circles
         self.addCircleEvents(circles, svg);
 
-        // chart base line
-        const line = svg.append('line')
+        svg.append('line')
         .attr('class', 'base-line')
         .attr('x1', 0)
         .attr('y1', yScale(0))
