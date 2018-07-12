@@ -20,21 +20,31 @@
 import { deepFreeze } from './deep_freeze';
 
 export interface InjectedMetadata {
+  version: string;
+  buildNumber: number;
   legacyMetadata: {
     [key: string]: any;
   };
 }
 
 export class InjectedMetadataService {
+  public state = deepFreeze(this.injectedMetadata);
+
   constructor(private injectedMetadata: InjectedMetadata) {}
 
   public start() {
-    const state = deepFreeze(this.injectedMetadata);
-
     return {
-      getLegacyMetadata() {
-        return state.legacyMetadata;
+      getLegacyMetadata: () => {
+        return this.state.legacyMetadata;
       },
     };
+  }
+
+  public getKibanaVersion() {
+    return this.state.version;
+  }
+
+  public getKibanaBuildNumber() {
+    return this.state.buildNumber;
   }
 }
