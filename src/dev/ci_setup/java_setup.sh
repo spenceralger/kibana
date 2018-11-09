@@ -15,16 +15,16 @@ function exportPropertyValue {
   propertyFile=$1
   propertyKey=$2
 
-  propertyValue=$(cat $propertyFile | grep "^$propertyKey" | cut -d'=' -f2 | tr -d '[:space:]')
-  export $propertyKey=$propertyValue
+  propertyValue=$(cat "$propertyFile" | grep "^$propertyKey" | cut -d'=' -f2 | tr -d '[:space:]')
+  export "$propertyKey"="$propertyValue"
 }
 
-if [ ! -f $ES_JAVA_PROP_PATH ]; then
+if [ ! -f "$ES_JAVA_PROP_PATH" ]; then
   echo "Unable to set JAVA_HOME, $ES_JAVA_PROP_PATH does not exist"
   exit 1
 fi
 
-exportPropertyValue $ES_JAVA_PROP_PATH "ES_BUILD_JAVA"
+exportPropertyValue "$ES_JAVA_PROP_PATH" "ES_BUILD_JAVA"
 
 if [ -z "$ES_BUILD_JAVA" ]; then
   echo "Unable to set JAVA_HOME, ES_BUILD_JAVA not present in $ES_JAVA_PROP_PATH"

@@ -20,7 +20,7 @@
 
 set -e
 
-source "$(dirname $0)/../../src/dev/ci_setup/setup.sh"
+source "$(dirname "$0")/../../src/dev/ci_setup/setup.sh"
 
 export TEST_BROWSER_HEADLESS=1
-node scripts/functional_test_runner --debug --exclude-tag skipCloud $@
+node scripts/functional_test_runner --debug --exclude-tag skipCloud "$@"
