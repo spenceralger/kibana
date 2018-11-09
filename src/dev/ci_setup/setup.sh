@@ -37,7 +37,7 @@ if [[ "$UNAME" = *"MINGW64_NT"* ]]; then
 fi
 echo " -- Running on OS: $OS"
 
-nodeVersion="$(cat $dir/.node-version)"
+nodeVersion="$(cat "$dir/.node-version")"
 nodeDir="$cacheDir/node/$nodeVersion"
 
 if [[ "$OS" == "win" ]]; then
@@ -51,7 +51,7 @@ fi
 echo " -- node: version=v${nodeVersion} dir=$nodeDir"
 
 echo " -- setting up node.js"
-if [ -x "$nodeBin/node" ] && [ "$($nodeBin/node --version)" == "v$nodeVersion" ]; then
+if [ -x "$nodeBin/node" ] && [ "$("$nodeBin/node" --version)" == "v$nodeVersion" ]; then
   echo " -- reusing node.js install"
 else
   if [ -d "$nodeDir" ]; then
@@ -63,8 +63,8 @@ else
   mkdir -p "$nodeDir"
   if [[ "$OS" == "win" ]]; then
     nodePkg="$nodeDir/${nodeUrl##*/}"
-    curl --silent -o $nodePkg $nodeUrl
-    unzip -qo $nodePkg -d $nodeDir
+    curl --silent -o "$nodePkg" "$nodeUrl"
+    unzip -qo "$nodePkg" -d "$nodeDir"
     mv "${nodePkg%.*}" "$nodeBin"
   else
     curl --silent "$nodeUrl" | tar -xz -C "$nodeDir" --strip-components=1
@@ -82,7 +82,7 @@ hash -r
 ### downloading yarn
 ###
 yarnVersion="$(node -e "console.log(String(require('./package.json').engines.yarn || '').replace(/^[^\d]+/,''))")"
-npm install -g yarn@^${yarnVersion}
+npm install -g "yarn@^${yarnVersion}"
 
 ###
 ### "install" yarn into this shell
