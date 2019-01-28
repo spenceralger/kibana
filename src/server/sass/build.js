@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import path from 'path';
+import { resolve, relative, dirname, join } from 'path';
 import { promisify } from 'util';
 import fs from 'fs';
 import sass from 'node-sass';
@@ -25,12 +25,17 @@ import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
 import postcssUrl from 'postcss-url';
 import mkdirp from 'mkdirp';
+import chalk from 'chalk';
 import isPathInside from 'is-path-inside';
+import { PUBLIC_PATH_PLACEHOLDER } from '../../optimize/public_path_placeholder';
 
 const renderSass = promisify(sass.render);
 const writeFile = promisify(fs.writeFile);
+const exists = promisify(fs.exists);
+const copyFile = promisify(fs.copyFile);
 const mkdirpAsync = promisify(mkdirp);
 
+const UI_ASSETS_DIR = resolve(__dirname, '../../ui/public/assets');
 const DARK_THEME_IMPORTER = (url) => {
   if (url.includes('k6_colors_light')) {
     return { file: url.replace('k6_colors_light', 'k6_colors_dark') };
@@ -39,11 +44,25 @@ const DARK_THEME_IMPORTER = (url) => {
   return { file: url };
 };
 
+const makeAsset = (request, { path, root, boundry, copyRoot, urlRoot }) => {
+  const relativePath = relative(root, path);
+  return {
+    path,
+    root,
+    boundry,
+    url: join(`${PUBLIC_PATH_PLACEHOLDER}${urlRoot}`, relativePath).replace(/\\/g, '/'),
+    copyTo: copyRoot ? resolve(copyRoot, relativePath) : undefined,
+    requestUrl: request.url,
+  };
+};
+
 export class Build {
   constructor({ log, sourcePath, targetPath, urlImports, theme }) {
     this.log = log;
     this.sourcePath = sourcePath;
+    this.sourceDir = dirname(this.sourcePath);
     this.targetPath = targetPath;
+    this.targetDir = dirname(this.targetPath);
     this.urlImports = urlImports;
     this.theme = theme;
     this.includedFiles = [sourcePath];
@@ -72,42 +91,45 @@ export class Build {
       sourceMap: true,
       sourceMapEmbed: true,
       includePaths: [
-        path.resolve(__dirname, '../..'),
-        path.resolve(__dirname, '../../../node_modules'),
+        resolve(__dirname, '../..'),
+        resolve(__dirname, '../../../node_modules'),
       ],
       importer: this.theme === 'dark' ? DARK_THEME_IMPORTER : undefined
     });
 
-    this.includedFiles = rendered.stats.includedFiles;
-
-    const sourceBaseDir = path.dirname(this.sourcePath);
-    const targetDir = path.dirname(this.targetPath);
     const processor = postcss([ autoprefixer ]);
 
+    const urlAssets = [];
+
     if (this.urlImports) {
-      const { publicDir, urlBase } = this.urlImports;
       processor.use(postcssUrl({
-        url: (asset) => {
-          if (!asset.pathname) {
-            return asset.url;
+        url: (request) => {
+          if (!request.pathname) {
+            return request.url;
           }
 
-          const sourcePath = path.resolve(sourceBaseDir, asset.pathname);
-          if (!fs.existsSync(sourcePath)) {
-            throw new Error(`Unable to locate url("${asset.url}"), it must resolve to a file relative to "${sourceBaseDir}"`);
+          const asset = makeAsset(request, (
+            request.pathname.startsWith('ui/assets')
+              ? {
+                path: resolve(UI_ASSETS_DIR, relative('ui/assets', request.pathname)),
+                root: UI_ASSETS_DIR,
+                boundry: UI_ASSETS_DIR,
+                urlRoot: `ui/`,
+              }
+              : {
+                path: resolve(this.sourceDir, request.pathname),
+                root: this.sourceDir,
+                boundry: this.urlImports.publicDir,
+                urlRoot: this.urlImports.urlBase,
+                copyRoot: this.targetDir,
+              }
+          ));
+
+          if (!urlAssets.some(({ path, copyTo }) => path === asset.path && copyTo === asset.copyTo)) {
+            urlAssets.push(asset);
           }
 
-          if (!isPathInside(sourcePath, publicDir)) {
-            throw new Error(`Unable to use url("${asset.url}"), it must resolve to a file within "${publicDir}"`);
-          }
-
-          this.includedFiles.push(sourcePath);
-
-          const targetPath = path.resolve(targetDir, asset.pathname);
-          mkdirp.sync(path.dirname(targetPath));
-          fs.copyFileSync(sourcePath, targetPath);
-
-          return `${urlBase}/${path.relative(publicDir, sourcePath)}`.replace(/\\/g, '/');
+          return asset.url;
         }
       }));
     }
@@ -116,9 +138,50 @@ export class Build {
       from: this.sourcePath
     });
 
-    await mkdirpAsync(targetDir);
+    this.includedFiles = [
+      ...rendered.stats.includedFiles,
+      ...urlAssets.map(({ path }) => path),
+    ];
+
+    // verify that asset sources exist and import is valid before writing anything
+    await Promise.all(urlAssets.map(async (asset) => {
+      if (!await exists(asset.path)) {
+        throw this._makeError(
+          'Invalid url() in css output',
+          `url("${asset.requestUrl}") resolves to "${asset.path}", which does not exist.\n` +
+          `  Make sure that the request is relative to "${asset.root}"`
+        );
+      }
+
+      if (!isPathInside(asset.path, asset.boundry)) {
+        throw this._makeError(
+          'Invalid url() in css output',
+          `url("${asset.requestUrl}") resolves to "${asset.path}"\n` +
+          `  which is outside of "${asset.boundry}"`
+        );
+      }
+    }));
+
+    // write css
+    await mkdirpAsync(this.targetDir);
     await writeFile(this.targetPath, prefixed.css);
 
+    // copy non-shared urlAssets
+    await Promise.all(urlAssets.map(async (asset) => {
+      if (!asset.copyTo) {
+        return;
+      }
+
+      await mkdirpAsync(dirname(asset.copyTo));
+      await copyFile(asset.path, asset.copyTo);
+    }));
+
     return this;
+  }
+
+  _makeError(title, message) {
+    const error = new Error(`${chalk.red(`${title} [${this.sourcePath}]`)}\n\n  ${message}\n`);
+    error.file = this.sourcePath;
+    return error;
   }
 }
