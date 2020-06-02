@@ -37,6 +37,6 @@ export interface DockerServer extends DockerServerSpec {
  * Helper that helps authors use the type definitions for the section of the FTR config
  * under the `dockerServers` key.
  */
-export function defineDockerServersConfig(config: { [name: string]: DockerServerSpec }) {
+export function defineDockerServersConfig(config: { [name: string]: DockerServerSpec } | {}) {
   return config;
 }
