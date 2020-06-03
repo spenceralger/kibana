@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import path from 'path';
+
 import { FtrConfigProviderContext } from '@kbn/test/types/ftr';
 import { defineDockerServersConfig } from '@kbn/test';
 
@@ -16,10 +18,17 @@ export default async function({ readConfigFile }: FtrConfigProviderContext) {
       process.env.INGEST_MANAGEMENT_PACKAGE_REGISTRY_PORT
         ? {
             registry: {
-              image: 'docker.elastic.co/package-registry/package-registry:v0.4.0',
+              image: 'docker.elastic.co/package-registry/package-registry:master',
               portInContainer: 8080,
               port: process.env.INGEST_MANAGEMENT_PACKAGE_REGISTRY_PORT,
               waitForLogLine: 'package manifests loaded into memory',
+              args: [
+                '-v',
+                `${path.join(
+                  path.dirname(__filename),
+                  './apis/fixtures/registry/public'
+                )}:/registry/public`,
+              ],
             },
           }
         : {}
