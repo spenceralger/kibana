@@ -120,8 +120,12 @@ export class DockerServersService {
     lifecycle.cleanup.add(() => {
       try {
         execa.sync('docker', ['kill', containerId]);
+        execa.sync('docker', ['rm', containerId]);
       } catch (error) {
-        if (error.message.includes(`Container ${containerId} is not running `)) {
+        if (
+          error.message.includes(`Container ${containerId} is not running`) ||
+          error.message.includes(`No such container: ${containerId}`)
+        ) {
           return;
         }
 
