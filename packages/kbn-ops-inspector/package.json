@@ -1,0 +1,23 @@
+{
+  "name": "@kbn/ops-inspector",
+  "version": "1.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "main": "target/index.js",
+  "scripts": {
+    "kbn:bootstrap": "node scripts/build",
+    "kbn:watch": "node scripts/build --watch"
+  },
+  "dependencies": {
+    "@babel/core": "^7.11.4",
+    "@babel/traverse": "^7.11.0",
+    "@babel/types": "^7.11.0",
+    "@kbn/babel-preset": "1.0.0",
+    "@kbn/dev-utils": "1.0.0",
+    "@types/babel__traverse": "^7.0.13",
+    "globby": "^8.0.1",
+    "read-pkg": "^5.2.0",
+    "vinyl-fs": "^3.0.3",
+    "write-pkg": "^4.0.0"
+  }
+}
