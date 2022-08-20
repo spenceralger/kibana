@@ -33,7 +33,9 @@ def _collect_inputs_deps_and_transitive_types_deps(ctx):
       deps_files_depsets.append(dep[DeclarationInfo].transitive_declarations)
 
   deps_files = depset(transitive = deps_files_depsets).to_list()
-  return [deps_files, transitive_types_deps]
+  deps2 = [d for d in deps_files if not d.path.endswith(".d.ts.map")]
+  #print(deps2);
+  return [deps2, transitive_types_deps]
 
 def _get_type_package_name(actualName):
   return "@types/" + actualName.replace("@", "").replace("/", "__")
@@ -121,12 +123,12 @@ def _pkg_npm_types_impl(ctx):
       # we have a much larger dependency graph.
       deps = transitive_types_deps,
     ),
-    LinkablePackageInfo(
-      package_name = _get_type_package_name(ctx.attr.package_name),
-      package_path = "",
-      path = package_dir.path,
-      files = package_dir_depset,
-    )
+#    LinkablePackageInfo(
+#      package_name = _get_type_package_name(ctx.attr.package_name),
+#      package_path = "",
+#      path = package_dir.path,
+#      files = package_dir_depset,
+#    )
   ]
 
 pkg_npm_types = rule(

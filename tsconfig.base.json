@@ -2,6 +2,13 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@kbn/*": [
+        "node_modules/@kbn/*",
+        "bazel-out/darwin-fastbuild/bin/packages/kbn-*/target_types",
+        "bazel-out/darwin_arm64-fastbuild/bin/packages/kbn-*/target_types",
+        "bazel-out/k8-fastbuild/bin/packages/kbn-*/target_types",
+        "bazel-out/x64_windows-fastbuild/bin/packages/kbn-*/target_types"
+      ],
       "@kbn/core": ["src/core"],
       "@kbn/core/*": ["src/core/*"],
       // START AUTOMATED PACKAGE LISTING

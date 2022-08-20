@@ -9,7 +9,7 @@
 import Fsp from 'fs/promises';
 
 import { Path } from '@kbn/type-summarizer-core';
-import { summarizePackage } from '@kbn/type-summarizer';
+// import { summarizePackage } from '@kbn/type-summarizer';
 
 import { parseCliConfig } from './cli_config';
 
@@ -57,24 +57,27 @@ run(
       )
     );
 
-    const sourceNode = await summarizePackage(log, {
-      dtsDir: Path.dirname(inputPath),
-      inputPath,
-      tsconfigPath,
-      repoRelativePackageDir,
-    });
+    // const sourceNode = await summarizePackage(log, {
+    //   dtsDir: Path.dirname(inputPath),
+    //   inputPath,
+    //   tsconfigPath,
+    //   repoRelativePackageDir,
+    // });
+    //
+    // const source = sourceNode.toStringWithSourceMap({
+    //   file: 'index.d.ts',
+    //   sourceRoot: `../../../${Path.toNormal(repoRelativePackageDir)}`,
+    // });
+    //
+    // const code = `${source.code}${
+    //   source.code.endsWith('\n') ? '' : '\n'
+    // }//# sourceMappingURL=index.d.ts.map`;
+    // console.log(inputPath + tsconfigPath);
 
-    const source = sourceNode.toStringWithSourceMap({
-      file: 'index.d.ts',
-      sourceRoot: `../../../${Path.toNormal(repoRelativePackageDir)}`,
-    });
+    const code2 = `export * from '../../../${Path.toNormal(repoRelativePackageDir)}/src/index';`;
 
-    const code = `${source.code}${
-      source.code.endsWith('\n') ? '' : '\n'
-    }//# sourceMappingURL=index.d.ts.map`;
-
-    await Fsp.writeFile(Path.join(outputDir, 'index.d.ts'), code);
-    await Fsp.writeFile(Path.join(outputDir, 'index.d.ts.map'), JSON.stringify(source.map));
+    await Fsp.writeFile(Path.join(outputDir, 'index.d.ts'), code2);
+    // await Fsp.writeFile(Path.join(outputDir, 'index.d.ts.map'), JSON.stringify(source.map));
 
     log.success('type summary created for', packageName);
   },

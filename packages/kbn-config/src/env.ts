@@ -52,6 +52,41 @@ export class Env {
   public static createDefault(repoRoot: string, options: EnvOptions, pkg?: RawPackageInfo): Env {
     if (!pkg) {
       pkg = loadJsonFile.sync(join(repoRoot, 'package.json')) as RawPackageInfo;
+      console.log('1');
+      console.log('2');
+    }
+    return new Env(repoRoot, pkg, options);
+  }
+
+  public static createDefault2(repoRoot: string, options: EnvOptions, pkg?: RawPackageInfo): Env {
+    if (!pkg) {
+      pkg = loadJsonFile.sync(join(repoRoot, 'package.json')) as RawPackageInfo;
+      console.log('1');
+    }
+    return new Env(repoRoot, pkg, options);
+  }
+
+  public static createDefault3(repoRoot: string, options: EnvOptions, pkg?: RawPackageInfo): Env {
+    if (!pkg) {
+      pkg = loadJsonFile.sync(join(repoRoot, 'package.json')) as RawPackageInfo;
+      console.log('1');
+      console.log('2');
+    }
+    return new Env(repoRoot, pkg, options);
+  }
+
+  public static createDefault4(repoRoot: string, options: EnvOptions, pkg?: RawPackageInfo): Env {
+    if (!pkg) {
+      pkg = loadJsonFile.sync(join(repoRoot, 'package.json')) as RawPackageInfo;
+      console.log('1');
+    }
+    return new Env(repoRoot, pkg, options);
+  }
+
+  public static createDefault5(repoRoot: string, options: EnvOptions, pkg?: RawPackageInfo): Env {
+    if (!pkg) {
+      pkg = loadJsonFile.sync(join(repoRoot, 'package.json')) as RawPackageInfo;
+      console.log('1');
     }
     return new Env(repoRoot, pkg, options);
   }
