@@ -8,60 +8,36 @@
 
 const Path = require('path');
 
-const globby = require('globby');
-const normalizePath = require('normalize-path');
-const { REPO_ROOT } = require('@kbn/utils');
-const { asyncMapWithLimit } = require('@kbn/std');
-
 const { BazelPackage } = require('./bazel_package');
-const { BAZEL_PACKAGE_DIRS } = require('./bazel_package_dirs');
+const { getAllBazelPackageDirs } = require('./bazel_package_dirs');
+const { findPackages } = require('./find_files');
+const { asyncMapWithLimit } = require('./async');
 
 /**
- *
  * @param {string} repoRoot
- * @returns
  */
 function discoverBazelPackageLocations(repoRoot) {
-  const packagesWithPackageJson = globby
-    .sync(
-      BAZEL_PACKAGE_DIRS.map((dir) => `${dir}/*/package.json`),
-      {
-        cwd: repoRoot,
-        absolute: true,
-      }
-    )
-    // NOTE: removing x-pack by default for now to prevent a situation where a BUILD.bazel file
-    // needs to be added at the root of the folder which will make x-pack to be wrongly recognized
-    // as a Bazel package in that case
-    .filter((path) => !normalizePath(path).includes('x-pack/package.json'))
-    .sort((a, b) => a.localeCompare(b))
+  const packagesWithBuildBazel = getAllBazelPackageDirs(repoRoot)
+    .flatMap((packageDir) => findPackages(packageDir, 'BUILD.bazel'))
     .map((path) => Path.dirname(path));
 
-  const packagesWithBuildBazel = globby
-    .sync(
-      BAZEL_PACKAGE_DIRS.map((dir) => `${dir}/*/BUILD.bazel`),
-      {
-        cwd: repoRoot,
-        absolute: true,
-      }
-    )
-    .map((path) => Path.dirname(path));
-
-  // NOTE: only return as discovered packages the ones with a package.json + BUILD.bazel file.
-  // In the future we should change this to only discover the ones declaring kibana.json.
-  return packagesWithPackageJson.filter((pkg) => packagesWithBuildBazel.includes(pkg));
+  // NOTE: only return as discovered packages with a package.json + BUILD.bazel file.
+  // In the future we should change this to only discover the ones with kibana.jsonc.
+  return getAllBazelPackageDirs(repoRoot)
+    .flatMap((packageDir) => findPackages(packageDir, 'package.json'))
+    .map((path) => Path.dirname(path))
+    .filter((pkg) => packagesWithBuildBazel.includes(pkg))
+    .sort((a, b) => a.localeCompare(b));
 }
 
 /**
- *
- * @param {string | undefined} repoRoot
- * @returns
+ * @param {string} repoRoot
  */
-async function discoverBazelPackages(repoRoot = REPO_ROOT) {
+async function discoverBazelPackages(repoRoot) {
   return await asyncMapWithLimit(
     discoverBazelPackageLocations(repoRoot),
     100,
-    async (dir) => await BazelPackage.fromDir(dir)
+    async (dir) => await BazelPackage.fromDir(repoRoot, dir)
   );
 }
 

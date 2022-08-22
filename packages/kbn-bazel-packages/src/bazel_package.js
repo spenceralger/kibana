@@ -10,9 +10,6 @@ const { inspect } = require('util');
 const Path = require('path');
 const Fsp = require('fs/promises');
 
-const normalizePath = require('normalize-path');
-const { REPO_ROOT } = require('@kbn/utils');
-
 /** @typedef {import('./types').ParsedPackageJson} ParsedPackageJson */
 const { readPackageJson } = require('./parse_package_json');
 
@@ -30,9 +27,10 @@ class BazelPackage {
   /**
    * Create a BazelPackage object from a package directory. Reads some files from the package and returns
    * a Promise for a BazelPackage instance.
+   * @param {string} repoRoot
    * @param {string} dir
    */
-  static async fromDir(dir) {
+  static async fromDir(repoRoot, dir) {
     const pkg = readPackageJson(Path.resolve(dir, 'package.json'));
 
     let buildBazelContent;
@@ -42,7 +40,7 @@ class BazelPackage {
       throw new Error(`unable to read BUILD.bazel file in [${dir}]: ${error.message}`);
     }
 
-    return new BazelPackage(normalizePath(Path.relative(REPO_ROOT, dir)), pkg, buildBazelContent);
+    return new BazelPackage(Path.relative(repoRoot, dir), pkg, buildBazelContent);
   }
 
   constructor(

@@ -8,18 +8,12 @@
 
 /** @typedef {import('./bazel_package').BazelPackage} BazelPackage */
 
-const {
-  BAZEL_PACKAGE_DIRS,
-  getAllBazelPackageDirs,
-  getAllRepoRelativeBazelPackageDirs
-} = require('./bazel_package_dirs');
-
+const { BAZEL_PACKAGE_DIRS, getAllBazelPackageDirs } = require('./bazel_package_dirs');
 const { discoverBazelPackageLocations, discoverBazelPackages } = require('./discover_packages');
 
 module.exports = {
   BAZEL_PACKAGE_DIRS,
   getAllBazelPackageDirs,
-  getAllRepoRelativeBazelPackageDirs,
   discoverBazelPackageLocations,
-  discoverBazelPackages
-}
+  discoverBazelPackages,
+};

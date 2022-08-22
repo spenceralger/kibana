@@ -6,10 +6,7 @@
  * Side Public License, v 1.
  */
 
-const globby = require('globby');
-const Path = require('path');
-
-const { REPO_ROOT } = require('@kbn/utils');
+const { expandWildcards } = require('./find_files');
 
 /**
  * This is a list of repo-relative paths to directories containing packages. Do not
@@ -34,24 +31,13 @@ const BAZEL_PACKAGE_DIRS = [
 
 /**
  * Resolve all the BAZEL_PACKAGE_DIRS to absolute paths
+ * @param {string} repoRoot
  */
-function getAllBazelPackageDirs() {
-  return globby.sync(BAZEL_PACKAGE_DIRS, {
-    cwd: REPO_ROOT,
-    onlyDirectories: true,
-    expandDirectories: false,
-  });
-}
-
-/**
- * Resolve all the BAZEL_PACKAGE_DIRS to repo-relative paths
- */
-function getAllRepoRelativeBazelPackageDirs() {
-  return getAllBazelPackageDirs().map((path) => Path.relative(REPO_ROOT, path));
+function getAllBazelPackageDirs(repoRoot) {
+  return expandWildcards(repoRoot, BAZEL_PACKAGE_DIRS);
 }
 
 module.exports = {
   BAZEL_PACKAGE_DIRS,
   getAllBazelPackageDirs,
-  getAllRepoRelativeBazelPackageDirs,
 };
