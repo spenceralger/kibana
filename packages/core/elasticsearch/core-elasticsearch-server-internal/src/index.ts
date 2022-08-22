@@ -16,6 +16,7 @@ export type {
   NodeInfo,
 } from './version_check/ensure_es_version';
 export type {
+  ClusterInfo,
   ElasticsearchStatusMeta,
   InternalElasticsearchServicePreboot,
   InternalElasticsearchServiceSetup,

@@ -6,4 +6,4 @@
  * Side Public License, v 1.
  */
 
-export { AbstractStorybookMock } from './mocks';
+export { AbstractStorybookMock, ArgumentParams } from './mocks';

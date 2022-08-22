@@ -27,6 +27,7 @@ Usage:
 
 run(
   async ({ argv, log }) => {
+    // @ts-expect-error
     const { packageName, outputDir, inputPath, repoRelativePackageDir, tsconfigPath } =
       parseCliConfig(argv);
 

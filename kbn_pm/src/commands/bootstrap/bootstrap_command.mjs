@@ -12,6 +12,7 @@ import { haveNodeModulesBeenManuallyDeleted, removeYarnIntegrityFileIfExists } f
 import { setupRemoteCache } from './setup_remote_cache.mjs';
 import { regenerateSyntheticPackageMap } from './regenerate_synthetic_package_map.mjs';
 import { sortPackageJson } from './sort_package_json.mjs';
+import { packagesDiscovery } from './packages.mjs';
 import { pluginDiscovery } from './plugins.mjs';
 import { regenerateBaseTsconfig } from './regenerate_base_tsconfig.mjs';
 
@@ -92,6 +93,14 @@ export const command = {
       regenerateSyntheticPackageMap(plugins);
     });
 
+    const packages = await time('packages discovery', async () => {
+      return await packagesDiscovery();
+    });
+
+    await time('regenerate tsconfig.base.json', async () => {
+      regenerateBaseTsconfig(plugins, packages);
+    });
+
     // build packages
     await time('build packages', async () => {
       await Bazel.buildPackages(log, { offline, quiet });
@@ -99,9 +108,6 @@ export const command = {
 
     await time('sort package json', async () => {
       await sortPackageJson();
-    });
-    await time('regenerate tsconfig.base.json', async () => {
-      regenerateBaseTsconfig(plugins);
     });
 
     if (validate) {

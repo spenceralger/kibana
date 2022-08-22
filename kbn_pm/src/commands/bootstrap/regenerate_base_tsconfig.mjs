@@ -15,12 +15,24 @@ import { normalizePath } from './normalize_path.mjs';
 
 /**
  * @param {import('@kbn/plugin-discovery').KibanaPlatformPlugin[]} plugins
+ * @param {import('@kbn/bazel-packages').BazelPackage[]} packages
  */
-export function regenerateBaseTsconfig(plugins) {
+export function regenerateBaseTsconfig(plugins, packages) {
   const tsconfigPath = Path.resolve(REPO_ROOT, 'tsconfig.base.json');
   const lines = Fs.readFileSync(tsconfigPath, 'utf-8').split('\n');
 
-  const packageMap = plugins
+  const packagesMap = packages
+    .slice()
+    .sort((a, b) => a.normalizedRepoRelativeDir.localeCompare(b.normalizedRepoRelativeDir))
+    .flatMap((p) => {
+      const id = p.pkg.name
+      const path = p.normalizedRepoRelativeDir
+      // return [`      "${id}": ["${path}"],`, `      "${id}/*": ["${path}/*"],`];
+      // return [`      "${id}": ["node_modules/@types/${id.replace("@", "").replace("/", "__")}", "bazel-out/darwin-fastbuild/bin/${path}/target_types", "bazel-out/darwin_arm64-fastbuild/bin/${path}/target_types", "bazel-out/k8-fastbuild/bin/${path}/target_types", "bazel-out/x64_windows-fastbuild/bin/${path}/target_types"],`,];
+      return [`      "${id}": ["bazel-out/darwin_arm64-fastbuild/bin/${path}/target_types"],`,];
+    });
+
+  const pluginsMap = plugins
     .slice()
     .sort((a, b) => a.manifestPath.localeCompare(b.manifestPath))
     .flatMap((p) => {
@@ -34,6 +46,6 @@ export function regenerateBaseTsconfig(plugins) {
 
   Fs.writeFileSync(
     tsconfigPath,
-    [...lines.slice(0, start + 1), ...packageMap, ...lines.slice(end)].join('\n')
+    [...lines.slice(0, start + 1), ...packagesMap, ...pluginsMap, ...lines.slice(end)].join('\n')
   );
 }
