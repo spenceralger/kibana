@@ -8,7 +8,8 @@
 
 import Path from 'path';
 import { getPluginSearchPaths } from '@kbn/plugin-discovery';
-import { KibanaPlatformPlugin, simpleKibanaPlatformPluginDiscovery } from '@kbn/plugin-discovery';
+import { simpleKibanaPlatformPluginDiscovery } from '@kbn/plugin-discovery';
+import type { KibanaPlatformPlugin } from '@kbn/plugin-discovery-common-types';
 
 import { REPO_ROOT } from '@kbn/utils';
 

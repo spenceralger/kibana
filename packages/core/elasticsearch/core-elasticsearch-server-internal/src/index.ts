@@ -6,6 +6,7 @@
  * Side Public License, v 1.
  */
 
+export type { ClusterInfo } from './get_cluster_info';
 export { ElasticsearchService } from './elasticsearch_service';
 export { config, configSchema, ElasticsearchConfig } from './elasticsearch_config';
 export type { ElasticsearchConfigType } from './elasticsearch_config';
@@ -16,7 +17,6 @@ export type {
   NodeInfo,
 } from './version_check/ensure_es_version';
 export type {
-  ClusterInfo,
   ElasticsearchStatusMeta,
   InternalElasticsearchServicePreboot,
   InternalElasticsearchServiceSetup,

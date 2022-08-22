@@ -25,14 +25,14 @@ function isValidDepsDeclaration(input, type) {
 
 /**
  * @param {string} manifestPath
- * @returns {import('./types').KibanaPlatformPlugin}
+ * @returns {import('@kbn/plugin-discovery-common-types').KibanaPlatformPlugin}
  */
 function parseKibanaPlatformPlugin(manifestPath) {
   if (!Path.isAbsolute(manifestPath)) {
     throw new TypeError('expected new platform manifest path to be absolute');
   }
 
-  /** @type {Partial<import('./types').KibanaPlatformPluginManifest>} */
+  /** @type {Partial<import('@kbn/plugin-discovery-common-types').KibanaPlatformPluginManifest>} */
   const manifest = loadJsonFile(manifestPath);
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
     throw new TypeError('expected new platform plugin manifest to be a JSON encoded object');

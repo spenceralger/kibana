@@ -3678,6 +3678,10 @@
   version "0.0.0"
   uid ""
 
+"@kbn/plugin-discovery-common-types@link:bazel-bin/packages/kbn-plugin-discovery-common-types":
+  version "0.0.0"
+  uid ""
+
 "@kbn/plugin-discovery@link:bazel-bin/packages/kbn-plugin-discovery":
   version "0.0.0"
   uid ""
@@ -7627,6 +7631,10 @@
   uid ""
 
 "@types/kbn__performance-testing-dataset-extractor@link:bazel-bin/packages/kbn-performance-testing-dataset-extractor/npm_module_types":
+  version "0.0.0"
+  uid ""
+
+"@types/kbn__plugin-discovery-common-types@link:bazel-bin/packages/kbn-plugin-discovery-common-types/npm_module_types":
   version "0.0.0"
   uid ""
 

@@ -13,7 +13,7 @@ const { findFiles } = require('./find_files');
  * Helper to find the new platform plugins.
  * @param {string[]} scanDirs
  * @param {string[]} pluginPaths
- * @returns {Array<import('./types').KibanaPlatformPlugin>}
+ * @returns {Array<import('@kbn/plugin-discovery-common-types').KibanaPlatformPlugin>}
  */
 function simpleKibanaPlatformPluginDiscovery(scanDirs, pluginPaths) {
   return Array.from(

@@ -189,6 +189,7 @@
       "@kbn/optimizer-webpack-helpers": ["bazel-out/darwin_arm64-fastbuild/bin/packages/kbn-optimizer-webpack-helpers/target_types"],
       "@kbn/performance-testing-dataset-extractor": ["bazel-out/darwin_arm64-fastbuild/bin/packages/kbn-performance-testing-dataset-extractor/target_types"],
       "@kbn/plugin-discovery": ["bazel-out/darwin_arm64-fastbuild/bin/packages/kbn-plugin-discovery/target_types"],
+      "@kbn/plugin-discovery-common-types": ["bazel-out/darwin_arm64-fastbuild/bin/packages/kbn-plugin-discovery-common-types/target_types"],
       "@kbn/plugin-generator": ["bazel-out/darwin_arm64-fastbuild/bin/packages/kbn-plugin-generator/target_types"],
       "@kbn/plugin-helpers": ["bazel-out/darwin_arm64-fastbuild/bin/packages/kbn-plugin-helpers/target_types"],
       "@kbn/react-field": ["bazel-out/darwin_arm64-fastbuild/bin/packages/kbn-react-field/target_types"],

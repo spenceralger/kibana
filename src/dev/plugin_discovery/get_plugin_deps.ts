@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { KibanaPlatformPlugin } from '@kbn/plugin-discovery';
+import { KibanaPlatformPlugin } from '@kbn/plugin-discovery-common-types';
 
 interface AllOptions {
   id: string;

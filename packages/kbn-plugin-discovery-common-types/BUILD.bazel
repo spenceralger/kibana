@@ -2,16 +2,25 @@ load("@npm//@bazel/typescript:index.bzl", "ts_config")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("//src/dev/bazel:index.bzl", "jsts_transpiler", "pkg_npm", "pkg_npm_types", "ts_project")
 
-PKG_DIRNAME = "kbn-plugin-discovery"
-PKG_REQUIRE_NAME = "@kbn/plugin-discovery"
+PKG_DIRNAME = "kbn-plugin-discovery-common-types"
+PKG_REQUIRE_NAME = "@kbn/plugin-discovery-common-types"
 
 SOURCE_FILES = glob(
   [
-    "src/**/*.js",
-    "src/**/*.ts",
+    "**/*.ts",
   ],
   exclude = [
+    "**/*.config.js",
+    "**/*.mock.*",
     "**/*.test.*",
+    "**/*.stories.*",
+    "**/__snapshots__",
+    "**/integration_tests",
+    "**/mocks",
+    "**/scripts",
+    "**/storybook",
+    "**/test_fixtures",
+    "**/test_helpers",
   ],
 )
 
@@ -49,16 +58,14 @@ RUNTIME_DEPS = [
 #
 #  References to NPM packages work the same as RUNTIME_DEPS
 TYPES_DEPS = [
-  "//packages/kbn-plugin-discovery-common-types:npm_module_types",
-  "@npm//@types/jest",
   "@npm//@types/node",
+  "@npm//@types/jest",
 ]
 
 jsts_transpiler(
   name = "target_node",
   srcs = SRCS,
   build_pkg_name = package_name(),
-  root_input_dir = "src",
 )
 
 ts_config(
@@ -77,10 +84,9 @@ ts_project(
   deps = TYPES_DEPS,
   declaration = True,
   declaration_map = True,
-  allow_js = True,
   emit_declaration_only = True,
   out_dir = "target_types",
-  root_dir = "src",
+  root_dir = ".",
   tsconfig = ":tsconfig",
 )
 

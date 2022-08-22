@@ -77,11 +77,6 @@ run(
 
     let code2 = `export * from '../../../${Path.toNormal(repoRelativePackageDir)}/src/index';`;
 
-    if (packageName.includes('@kbn/plugin-discovery')) {
-      code2 += `
-      export * from '../../../${Path.toNormal(repoRelativePackageDir)}/src/types';`;
-    }
-
     await Fsp.writeFile(Path.join(outputDir, 'index.d.ts'), code2);
     // await Fsp.writeFile(Path.join(outputDir, 'index.d.ts.map'), JSON.stringify(source.map));
 
