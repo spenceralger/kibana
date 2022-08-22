@@ -6,17 +6,22 @@
  * Side Public License, v 1.
  */
 
-import Path from 'path';
+const Path = require('path');
 
-import globby from 'globby';
-import normalizePath from 'normalize-path';
-import { REPO_ROOT } from '@kbn/utils';
-import { asyncMapWithLimit } from '@kbn/std';
+const globby = require('globby');
+const normalizePath = require('normalize-path');
+const { REPO_ROOT } = require('@kbn/utils');
+const { asyncMapWithLimit } = require('@kbn/std');
 
-import { BazelPackage } from './bazel_package';
-import { BAZEL_PACKAGE_DIRS } from './bazel_package_dirs';
+const { BazelPackage } = require('./bazel_package');
+const { BAZEL_PACKAGE_DIRS } = require('./bazel_package_dirs');
 
-export function discoverBazelPackageLocations(repoRoot: string) {
+/**
+ *
+ * @param {string} repoRoot
+ * @returns
+ */
+function discoverBazelPackageLocations(repoRoot) {
   const packagesWithPackageJson = globby
     .sync(
       BAZEL_PACKAGE_DIRS.map((dir) => `${dir}/*/package.json`),
@@ -47,10 +52,17 @@ export function discoverBazelPackageLocations(repoRoot: string) {
   return packagesWithPackageJson.filter((pkg) => packagesWithBuildBazel.includes(pkg));
 }
 
-export async function discoverBazelPackages(repoRoot: string = REPO_ROOT) {
+/**
+ *
+ * @param {string | undefined} repoRoot
+ * @returns
+ */
+async function discoverBazelPackages(repoRoot = REPO_ROOT) {
   return await asyncMapWithLimit(
     discoverBazelPackageLocations(repoRoot),
     100,
     async (dir) => await BazelPackage.fromDir(dir)
   );
 }
+
+module.exports = { discoverBazelPackageLocations, discoverBazelPackages };

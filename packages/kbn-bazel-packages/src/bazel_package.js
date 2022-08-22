@@ -6,27 +6,33 @@
  * Side Public License, v 1.
  */
 
-import { inspect } from 'util';
-import Path from 'path';
-import Fsp from 'fs/promises';
+const { inspect } = require('util');
+const Path = require('path');
+const Fsp = require('fs/promises');
 
-import normalizePath from 'normalize-path';
-import { REPO_ROOT } from '@kbn/utils';
+const normalizePath = require('normalize-path');
+const { REPO_ROOT } = require('@kbn/utils');
 
-import { readPackageJson, ParsedPackageJson } from './parse_package_json';
+/** @typedef {import('./types').ParsedPackageJson} ParsedPackageJson */
+const { readPackageJson } = require('./parse_package_json');
 
 const BUILD_RULE_NAME = /(^|\s)name\s*=\s*"build"/;
 const BUILD_TYPES_RULE_NAME = /(^|\s)name\s*=\s*"build_types"/;
 
 /**
  * Representation of a Bazel Package in the Kibana repository
+ * @class
+ * @property {string} normalizedRepoRelativeDir
+ * @property {import('./types').ParsedPackageJson} pkg
+ * @property {string | undefined} buildBazelContent
  */
-export class BazelPackage {
+class BazelPackage {
   /**
    * Create a BazelPackage object from a package directory. Reads some files from the package and returns
    * a Promise for a BazelPackage instance.
+   * @param {string} dir
    */
-  static async fromDir(dir: string) {
+  static async fromDir(dir) {
     const pkg = readPackageJson(Path.resolve(dir, 'package.json'));
 
     let buildBazelContent;
@@ -42,17 +48,24 @@ export class BazelPackage {
   constructor(
     /**
      * Relative path from the root of the repository to the package directory
+     * @type {string}
      */
-    public readonly normalizedRepoRelativeDir: string,
+    normalizedRepoRelativeDir,
     /**
      * Parsed package.json file from the package
+     * @type {import('./types').ParsedPackageJson}
      */
-    public readonly pkg: ParsedPackageJson,
+    pkg,
     /**
      * Content of the BUILD.bazel file
+     * @type {string | undefined}
      */
-    private readonly buildBazelContent?: string
-  ) {}
+    buildBazelContent = undefined
+  ) {
+    this.normalizedRepoRelativeDir = normalizedRepoRelativeDir;
+    this.pkg = pkg;
+    this.buildBazelContent = buildBazelContent;
+  }
 
   /**
    * Returns true if the package includes a `:build` bazel rule
@@ -83,3 +96,7 @@ export class BazelPackage {
     return `BazelPackage<${this.normalizedRepoRelativeDir}>`;
   }
 }
+
+module.exports = {
+  BazelPackage,
+};
