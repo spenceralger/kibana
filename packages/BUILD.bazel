@@ -541,6 +541,5 @@ filegroup(
   name = "build",
   srcs = [
     ":build_pkg_code",
-    ":build_pkg_types"
   ],
 )
