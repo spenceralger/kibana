@@ -6,188 +6,140 @@
  * Side Public License, v 1.
  */
 
-import { createCliError } from '../lib/cli_error.mjs';
+import Fs from 'fs';
+import Fsp from 'fs/promises';
+import Path from 'path';
+
+import { getTsConfig } from '../config_generation/generate_tsconfig.mjs';
+
+/**
+ * @param {any} aPath
+ * @param {any} bPath
+ */
+function normalizePath(aPath, bPath) {
+  if (`./${bPath}` === aPath) {
+    return aPath;
+  }
+
+  return bPath;
+}
+
+/**
+ * @param {unknown} v
+ * @returns {v is Record<string, unknown>}
+ */
+function isObj(v) {
+  return typeof v === 'object' && v !== null;
+}
+
+/**
+ * @param {unknown} obj
+ * @returns {Map<string, unknown>}
+ */
+function toMap(obj) {
+  return isObj(obj)
+    ? new Map(Object.entries(obj).map(([k, v]) => [k, v == null ? null : v]))
+    : new Map();
+}
+
+/**
+ * @param {unknown} a
+ * @param {unknown} b
+ */
+function typesEql(a, b) {
+  const aTypes = Array.isArray(a) ? a : [];
+  const bTypes = Array.isArray(b) ? b : [];
+
+  if (bTypes.length <= aTypes.length && bTypes.every((x) => aTypes.includes(x))) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * @param {Map<string, unknown>} aEnt
+ * @param {Map<string, unknown>} bEnt
+ */
+function diff(aEnt, bEnt) {
+  const bChanges = new Map();
+  for (const key of bEnt.keys()) {
+    const a = aEnt.get(key);
+    const b = bEnt.get(key);
+
+    if (a !== b) {
+      bChanges.set(key, b);
+    }
+  }
+
+  return bChanges;
+}
 
 /** @type {import('../lib/command').Command} */
 export const command = {
   name: '_x',
   async run({ log }) {
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) {
-      throw createCliError('you must set GITHUB_TOKEN');
-    }
+    const { REPO_ROOT } = await import('@kbn/utils');
+    const { discoverBazelPackages, Jsonc } = await import('@kbn/bazel-packages');
 
-    const { default: Axios } = await import('axios');
-    const http = Axios.create({
-      baseURL: 'https://api.github.com/graphql',
-      headers: {
-        Authorization: `bearer ${token}`,
-      },
-    });
-
-    const PR_INDEX_GQL = `
-      # Type queries into this side of the screen, and you will
-      # see intelligent typeaheads aware of the current GraphQL type schema,
-      # live syntax, and validation errors highlighted within the text.
-
-      # We'll get you started with a simple query showing your username!
-      query ($prCursor: String) {
-        repository(name: "kibana", owner: "elastic") {
-          pullRequests(first: 100, baseRefName: "main", states: OPEN, after: $prCursor) {
-            nodes {
-              id
-              number
-              files(first: 100) {
-                nodes {
-                  changeType
-                  path
-                }
-                pageInfo {
-                  endCursor
-                  hasNextPage
-                }
-              }
-            }
-            pageInfo {
-              endCursor
-              hasNextPage
-            }
-          }
-        }
-        rateLimit {
-          cost
-          remaining
-        }
+    for (const pkg of await discoverBazelPackages(REPO_ROOT)) {
+      const tsconfigPath = Path.resolve(REPO_ROOT, pkg.normalizedRepoRelativeDir, 'tsconfig.json');
+      if (!Fs.existsSync(tsconfigPath)) {
+        log.warning(pkg.manifest.id, 'has no tsconfig.json file');
+        continue;
       }
-    `;
 
-    async function* iterPrs() {
-      /** @type {string | undefined} */
-      let prCursor;
-      while (true) {
-        /** @type {import('./x_types').FetchPrsResponse} */
-        const resp = await http.request({
-          method: 'post',
-          data: {
-            query: PR_INDEX_GQL,
-            variables: {
-              prCursor,
+      const generatedCompilerOptions = toMap(
+        getTsConfig(pkg.manifest, pkg.normalizedRepoRelativeDir).compilerOptions
+      );
+      const actualCompilerOptions = toMap(
+        /** @type {any} */ (Jsonc.parse(await Fsp.readFile(tsconfigPath, 'utf8')))
+          .compilerOptions ?? {}
+      );
+
+      if (typesEql(generatedCompilerOptions.get('types'), actualCompilerOptions.get('types'))) {
+        actualCompilerOptions.set('types', generatedCompilerOptions.get('types'));
+      }
+
+      actualCompilerOptions.set(
+        'outDir',
+        normalizePath(actualCompilerOptions.get('outDir'), generatedCompilerOptions.get('outDir'))
+      );
+
+      const changes = diff(generatedCompilerOptions, actualCompilerOptions);
+
+      await Fsp.unlink(tsconfigPath);
+      if (!changes.size) {
+        continue;
+      }
+
+      if (pkg.manifest.id === '@kbn/tinymath') {
+        debugger;
+      }
+
+      const jsoncPath = Path.resolve(REPO_ROOT, pkg.normalizedRepoRelativeDir, 'kibana.jsonc');
+      const kibanaJsonc = /** @type {Record<any, any>} */ (
+        /** @type {unknown} */ (Jsonc.parse(await Fsp.readFile(jsoncPath, 'utf8')))
+      );
+
+      await Fsp.writeFile(
+        jsoncPath,
+        JSON.stringify(
+          {
+            ...kibanaJsonc,
+            __deprecated__TalkToOperationsIfYouThinkYouNeedThis: {
+              ...kibanaJsonc.__deprecated__TalkToOperationsIfYouThinkYouNeedThis,
+              tsCompilerOptions: Object.fromEntries(changes),
             },
           },
-        });
+          null,
+          2
+        )
+          .replaceAll(/([}\]"])$/gm, '$1,')
+          .slice(0, -1) + '\n'
+      );
 
-        const { nodes, pageInfo: prPageInfo } = resp.data.data.repository.pullRequests;
-        prCursor = prPageInfo.endCursor;
-
-        /** @type {import('./x_types').FetchedPr[]} */
-        const completePrs = [];
-
-        /** @type {Array<{ filesCursor: string, fetched: import('./x_types').FetchedPr }>} */
-        const incompletePrs = [];
-
-        for (const pr of nodes) {
-          const addedFiles = pr.files.nodes.flatMap((n) =>
-            n.changeType === 'ADDED' ? n.path : []
-          );
-
-          /** @type {import('./x_types').FetchedPr} */
-          const fetched = {
-            id: pr.id,
-            number: pr.number,
-            addedFiles,
-          };
-
-          if (pr.files.pageInfo.hasNextPage) {
-            incompletePrs.push({
-              filesCursor: pr.files.pageInfo.endCursor,
-              fetched,
-            });
-          } else {
-            completePrs.push(fetched);
-          }
-        }
-
-        while (incompletePrs.length) {
-          /** @type {string[]} */
-          const gqlSnippets = [];
-          /** @type {Map<number, import('./x_types').FetchedPr>} */
-          const fetchedPrsByNumber = new Map();
-
-          for (const { filesCursor, fetched } of incompletePrs) {
-            fetchedPrsByNumber.set(fetched.number, fetched);
-            gqlSnippets.push(`
-              pr_${fetched.number}: node (id: ${JSON.stringify(fetched.id)}) {
-                ... on PullRequest {
-                  number
-                  files(first:100, after:${JSON.stringify(filesCursor)}) {
-                    nodes {
-                      changeType
-                      path
-                    }
-                    pageInfo {
-                      endCursor
-                      hasNextPage
-                    }
-                  }
-                }
-              }
-            `);
-          }
-
-          incompletePrs.length = 0;
-
-          /** @type {import('./x_types').MoreFilesResponse} */
-          const moreFilesResp = await http.request({
-            method: 'post',
-            data: {
-              query: `
-                query {
-                  ${gqlSnippets.join('\n')}
-                }
-              `,
-            },
-          });
-
-          for (const pr of Object.values(moreFilesResp.data.data)) {
-            const fetched = fetchedPrsByNumber.get(pr.number);
-
-            if (!fetched) {
-              throw new Error('pr mismatch');
-            }
-
-            for (const file of pr.files.nodes) {
-              if (file.changeType === 'ADDED') {
-                fetched.addedFiles.push(file.path);
-              }
-            }
-
-            if (!pr.files.pageInfo.hasNextPage) {
-              completePrs.push(fetched);
-            } else {
-              incompletePrs.push({
-                filesCursor: pr.files.pageInfo.endCursor,
-                fetched,
-              });
-            }
-          }
-        }
-
-        yield completePrs;
-
-        if (!prPageInfo.hasNextPage) {
-          break;
-        }
-      }
-    }
-
-    for await (const prs of iterPrs()) {
-      log.info('loaded', prs.length, 'prs');
-      for (const pr of prs) {
-        const addedPackageJson = pr.addedFiles.find((f) => f.endsWith('/package.json'));
-        if (addedPackageJson) {
-          log.warning(`PR #${pr.number} added a package ${addedPackageJson}`);
-        }
-      }
+      log.success('updated', pkg.manifest.id);
     }
   },
 };
