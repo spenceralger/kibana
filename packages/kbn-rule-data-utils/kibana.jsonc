@@ -3,5 +3,10 @@
   "id": "@kbn/rule-data-utils",
   "owner": "@elastic/apm-ui",
   "runtimeDeps": [],
-  "typeDeps": []
+  "typeDeps": [],
+  "__deprecated__TalkToOperationsIfYouThinkYouNeedThis": {
+    "pkgJsonOverrides": {
+      "browser": "./target_web/index.js",
+    },
+  },
 }

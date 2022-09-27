@@ -3,5 +3,12 @@
   "id": "@kbn/utility-types",
   "owner": "@elastic/kibana-core",
   "runtimeDeps": [],
-  "typeDeps": []
+  "typeDeps": [],
+  "__deprecated__TalkToOperationsIfYouThinkYouNeedThis": {
+    "pkgJsonOverrides": {
+      "scripts": {
+        "test": "../../node_modules/.bin/tsd src/tsd_tests",
+      },
+    },
+  },
 }

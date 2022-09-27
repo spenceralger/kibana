@@ -3,5 +3,10 @@
   "id": "@kbn/tinymath",
   "owner": "@elastic/kibana-vis-editors",
   "runtimeDeps": [],
-  "typeDeps": []
+  "typeDeps": [],
+  "__deprecated__TalkToOperationsIfYouThinkYouNeedThis": {
+    "pkgJsonOverrides": {
+      "main": "src/index.js",
+    },
+  },
 }

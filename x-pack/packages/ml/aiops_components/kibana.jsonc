@@ -3,5 +3,10 @@
   "id": "@kbn/aiops-components",
   "owner": "@elastic/ml-ui",
   "runtimeDeps": [],
-  "typeDeps": []
+  "typeDeps": [],
+  "__deprecated__TalkToOperationsIfYouThinkYouNeedThis": {
+    "pkgJsonOverrides": {
+      "browser": "./target_web/index.js",
+    },
+  },
 }
