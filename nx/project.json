@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "name": "@kbn/nx",
+  "projectType": "library",
+  "targets": {
+    "buildTypes": {
+      "executor": "@kbn/nx:buildTypes"
+    }
+  }
+}

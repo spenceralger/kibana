@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "target/types",
+    "types": ["node"],
+    "checkJs": true
+  },
+  "include": [
+    "**/*.js"
+  ],
+  "exclude": [
+    "target/**/*"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "executors": {
+    "buildTypes": {
+      "implementation": "./executors/build_types/executor",
+      "schema": "./executors/build_types/schema.json",
+      "description": "Builds the types of a project's source files, uses custom 'path' mapping to remap module ids of dependencies to their built types"
+    }
+  }
+}

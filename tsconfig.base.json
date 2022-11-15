@@ -5,6 +5,7 @@
     "paths": {
       "@kbn/core": ["src/core"],
       "@kbn/core/*": ["src/core/*"],
+      "@kbn/nx": ["nx"],
       // START AUTOMATED PACKAGE LISTING
       "@kbn/analytics-client": ["packages/analytics/client"],
       "@kbn/analytics-client/*": ["packages/analytics/client/*"],
@@ -1268,4 +1269,9 @@
       "@kbn/ambient-storybook-types"
     ]
   },
+  "files": [],
+  "include": [],
+  "exclude": [
+    "target/**/*"
+  ]
 }

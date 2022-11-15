@@ -587,6 +587,7 @@ module.exports = {
       files: [
         '**/*.stories.tsx',
         '**/*.test.js',
+        'nx/**/*',
         'x-pack/test/apm_api_integration/**/*.ts',
         'x-pack/test/functional/apps/**/*.js',
         'x-pack/plugins/apm/**/*.js',

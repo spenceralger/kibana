@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "npmScope": "kbn",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["buildTypes"],
+        "parallel": 4
+      }
+    }
+  },
+  "targetDefaults": {
+    "buildTypes": {
+      "inputs": ["tsFiles", "^tsFiles"],
+      "outputs": ["{projectRoot}/target/types"],
+      "dependsOn": ["^buildTypes"]
+    }
+  },
+  "namedInputs": {
+    "tsFiles": ["{projectRoot}/**/*.{ts,tsx,js,jsx}", "!{projectRoot}/target/**/*"]
+  },
+  "pluginsConfig": {
+    "@nrwl/js": {
+      "analyzeSourceFiles": true
+    }
+  }
+}
