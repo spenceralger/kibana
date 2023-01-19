@@ -15,7 +15,7 @@ import { REPO_ROOT } from '@kbn/repo-info';
 
 import type { Config } from '../../functional_test_runner';
 import { DedicatedTaskRunner } from '../../functional_test_runner/lib';
-import { parseRawFlags, getArgValue } from './kibana_cli_args';
+import { parseRawFlags, getArgValue, remapPluginPaths } from './kibana_cli_args';
 
 function extendNodeOptions(installDir?: string) {
   if (!installDir) {
@@ -73,7 +73,7 @@ export async function runKibanaServer(options: {
   const sourceArgs: string[] = config.get('kbnTestServer.sourceArgs') || [];
   const serverArgs: string[] = config.get('kbnTestServer.serverArgs') || [];
 
-  const kbnFlags = parseRawFlags([
+  let kbnFlags = parseRawFlags([
     // When installDir is passed, we run from a built version of Kibana which uses different command line
     // arguments. If installDir is not passed, we run from source code.
     ...(installDir ? [...buildArgs, ...serverArgs] : [...sourceArgs, ...serverArgs]),
@@ -81,6 +81,10 @@ export async function runKibanaServer(options: {
     // We also allow passing in extra Kibana server options, tack those on here so they always take precedence
     ...(options.extraKbnOpts ?? []),
   ]);
+
+  if (installDir) {
+    kbnFlags = remapPluginPaths(kbnFlags, installDir);
+  }
 
   const mainName = useTaskRunner ? 'kbn-ui' : 'kibana';
   const promises = [

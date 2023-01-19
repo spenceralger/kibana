@@ -29,7 +29,7 @@ export class FixturePlugin implements Plugin<void, void, FixtureSetupDeps, Fixtu
 
   public setup(core: CoreSetup<FixtureStartDeps>, { features, alerting }: FixtureSetupDeps) {
     features.registerKibanaFeature({
-      id: 'alertsFixture',
+      id: 'fecAlertsTestPlugin',
       name: 'Alerts',
       app: ['alerts', 'kibana'],
       category: { id: 'foo', label: 'foo' },
@@ -73,7 +73,7 @@ export class FixturePlugin implements Plugin<void, void, FixtureSetupDeps, Fixtu
           name: 'Default',
         },
       ],
-      producer: 'alertsFixture',
+      producer: 'fecAlertsTestPlugin',
       defaultActionGroupId: 'default',
       minimumLicenseRequired: 'basic',
       isExportable: true,

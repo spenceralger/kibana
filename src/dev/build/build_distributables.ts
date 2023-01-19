@@ -34,14 +34,15 @@ export interface BuildOptions {
   createDockerContexts: boolean;
   versionQualifier: string | undefined;
   targetAllPlatforms: boolean;
-  buildExamplePlugins: boolean;
+  withExamplePlugins: boolean;
+  withTestPlugins: boolean;
   eprRegistry: 'production' | 'snapshot';
 }
 
 export async function buildDistributables(log: ToolingLog, options: BuildOptions): Promise<void> {
   log.verbose('building distributables with options:', options);
 
-  const config: Config = await Config.create(options);
+  const config = await Config.create(options);
 
   const run: (task: Task | GlobalTask) => Promise<void> = createRunner({
     config,
@@ -69,17 +70,14 @@ export async function buildDistributables(log: ToolingLog, options: BuildOptions
       await run(Tasks.BuildCanvasShareableRuntime);
     }
 
-    await run(Tasks.CopySource);
+    await run(Tasks.CopyLegacySource);
     await run(Tasks.CopyBinScripts);
 
     await run(Tasks.CreateEmptyDirsAndFiles);
     await run(Tasks.CreateReadme);
-    await run(Tasks.BuildBazelPackages);
+    await run(Tasks.BuildPackages);
     await run(Tasks.ReplaceFavicon);
     await run(Tasks.BuildKibanaPlatformPlugins);
-    if (options.buildExamplePlugins) {
-      await run(Tasks.BuildKibanaExamplePlugins);
-    }
     await run(Tasks.CreatePackageJson);
     await run(Tasks.InstallDependencies);
     await run(Tasks.GeneratePackagesOptimizedAssets);
@@ -96,8 +94,6 @@ export async function buildDistributables(log: ToolingLog, options: BuildOptions
     await run(Tasks.CleanPackageManagerRelatedFiles);
     await run(Tasks.CleanExtraFilesFromModules);
     await run(Tasks.CleanEmptyFolders);
-    await run(Tasks.FleetDownloadElasticGpgKey);
-    await run(Tasks.BundleFleetPackages);
     await run(Tasks.FetchAgentVersionsList);
   }
 
