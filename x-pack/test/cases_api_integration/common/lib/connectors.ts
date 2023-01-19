@@ -22,12 +22,12 @@ import {
   GetCaseConnectorsResponse,
 } from '@kbn/cases-plugin/common/api';
 import { ActionResult, FindActionResult } from '@kbn/actions-plugin/server/types';
+import { getServiceNowServer } from '@kbn/actions-simulators-plugin/server/plugin';
+import { RecordingServiceNowSimulator } from '@kbn/actions-simulators-plugin/server/servicenow_simulation';
 import { User } from './authentication/types';
 import { superUser } from './authentication/users';
 import { getPostCaseRequest } from './mock';
 import { ObjectRemover as ActionsRemover } from '../../../alerting_api_integration/common/lib';
-import { getServiceNowServer } from '../../../alerting_api_integration/common/plugins/actions_simulators/server/plugin';
-import { RecordingServiceNowSimulator } from '../../../alerting_api_integration/common/plugins/actions_simulators/server/servicenow_simulation';
 import {
   createConfiguration,
   getConfigurationRequest,
