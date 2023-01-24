@@ -52,6 +52,7 @@ if (showHelp) {
         --no-debug                           {dim Turn off debug logging}
         --epr-registry                       {dim Specify the EPR registry to use for Fleet packages, 'production' or 'snapshot'}
         --with-test-plugins                  {dim Pass to include test plugins in the build output}
+        --with-example-plugins               {dim Pass to include example plugins in the build output}
     `) + '\n'
   );
   process.exit(1);
