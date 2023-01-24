@@ -17,23 +17,6 @@ import type { Config } from '../../functional_test_runner';
 import { DedicatedTaskRunner } from '../../functional_test_runner/lib';
 import { parseRawFlags, getArgValue, remapPluginPaths } from './kibana_cli_args';
 
-function extendNodeOptions(installDir?: string) {
-  if (!installDir) {
-    return {};
-  }
-
-  const testOnlyRegisterPath = Path.relative(
-    installDir,
-    require.resolve('./babel_register_for_test_plugins')
-  );
-
-  return {
-    NODE_OPTIONS: `--require=${testOnlyRegisterPath}${
-      process.env.NODE_OPTIONS ? ` ${process.env.NODE_OPTIONS}` : ''
-    }`,
-  };
-}
-
 export async function runKibanaServer(options: {
   procs: ProcRunner;
   config: Config;
@@ -59,7 +42,6 @@ export async function runKibanaServer(options: {
       FORCE_COLOR: 1,
       ...process.env,
       ...options.config.get('kbnTestServer.env'),
-      ...extendNodeOptions(installDir),
     },
     wait: runOptions.wait,
     onEarlyExit: options.onEarlyExit,
