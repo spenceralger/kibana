@@ -165,6 +165,17 @@ export const MANIFEST_V2: JSONSchema = {
                 to be imported by the server and the plugin started by core.
               `,
             },
+            extraPublicDirs: {
+              type: 'array',
+              description: desc`
+                List of directories which can be imported by other plugins. By default other plugins can import
+                this plugin's "public" directory, but adding items to this list extends those options. Plugins
+                commonly expose "common" as well.
+              `,
+              items: {
+                type: 'string',
+              },
+            },
           },
         },
       },
