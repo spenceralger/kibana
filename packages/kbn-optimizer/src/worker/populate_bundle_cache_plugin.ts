@@ -15,19 +15,13 @@ import {
   isNormalModule,
   isIgnoredModule,
   isConcatenatedModule,
+  isContextModule,
   isDelegatedModule,
   getModulePath,
 } from '@kbn/optimizer-webpack-helpers';
 
-import {
-  Bundle,
-  WorkerConfig,
-  ascending,
-  parseFilePath,
-  Hashes,
-  ParsedDllManifest,
-} from '../common';
-import { BundleRemoteModule } from './bundle_remote_module';
+import { Bundle, WorkerConfig, ascending, parseFilePath, Hashes } from '../common';
+import { BundleRemoteModule } from './bundle_remotes/bundle_remote_module';
 
 /**
  * sass-loader creates about a 40% overhead on the overall optimizer runtime, and
@@ -39,11 +33,7 @@ import { BundleRemoteModule } from './bundle_remote_module';
 const EXTRA_SCSS_WORK_UNITS = 100;
 
 export class PopulateBundleCachePlugin {
-  constructor(
-    private readonly workerConfig: WorkerConfig,
-    private readonly bundle: Bundle,
-    private readonly dllManifest: ParsedDllManifest
-  ) {}
+  constructor(private readonly workerConfig: WorkerConfig, private readonly bundle: Bundle) {}
 
   public apply(compiler: webpack.Compiler) {
     const { bundle, workerConfig } = this;
@@ -78,10 +68,6 @@ export class PopulateBundleCachePlugin {
 
         const dllRefKeys = new Set<string>();
 
-        if (bundle.manifestPath) {
-          addReferenced(bundle.manifestPath);
-        }
-
         for (const module of compilation.modules) {
           if (isNormalModule(module)) {
             moduleCount += 1;
@@ -115,7 +101,7 @@ export class PopulateBundleCachePlugin {
           }
 
           if (module instanceof BundleRemoteModule) {
-            bundleRefExportIds.push(module.req.full);
+            bundleRefExportIds.push(module.req);
             continue;
           }
 
@@ -130,7 +116,7 @@ export class PopulateBundleCachePlugin {
             continue;
           }
 
-          if (isExternalModule(module) || isIgnoredModule(module)) {
+          if (isExternalModule(module) || isIgnoredModule(module) || isContextModule(module)) {
             continue;
           }
 
@@ -143,12 +129,7 @@ export class PopulateBundleCachePlugin {
         bundle.cache.set({
           remoteBundleImportReqs: bundleRefExportIds.sort(ascending((p) => p)),
           optimizerCacheKey: workerConfig.optimizerCacheKey,
-          cacheKey: bundle.createCacheKey(
-            referencedPaths,
-            new Hashes(rawHashes),
-            this.dllManifest,
-            sortedDllRefKeys
-          ),
+          cacheKey: bundle.createCacheKey(referencedPaths, new Hashes(rawHashes)),
           moduleCount,
           workUnits,
           referencedPaths,

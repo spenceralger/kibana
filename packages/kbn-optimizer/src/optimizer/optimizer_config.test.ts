@@ -9,10 +9,8 @@
 jest.mock('@kbn/repo-packages');
 jest.mock('./assign_bundles_to_workers');
 jest.mock('./kibana_platform_plugins');
-jest.mock('./get_plugin_bundles');
 jest.mock('../common/theme_tags');
 jest.mock('./filter_by_id');
-jest.mock('./focus_bundles');
 jest.mock('../limits');
 
 jest.mock('os', () => {
@@ -345,9 +343,7 @@ describe('OptimizerConfig::create()', () => {
   const toKibanaPlatformPlugin: jest.Mock = jest.requireMock(
     './kibana_platform_plugins'
   ).toKibanaPlatformPlugin;
-  const getPluginBundles: jest.Mock = jest.requireMock('./get_plugin_bundles').getPluginBundles;
   const filterById: jest.Mock = jest.requireMock('./filter_by_id').filterById;
-  const focusBundles: jest.Mock = jest.requireMock('./focus_bundles').focusBundles;
   const readLimits: jest.Mock = jest.requireMock('../limits').readLimits;
 
   beforeEach(() => {
@@ -362,9 +358,7 @@ describe('OptimizerConfig::create()', () => {
     getPackages.mockReturnValue([Symbol('plugin1'), Symbol('plugin2')]);
     getPluginPackagesFilter.mockReturnValue(() => true);
     toKibanaPlatformPlugin.mockImplementation((_, pkg) => pkg);
-    getPluginBundles.mockReturnValue([Symbol('bundle1'), Symbol('bundle2')]);
     filterById.mockReturnValue(Symbol('filtered bundles'));
-    focusBundles.mockReturnValue(Symbol('focused bundles'));
     readLimits.mockReturnValue(Symbol('limits'));
 
     jest.spyOn(OptimizerConfig, 'parseOptions').mockImplementation(
@@ -380,8 +374,6 @@ describe('OptimizerConfig::create()', () => {
         themeTags: Symbol('theme tags'),
         inspectWorkers: Symbol('parsed inspect workers'),
         profileWebpack: Symbol('parsed profile webpack'),
-        filters: [],
-        focus: [],
         includeCoreBundle: false,
         pluginSelector: Symbol('plugin selector'),
       })
@@ -418,20 +410,6 @@ describe('OptimizerConfig::create()', () => {
         Array [
           Array [],
           Symbol(focused bundles),
-        ],
-      ]
-    `);
-
-    expect(getPluginBundles.mock.calls).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          Array [
-            Symbol(plugin1),
-            Symbol(plugin2),
-          ],
-          Symbol(parsed repo root),
-          Symbol(parsed output root),
-          Symbol(limits),
         ],
       ]
     `);

@@ -102,16 +102,6 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
         throw createFlagError('expected --progress to have no value');
       }
 
-      const filter = typeof flags.filter === 'string' ? [flags.filter] : flags.filter;
-      if (!Array.isArray(filter) || !filter.every((f) => typeof f === 'string')) {
-        throw createFlagError('expected --filter to be one or more strings');
-      }
-
-      const focus = typeof flags.focus === 'string' ? [flags.focus] : flags.focus;
-      if (!Array.isArray(focus) || !focus.every((f) => typeof f === 'string')) {
-        throw createFlagError('expected --focus to be one or more strings');
-      }
-
       const limitsPath = getLimitsPath(flags, options.defaultLimitsPath);
 
       const validateLimits = flags['validate-limits'] ?? false;
@@ -135,8 +125,6 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
         profileWebpack,
         inspectWorkers,
         includeCoreBundle,
-        filter,
-        focus,
         limitsPath,
       });
 
@@ -159,7 +147,7 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
         updateBundleLimits({
           log,
           config,
-          dropMissing: !(focus.length || filter.length),
+          dropMissing: true,
           limitsPath,
         });
       }
@@ -180,15 +168,12 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
           'update-limits',
           'progress',
         ],
-        string: ['workers', 'scan-dir', 'filter', 'limits'],
+        string: ['workers', 'scan-dir', 'limits'],
         default: {
           core: true,
-          examples: true,
           cache: true,
           'inspect-workers': true,
           progress: true,
-          filter: [],
-          focus: [],
         },
         help: `
           --watch            run the optimizer in watch mode
@@ -198,8 +183,6 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
           --profile          profile the webpack builds and write stats.json files to build outputs
           --no-core          disable generating the core bundle
           --no-cache         disable the cache
-          --focus            just like --filter, except dependencies are automatically included, --filter applies to result
-          --filter           comma-separated list of bundle id filters, results from multiple flags are merged, * and ! are supported
           --no-examples      don't build the example plugins
           --test-plugins     build test plugins too
           --dist             create bundles that are suitable for inclusion in the Kibana distributable, enabled when running with --update-limits

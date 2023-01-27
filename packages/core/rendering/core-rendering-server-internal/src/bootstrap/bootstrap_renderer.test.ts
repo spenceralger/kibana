@@ -10,7 +10,6 @@ import {
   renderTemplateMock,
   getPluginsBundlePathsMock,
   getThemeTagMock,
-  getJsDependencyPathsMock,
 } from './bootstrap_renderer.test.mocks';
 
 import { PackageInfo } from '@kbn/config';
@@ -51,7 +50,6 @@ describe('bootstrapRenderer', () => {
     getThemeTagMock.mockReturnValue('v8light');
     getPluginsBundlePathsMock.mockReturnValue(new Map());
     renderTemplateMock.mockReturnValue('__rendered__');
-    getJsDependencyPathsMock.mockReturnValue([]);
 
     renderer = bootstrapRendererFactory({
       auth,
@@ -65,7 +63,6 @@ describe('bootstrapRenderer', () => {
     getThemeTagMock.mockReset();
     getPluginsBundlePathsMock.mockReset();
     renderTemplateMock.mockReset();
-    getJsDependencyPathsMock.mockReset();
   });
 
   describe('when the auth status is `authenticated`', () => {
@@ -198,28 +195,8 @@ describe('bootstrapRenderer', () => {
     });
   });
 
-  // here
-  it('calls getJsDependencyPaths with the correct parameters', async () => {
-    const pluginsBundlePaths = new Map<string, unknown>();
-
-    getPluginsBundlePathsMock.mockReturnValue(pluginsBundlePaths);
-    const request = httpServerMock.createKibanaRequest();
-
-    await renderer({
-      request,
-      uiSettingsClient,
-    });
-
-    expect(getJsDependencyPathsMock).toHaveBeenCalledTimes(1);
-    expect(getJsDependencyPathsMock).toHaveBeenCalledWith(
-      '/base-path/42/bundles',
-      pluginsBundlePaths
-    );
-  });
-
   it('calls renderTemplate with the correct parameters', async () => {
     getThemeTagMock.mockReturnValue('customThemeTag');
-    getJsDependencyPathsMock.mockReturnValue(['path-1', 'path-2']);
 
     const request = httpServerMock.createKibanaRequest();
 
@@ -231,7 +208,6 @@ describe('bootstrapRenderer', () => {
     expect(renderTemplateMock).toHaveBeenCalledTimes(1);
     expect(renderTemplateMock).toHaveBeenCalledWith({
       themeTag: 'customThemeTag',
-      jsDependencyPaths: ['path-1', 'path-2'],
       publicPathMap: expect.any(String),
     });
   });

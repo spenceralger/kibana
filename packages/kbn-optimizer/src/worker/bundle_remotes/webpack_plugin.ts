@@ -9,11 +9,16 @@
  */
 
 import webpack from 'webpack';
+import { ConcatSource } from 'webpack-sources';
 
-import { parseKbnImportReq } from '@kbn/repo-packages';
-
-import { Bundle, BundleRemotes } from '../common';
+import {
+  isNormalModule,
+  isConcatenatedModule,
+  getModulePath,
+} from '@kbn/optimizer-webpack-helpers';
+import { Bundle, BundleRemotes } from '../../common';
 import { BundleRemoteModule } from './bundle_remote_module';
+import { RemoteMappings } from './remote_mappings';
 
 interface RequestData {
   context: string;
@@ -24,9 +29,11 @@ type Callback<T> = (error?: any, result?: T) => void;
 type ModuleFactory = (data: RequestData, callback: Callback<BundleRemoteModule>) => void;
 
 export class BundleRemotesPlugin {
-  private allowedBundleIds = new Set<string>();
-
-  constructor(private readonly bundle: Bundle, private readonly remotes: BundleRemotes) {}
+  constructor(
+    private readonly bundle: Bundle,
+    private readonly remotes: BundleRemotes,
+    private readonly remoteMapping: RemoteMappings
+  ) {}
 
   /**
    * Called by webpack when the plugin is passed in the webpack config
@@ -34,7 +41,7 @@ export class BundleRemotesPlugin {
   public apply(compiler: webpack.Compiler) {
     // called whenever the compiler starts to compile, passed the params
     // that will be used to create the compilation
-    compiler.hooks.compile.tap('BundleRemotesPlugin', (compilationParams: any) => {
+    compiler.hooks.compile.tap('BundleRemotesPlugin/moduleResolve', (compilationParams: any) => {
       const moduleCache = new Map<string, BundleRemoteModule | null>();
 
       // hook into the creation of NormalModule instances in webpack, if the import
@@ -71,36 +78,44 @@ export class BundleRemotesPlugin {
       );
     });
 
-    compiler.hooks.compilation.tap('BundleRefsPlugin/populateAllowedBundleIds', (compilation) => {
-      const manifestPath = this.bundle.manifestPath;
-      if (!manifestPath) {
-        return;
-      }
+    compiler.hooks.compilation.tap('BundleRemotesPlugin/beforeOptimize', (compilation) => {
+      compilation.hooks.optimizeChunkAssets.tapPromise(
+        'BundleRemotesPlugin/wrapChunks',
+        async (chunks) => {
+          function getPathsFromModules(modules: any[]): string[] {
+            return modules.flatMap((module): string | string[] => {
+              if (isNormalModule(module)) {
+                return getModulePath(module);
+              }
 
-      const deps = this.bundle.readBundleDeps();
-      this.allowedBundleIds = new Set([...deps.explicit, ...deps.implicit]);
+              if (isConcatenatedModule(module)) {
+                return getPathsFromModules(module.modules);
+              }
 
-      compilation.hooks.additionalAssets.tap('BundleRefsPlugin/watchManifest', () => {
-        compilation.fileDependencies.add(manifestPath);
-      });
+              return [];
+            });
+          }
 
-      compilation.hooks.finishModules.tapPromise(
-        'BundleRefsPlugin/finishModules',
-        async (modules) => {
-          const usedBundleIds = (modules as any[])
-            .filter((m: any): m is BundleRemoteModule => m instanceof BundleRemoteModule)
-            .map((m) => m.remote.bundleId);
-
-          const unusedBundleIds = deps.explicit
-            .filter((id) => !usedBundleIds.includes(id))
-            .join(', ');
-
-          if (unusedBundleIds) {
-            const error = new Error(
-              `Bundle for [${this.bundle.id}] lists [${unusedBundleIds}] as a required bundle, but does not use it. Please remove it.`
+          for (const chunk of chunks) {
+            const referencedBundles = new Set(
+              getPathsFromModules(Array.from(chunk.modulesIterable)).flatMap((p) =>
+                Array.from(this.remoteMapping.get(p) ?? [])
+              )
             );
-            (error as any).file = manifestPath;
-            compilation.errors.push(error);
+
+            referencedBundles.delete(this.bundle.id);
+
+            if (referencedBundles.size) {
+              for (const file of chunk.files) {
+                compilation.assets[file] = new ConcatSource(
+                  `__kbnBundles__.ensure(${JSON.stringify(
+                    Array.from(referencedBundles).sort((a, b) => a.localeCompare(b))
+                  )}, function () {\n`,
+                  compilation.assets[file],
+                  `\n});`
+                );
+              }
+            }
           }
         }
       );
@@ -108,36 +123,24 @@ export class BundleRemotesPlugin {
   }
 
   public resolve(request: string, cb: (error?: Error, bundle?: null | BundleRemoteModule) => void) {
-    if (request.endsWith('.json')) {
-      return cb(undefined, null);
-    }
-
-    const parsed = parseKbnImportReq(request);
-    if (!parsed) {
-      return cb(undefined, null);
-    }
-
-    const remote = this.remotes.getForPkgId(parsed.pkgId);
-    if (!remote) {
+    const { parsed, remote } = this.remotes.get(request);
+    if (!remote || remote.bundleId === this.bundle.id) {
       return cb(undefined, null);
     }
 
     if (!remote.targets.includes(parsed.target)) {
+      if (!remote.pkgId.startsWith('@kbn/')) {
+        return cb(undefined, null);
+      }
+
+      const list = remote.targets.join(', ');
       return cb(
         new Error(
-          `import [${request}] references a non-public export of the [${remote.bundleId}] bundle and must point to one of the public directories: [${remote.targets}]`
+          `import [${request}] references a module which is shared from the ${remote.bundleId} bundle. Invalid target "${parsed.target}", only supported targets are ${list}`
         )
       );
     }
 
-    if (!this.allowedBundleIds.has(remote.bundleId)) {
-      return cb(
-        new Error(
-          `import [${request}] references a public export of the [${remote.bundleId}] bundle, but that bundle is not in the "requiredPlugins" or "requiredBundles" list in the plugin manifest [${this.bundle.manifestPath}]`
-        )
-      );
-    }
-
-    return cb(undefined, new BundleRemoteModule(remote, parsed));
+    return cb(undefined, new BundleRemoteModule(remote, request));
   }
 }

@@ -17,3 +17,7 @@ export type UnknownVals<T extends object> = {
 export function isObj(val: unknown): val is Record<string, unknown> {
   return typeof val === 'object' && val !== null;
 }
+
+export function isString(val: unknown): val is string {
+  return typeof val === 'string';
+}

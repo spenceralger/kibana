@@ -20,8 +20,3 @@ export const getPluginsBundlePathsMock = jest.fn();
 jest.doMock('./get_plugin_bundle_paths', () => ({
   getPluginsBundlePaths: getPluginsBundlePathsMock,
 }));
-
-export const getJsDependencyPathsMock = jest.fn();
-jest.doMock('./get_js_dependency_paths', () => ({
-  getJsDependencyPaths: getJsDependencyPathsMock,
-}));

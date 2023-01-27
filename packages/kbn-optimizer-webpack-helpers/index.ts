@@ -13,6 +13,7 @@ export type {
   WebpackIgnoredModule,
   WebpackNormalModule,
   WebpackResolveData,
+  WebpackContextModule,
 } from './src/webpack_helpers';
 
 export {
@@ -24,4 +25,5 @@ export {
   isExternalModule,
   isIgnoredModule,
   isNormalModule,
+  isContextModule,
 } from './src/webpack_helpers';

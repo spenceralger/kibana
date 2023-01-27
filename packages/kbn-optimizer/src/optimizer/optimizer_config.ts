@@ -20,11 +20,7 @@ import {
   omit,
 } from '../common';
 
-import { toKibanaPlatformPlugin, KibanaPlatformPlugin } from './kibana_platform_plugins';
-import { getPluginBundles } from './get_plugin_bundles';
-import { filterById } from './filter_by_id';
-import { focusBundles } from './focus_bundles';
-import { readLimits } from '../limits';
+import { determineBundles } from './determine_bundles';
 
 export interface Limits {
   pageLoadAssetSize?: {
@@ -73,25 +69,6 @@ interface Options {
   /** absolute paths to directories, any plugins in these directories will be built */
   pluginScanDirs?: string[];
 
-  /**
-   * array of comma separated patterns that will be matched against bundle ids.
-   * bundles will only be built if they match one of the specified patterns.
-   * `*` can exist anywhere in each pattern and will match anything, `!` inverts the pattern
-   *
-   * examples:
-   *  --filter foo --filter bar # [foo, bar], excludes [foobar]
-   *  --filter foo,bar # [foo, bar], excludes [foobar]
-   *  --filter foo* # [foo, foobar], excludes [bar]
-   *  --filter f*r # [foobar], excludes [foo, bar]
-   */
-  filter?: string[];
-
-  /**
-   * behaves just like filter, but includes required bundles and plugins of the
-   * listed bundle ids. Filters only apply to bundles selected by focus
-   */
-  focus?: string[];
-
   /** flag that causes the core bundle to be built along with plugins */
   includeCoreBundle?: boolean;
 
@@ -119,8 +96,6 @@ export interface ParsedOptions {
   profileWebpack: boolean;
   cache: boolean;
   dist: boolean;
-  filters: string[];
-  focus: string[];
   inspectWorkers: boolean;
   includeCoreBundle: boolean;
   themeTags: ThemeTags;
@@ -137,8 +112,6 @@ export class OptimizerConfig {
     const testPlugins = !!options.testPlugins;
     const cache = options.cache !== false && !process.env.KBN_OPTIMIZER_NO_CACHE;
     const includeCoreBundle = !!options.includeCoreBundle;
-    const filters = options.filter || [];
-    const focus = options.focus || [];
 
     const repoRoot = options.repoRoot;
     if (!Path.isAbsolute(repoRoot)) {
@@ -184,8 +157,6 @@ export class OptimizerConfig {
       maxWorkerCount,
       profileWebpack,
       cache,
-      filters,
-      focus,
       inspectWorkers,
       includeCoreBundle,
       themeTags,
@@ -199,43 +170,27 @@ export class OptimizerConfig {
   }
 
   static create(inputOptions: Options) {
-    const limits = inputOptions.limitsPath ? readLimits(inputOptions.limitsPath) : {};
     const options = OptimizerConfig.parseOptions(inputOptions);
-    const plugins = getPackages(options.repoRoot)
-      .filter(getPluginPackagesFilter(options.pluginSelector))
-      .map((pkg) => toKibanaPlatformPlugin(options.repoRoot, pkg));
 
-    const bundles = [
-      ...(options.includeCoreBundle
-        ? [
-            new Bundle({
-              type: 'entry',
-              id: 'core',
-              sourceRoot: options.repoRoot,
-              contextDir: Path.resolve(options.repoRoot, 'src/core'),
-              outputDir: Path.resolve(options.outputRoot, 'src/core/target/public'),
-              pageLoadAssetSizeLimit: limits.pageLoadAssetSize?.core,
-              remoteInfo: {
-                pkgId: '@kbn/core',
-                targets: ['public'],
-              },
-              ignoreMetrics: false,
-            }),
-          ]
-        : []),
-      ...getPluginBundles(plugins, options.repoRoot, options.outputRoot, limits),
-    ];
+    const pluginFilter = getPluginPackagesFilter({
+      ...options.pluginSelector,
+      browser: true,
+    });
 
-    const focusedBundles = focusBundles(options.focus, bundles);
-    const filteredBundles = filterById(options.filters, focusedBundles);
+    const packages = getPackages(options.repoRoot).filter((p) =>
+      p.manifest.type === 'shared-browser' || p.manifest.type === 'shared-common'
+        ? p.manifest.sharedBrowserBundle
+        : pluginFilter(p)
+    );
+
+    const bundles = determineBundles(packages, options.outputRoot, options.repoRoot);
 
     return new OptimizerConfig(
-      focusedBundles,
-      filteredBundles,
+      bundles,
+      bundles,
       options.cache,
       options.watch,
       options.inspectWorkers,
-      plugins,
       options.repoRoot,
       options.maxWorkerCount,
       options.dist,
@@ -250,7 +205,6 @@ export class OptimizerConfig {
     public readonly cache: boolean,
     public readonly watch: boolean,
     public readonly inspectWorkers: boolean,
-    public readonly plugins: KibanaPlatformPlugin[],
     public readonly repoRoot: string,
     public readonly maxWorkerCount: number,
     public readonly dist: boolean,

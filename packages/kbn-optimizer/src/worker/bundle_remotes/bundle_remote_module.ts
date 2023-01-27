@@ -8,23 +8,21 @@
  * Author Tobias Koppers @sokra
  */
 
-import { KbnImportReq } from '@kbn/repo-packages';
-
 // @ts-ignore not typed by @types/webpack
 import Module from 'webpack/lib/Module';
-import { BundleRemote } from '../common';
+import { BundleRemote } from '../../common';
 
 export class BundleRemoteModule extends Module {
   public built = false;
   public buildMeta?: any;
   public buildInfo?: any;
 
-  constructor(public readonly remote: BundleRemote, public readonly req: KbnImportReq) {
+  constructor(public readonly remote: BundleRemote, public readonly req: string) {
     super('kbn/bundleRemote', null);
   }
 
   libIdent() {
-    return this.req.full;
+    return this.req;
   }
 
   chunkCondition(chunk: any) {
@@ -32,7 +30,7 @@ export class BundleRemoteModule extends Module {
   }
 
   identifier() {
-    return `@kbn/bundleRemote ${this.req.full}`;
+    return `@kbn/bundleRemote ${this.req}`;
   }
 
   readableIdentifier() {
@@ -55,7 +53,7 @@ export class BundleRemoteModule extends Module {
   source() {
     return `
       __webpack_require__.r(__webpack_exports__);
-      var ns = __kbnBundles__.get('${this.remote.bundleType}/${this.remote.bundleId}/${this.req.target}');
+      var ns = __kbnBundles__.get('${this.req}');
       Object.defineProperties(__webpack_exports__, Object.getOwnPropertyDescriptors(ns))
     `;
   }
