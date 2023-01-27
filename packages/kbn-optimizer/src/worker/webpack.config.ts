@@ -7,37 +7,39 @@
  */
 
 import Path from 'path';
-import Fs from 'fs';
 
 import { stringifyRequest } from 'loader-utils';
 import webpack from 'webpack';
 // @ts-expect-error
 import TerserPlugin from 'terser-webpack-plugin';
-import webpackMerge from 'webpack-merge';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
-import UiSharedDepsNpm from '@kbn/ui-shared-deps-npm';
-import * as UiSharedDepsSrc from '@kbn/ui-shared-deps-src';
 
-import { Bundle, BundleRemotes, WorkerConfig, parseDllManifest } from '../common';
-import { BundleRemotesPlugin } from './bundle_remotes_plugin';
-import { BundleMetricsPlugin } from './bundle_metrics_plugin';
+import { Bundle, BundleRemotes, WorkerConfig } from '../common';
+import { BundleRemotesPlugin } from './bundle_remotes/webpack_plugin';
+import { RemoteMappings } from './bundle_remotes/remote_mappings';
 import { EmitStatsPlugin } from './emit_stats_plugin';
 import { PopulateBundleCachePlugin } from './populate_bundle_cache_plugin';
 
+const MOMENT_SRC = require.resolve('moment/min/moment-with-locales.js');
+const WEBPACK_SRC = require.resolve('webpack');
 const BABEL_PRESET = require.resolve('@kbn/babel-preset/webpack_preset');
-const DLL_MANIFEST = JSON.parse(Fs.readFileSync(UiSharedDepsNpm.dllManifestPath, 'utf8'));
 
 export function getWebpackConfig(
   bundle: Bundle,
   bundleRemotes: BundleRemotes,
   worker: WorkerConfig
 ) {
-  const ENTRY_CREATOR = require.resolve('./entry_point_creator');
+  const ENTRY_CREATOR = require.resolve('./entry_point_creator.js');
+  const remoteMappings = new RemoteMappings();
 
-  const commonConfig: webpack.Configuration = {
-    node: { fs: 'empty' },
-    context: bundle.contextDir,
+  const webpackConfig: webpack.Configuration = {
+    mode: 'development',
+    node: {
+      child_process: 'empty',
+      fs: 'empty',
+    },
+    context: bundle.sourceRoot,
     cache: true,
     entry: {
       [bundle.id]: ENTRY_CREATOR,
@@ -48,14 +50,13 @@ export function getWebpackConfig(
 
     output: {
       path: bundle.outputDir,
-      filename: `${bundle.id}.${bundle.type}.js`,
+      filename: `${bundle.id}.js`,
       chunkFilename: `${bundle.id}.chunk.[id].js`,
       devtoolModuleFilenameTemplate: (info) =>
-        `/${bundle.type}:${bundle.id}/${Path.relative(
-          bundle.sourceRoot,
-          info.absoluteResourcePath
-        )}${info.query}`,
+        `/${bundle.id}/${Path.relative(bundle.sourceRoot, info.absoluteResourcePath)}${info.query}`,
       jsonpFunction: `${bundle.id}_bundle_jsonpfunction`,
+      library: `__kbnBundles__.jsonp.${bundle.id}`,
+      libraryTarget: 'jsonp',
     },
 
     optimization: {
@@ -70,17 +71,10 @@ export function getWebpackConfig(
       },
     },
 
-    externals: UiSharedDepsSrc.externals,
-
     plugins: [
       new CleanWebpackPlugin(),
-      new BundleRemotesPlugin(bundle, bundleRemotes),
-      new PopulateBundleCachePlugin(worker, bundle, parseDllManifest(DLL_MANIFEST)),
-      new BundleMetricsPlugin(bundle),
-      new webpack.DllReferencePlugin({
-        context: worker.repoRoot,
-        manifest: DLL_MANIFEST,
-      }),
+      new BundleRemotesPlugin(bundle, bundleRemotes, remoteMappings),
+      new PopulateBundleCachePlugin(worker, bundle),
       ...(worker.profileWebpack ? [new EmitStatsPlugin(bundle)] : []),
       ...(bundle.banner ? [new webpack.BannerPlugin({ banner: bundle.banner, raw: true })] : []),
     ],
@@ -90,8 +84,10 @@ export function getWebpackConfig(
       // or which have require() statements that should be ignored because the file is
       // already bundled with all its necessary dependencies
       noParse: [
-        /[\/\\]node_modules[\/\\]lodash[\/\\]index\.js$/,
-        /[\/\\]node_modules[\/\\]vega[\/\\]build[\/\\]vega\.js$/,
+        require.resolve('lodash/index.js'),
+        require.resolve('vega/build/vega.js'),
+        MOMENT_SRC as any,
+        WEBPACK_SRC as any,
       ],
 
       rules: [
@@ -99,7 +95,7 @@ export function getWebpackConfig(
           include: [ENTRY_CREATOR],
           use: [
             {
-              loader: UiSharedDepsNpm.publicPathLoader,
+              loader: require.resolve('./public_path_loader'),
               options: {
                 key: bundle.id,
               },
@@ -107,20 +103,7 @@ export function getWebpackConfig(
             {
               loader: require.resolve('val-loader'),
               options: {
-                entries: bundle.remoteInfo.targets.map((target) => {
-                  const absolute = Path.resolve(bundle.contextDir, target);
-                  const newContext = Path.dirname(ENTRY_CREATOR);
-                  const importId = `${bundle.type}/${bundle.id}/${target}`;
-
-                  // relative path from context of the ENTRY_CREATOR, with linux path separators
-                  let requirePath = Path.relative(newContext, absolute).split('\\').join('/');
-                  if (!requirePath.startsWith('.')) {
-                    // ensure requirePath is identified by node as relative
-                    requirePath = `./${requirePath}`;
-                  }
-
-                  return { importId, requirePath };
-                }),
+                entries: bundle.entries,
               },
             },
           ],
@@ -191,7 +174,7 @@ export function getWebpackConfig(
                     sassOptions: {
                       outputStyle: worker.dist ? 'compressed' : 'nested',
                       includePaths: [Path.resolve(worker.repoRoot, 'node_modules')],
-                      sourceMapRoot: `/${bundle.type}:${bundle.id}`,
+                      sourceMapRoot: `/${bundle.id}`,
                     },
                   },
                 },
@@ -222,6 +205,16 @@ export function getWebpackConfig(
               babelrc: false,
               envName: worker.dist ? 'production' : 'development',
               presets: [BABEL_PRESET],
+              plugins: [
+                [
+                  require.resolve('./bundle_remotes/babel_plugin'),
+                  {
+                    bundle,
+                    remotes: bundleRemotes,
+                    mappings: remoteMappings,
+                  },
+                ],
+              ],
             },
           },
         },
@@ -247,6 +240,12 @@ export function getWebpackConfig(
           'src/core/public/styles/core_app/images'
         ),
         vega: Path.resolve(worker.repoRoot, 'node_modules/vega/build-es5/vega.js'),
+        '@elastic/eui$': '@elastic/eui/optimize/es',
+        moment: MOMENT_SRC,
+        // NOTE: Used to include react profiling on bundles
+        // https://gist.github.com/bvaughn/25e6233aeb1b4f0cdb8d8366e54a3977#webpack-4
+        'react-dom$': 'react-dom/profiling',
+        'scheduler/tracing': 'scheduler/tracing-profiling',
       },
     },
 
@@ -258,14 +257,9 @@ export function getWebpackConfig(
     },
   };
 
-  const nonDistributableConfig: webpack.Configuration = {
-    mode: 'development',
-  };
-
-  const distributableConfig: webpack.Configuration = {
-    mode: 'production',
-
-    plugins: [
+  if (worker.dist) {
+    webpackConfig.mode = 'production';
+    webpackConfig.plugins?.push(
       new webpack.DefinePlugin({
         'process.env': {
           IS_KIBANA_DISTRIBUTABLE: `"true"`,
@@ -279,10 +273,10 @@ export function getWebpackConfig(
         compressionOptions: {
           level: 11,
         },
-      }),
-    ],
-
-    optimization: {
+      })
+    );
+    webpackConfig.optimization = {
+      ...webpackConfig.optimization,
       minimizer: [
         new TerserPlugin({
           cache: false,
@@ -296,8 +290,8 @@ export function getWebpackConfig(
           },
         }),
       ],
-    },
-  };
+    };
+  }
 
-  return webpackMerge(commonConfig, worker.dist ? distributableConfig : nonDistributableConfig);
+  return webpackConfig;
 }

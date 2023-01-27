@@ -6,13 +6,10 @@
  * Side Public License, v 1.
  */
 
-import Fs from 'fs';
-
 import * as Rx from 'rxjs';
 import { mergeAll } from 'rxjs/operators';
-import { dllManifestPath } from '@kbn/ui-shared-deps-npm';
 
-import { Bundle, BundleRemotes, Hashes, parseDllManifest } from '../common';
+import { Bundle, BundleRemotes, Hashes } from '../common';
 
 import { OptimizerConfig } from './optimizer_config';
 import { diffCacheKey } from './diff_cache_key';
@@ -124,16 +121,12 @@ export function getBundleCacheEvent$(
       eligibleBundles.push(bundle);
     }
 
-    const dllManifest = parseDllManifest(JSON.parse(Fs.readFileSync(dllManifestPath, 'utf8')));
     const hashes = new Hashes();
     for (const bundle of eligibleBundles) {
       const paths = bundle.cache.getReferencedPaths() ?? [];
       await hashes.populate(paths);
 
-      const diff = diffCacheKey(
-        bundle.cache.getCacheKey(),
-        bundle.createCacheKey(paths, hashes, dllManifest, bundle.cache.getDllRefKeys() ?? [])
-      );
+      const diff = diffCacheKey(bundle.cache.getCacheKey(), bundle.createCacheKey(paths, hashes));
 
       if (diff) {
         events.push({

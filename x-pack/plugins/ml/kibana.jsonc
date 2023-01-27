@@ -59,7 +59,20 @@
       "unifiedSearch"
     ],
     "extraPublicDirs": [
-      "common"
+      "common",
+      // these need to be removed from the webpack bundle and served from an HTTP API
+      "server/models/data_recognizer/modules/metrics_ui_k8s/ml/k8s_network_out.json",
+      "server/models/data_recognizer/modules/metrics_ui_k8s/ml/k8s_network_in.json",
+      "server/models/data_recognizer/modules/metrics_ui_k8s/ml/k8s_memory_usage.json",
+      "server/models/data_recognizer/modules/metrics_ui_k8s/ml/datafeed_k8s_network_out.json",
+      "server/models/data_recognizer/modules/metrics_ui_k8s/ml/datafeed_k8s_network_in.json",
+      "server/models/data_recognizer/modules/metrics_ui_k8s/ml/datafeed_k8s_memory_usage.json",
+      "server/models/data_recognizer/modules/metrics_ui_hosts/ml/hosts_network_out.json",
+      "server/models/data_recognizer/modules/metrics_ui_hosts/ml/hosts_network_in.json",
+      "server/models/data_recognizer/modules/metrics_ui_hosts/ml/hosts_memory_usage.json",
+      "server/models/data_recognizer/modules/metrics_ui_hosts/ml/datafeed_hosts_network_out.json",
+      "server/models/data_recognizer/modules/metrics_ui_hosts/ml/datafeed_hosts_network_in.json",
+      "server/models/data_recognizer/modules/metrics_ui_hosts/ml/datafeed_hosts_memory_usage.json",
     ]
   }
 }

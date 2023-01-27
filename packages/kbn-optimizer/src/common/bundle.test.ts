@@ -8,21 +8,14 @@
 
 import { Bundle, BundleSpec, parseBundles } from './bundle';
 import { Hashes } from './hashes';
-import { parseDllManifest } from './dll_manifest';
 
 jest.mock('fs');
 
 const SPEC: BundleSpec = {
-  contextDir: '/foo/bar',
   id: 'bar',
   outputDir: '/foo/bar/target',
   sourceRoot: '/foo',
-  type: 'plugin',
-  remoteInfo: {
-    pkgId: '@kbn/foo-bundle',
-    targets: ['public'],
-  },
-  ignoreMetrics: false,
+  entries: [],
 };
 
 it('creates cache keys', () => {
@@ -36,22 +29,8 @@ it('creates cache keys', () => {
   ].sort(() => (Math.random() > 0.5 ? 1 : -1));
 
   const hashes = new Hashes(new Map(hashEntries));
-  const dllManifest = parseDllManifest({
-    name: 'manifest-name',
-    content: {
-      './some-foo.ts': {
-        id: 1,
-        buildMeta: {
-          a: 'b',
-        },
-        unknownField: 'hi',
-      },
-    },
-  });
-  const dllRefKeys = ['./some-foo.ts'];
 
-  expect(bundle.createCacheKey(['/foo/bar/a', '/foo/bar/c'], hashes, dllManifest, dllRefKeys))
-    .toMatchInlineSnapshot(`
+  expect(bundle.createCacheKey(['/foo/bar/a', '/foo/bar/c'], hashes)).toMatchInlineSnapshot(`
     Object {
       "checksums": Object {
         "/foo/bar/a": "123",

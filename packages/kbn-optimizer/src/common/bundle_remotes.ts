@@ -6,26 +6,64 @@
  * Side Public License, v 1.
  */
 
-import { parseKbnImportReq } from '@kbn/repo-packages';
+import { inspect } from 'util';
 
+import { isObj, isString } from './ts_helpers';
 import { Bundle } from './bundle';
-import { isObj } from './ts_helpers';
+import { parseImportReq } from './import_req';
 
 export interface BundleRemote {
-  readonly bundleType: string;
   readonly bundleId: string;
   readonly pkgId: string;
   readonly targets: readonly string[];
 }
 
+function assertBundleRemotes(val: unknown): asserts val is BundleRemote[] {
+  if (!Array.isArray(val)) {
+    throw new Error('`bundleRemotes` spec must be an array');
+  }
+
+  for (const [i, remote] of val.entries()) {
+    if (!isObj(remote)) {
+      throw new Error(`'bundleRemotes[${i}]' must be an object: ${inspect(remote)}`);
+    }
+
+    if (typeof remote.bundleId !== 'string') {
+      throw new Error(
+        `'bundleRemotes[${i}]' must have a valid "bundleId" property: ${inspect(remote)}`
+      );
+    }
+
+    if (typeof remote.pkgId !== 'string') {
+      throw new Error(
+        `'bundleRemotes[${i}]' must have a valid "pkgId" property: ${inspect(remote)}`
+      );
+    }
+
+    if (
+      !Array.isArray(remote.targets) ||
+      !remote.targets.every(isString) ||
+      remote.targets.length <= 0
+    ) {
+      throw new Error(
+        `'bundleRemotes[${i}]' must have a valid "targets" property: ${inspect(remote)}`
+      );
+    }
+  }
+}
+
 export class BundleRemotes {
   static fromBundles(bundles: Bundle[]) {
     return new BundleRemotes(
-      bundles.map((b) => ({
-        bundleType: b.type,
-        bundleId: b.id,
-        ...b.remoteInfo,
-      }))
+      bundles.flatMap((b) =>
+        b.entries.map(
+          (entry): BundleRemote => ({
+            bundleId: b.id,
+            pkgId: entry.pkgId,
+            targets: entry.targets,
+          })
+        )
+      )
     );
   }
 
@@ -41,76 +79,44 @@ export class BundleRemotes {
       throw new Error('`bundleRemotes` spec must be valid JSON');
     }
 
-    if (!Array.isArray(spec)) {
-      throw new Error('`bundleRemotes` spec must be an array');
-    }
+    assertBundleRemotes(spec);
 
-    return new BundleRemotes(
-      spec.map((remSpec) => {
-        if (!isObj(remSpec)) {
-          throw new Error('`bundleRemotes[]` must be an object');
-        }
-
-        const { bundleType, bundleId, pkgId, targets } = remSpec;
-        if (typeof bundleType !== 'string') {
-          throw new Error('`bundleRemotes[].bundleType` must be a string');
-        }
-
-        if (typeof bundleId !== 'string') {
-          throw new Error('`bundleRemotes[].bundleId` must be a string');
-        }
-
-        if (typeof pkgId !== 'string') {
-          throw new Error('`bundleRemotes[].pkgId` must be a string');
-        }
-
-        if (!Array.isArray(targets) || targets.some((t) => typeof t !== 'string')) {
-          throw new Error('`bundleRemotes[].targets` must be an array of strings');
-        }
-
-        return {
-          bundleType,
-          bundleId,
-          pkgId,
-          targets,
-        };
-      })
-    );
+    return new BundleRemotes(spec);
   }
 
-  private byPkgId: Map<string, BundleRemote>;
-  constructor(private readonly remotes: BundleRemote[]) {
+  public readonly byPkgId: Map<string, BundleRemote>;
+
+  constructor(
+    /**
+     * Map of pkgIds to the bundle where that pkgId lives.
+     */
+    private readonly remotes: BundleRemote[]
+  ) {
     this.byPkgId = new Map(remotes.map((r) => [r.pkgId, r]));
-
-    if (this.byPkgId.size !== remotes.length) {
-      const dups = remotes.filter((r) => {
-        if (this.byPkgId.has(r.pkgId)) {
-          this.byPkgId.delete(r.pkgId);
-          return false;
-        }
-
-        return true;
-      });
-
-      throw new Error(
-        `invalid remotes, the following package ids belong to more than one remote: ${dups.join(
-          ', '
-        )}`
-      );
-    }
   }
 
-  public getForPkgId(pkgId: string) {
-    return this.byPkgId.get(pkgId);
+  get(importReq: string) {
+    const parsed = parseImportReq(importReq);
+    if (!parsed.pkgId) {
+      return {
+        parsed,
+        remote: undefined,
+      };
+    }
+
+    return {
+      parsed,
+      remote: this.byPkgId.get(parsed.pkgId),
+    };
   }
 
   /**
-   * get the import requests were are passed in, and are also valid based on our config
+   * Determine the subset of `importReqs` which are valid import requests that resolve against our remotes
    */
-  public unionImportReqs(importReqs: string[]) {
-    return importReqs.filter((r) => {
-      const parsed = parseKbnImportReq(r);
-      if (!parsed) {
+  unionImportReqs(importReqs: string[]) {
+    return importReqs.filter((req) => {
+      const parsed = parseImportReq(req);
+      if (!parsed.pkgId) {
         return false;
       }
 
@@ -119,14 +125,8 @@ export class BundleRemotes {
         return false;
       }
 
-      return own.targets.includes(parsed.target);
+      return !parsed.target || !!own.targets?.includes(parsed.target);
     });
-  }
-
-  public getValidImportReqs(bundleIds: string[]) {
-    const filter = new Set(bundleIds);
-    const remotes = this.remotes.filter((r) => filter.has(r.bundleId));
-    return remotes.flatMap((r) => r.targets.map((t) => (t === '' ? r.pkgId : `${r.pkgId}/${t}`)));
   }
 
   public toSpecJson() {

@@ -164,6 +164,16 @@ export function isDelegatedModule(module: any): module is WebpackDelegatedModule
   return module?.constructor?.name === 'DelegatedModule';
 }
 
+/** module for imports of directories */
+export interface WebpackContextModule {
+  type: string;
+  id: number;
+}
+
+export function isContextModule(module: any): module is WebpackContextModule {
+  return module?.constructor?.name === 'ContextModule';
+}
+
 export function getModulePath(module: WebpackNormalModule) {
   const queryIndex = module.resource.indexOf('?');
   return queryIndex === -1 ? module.resource : module.resource.slice(0, queryIndex);
