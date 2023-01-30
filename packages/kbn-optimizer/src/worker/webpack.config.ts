@@ -16,8 +16,7 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
 
 import { Bundle, BundleRemotes, WorkerConfig } from '../common';
-import { BundleRemotesPlugin } from './bundle_remotes/webpack_plugin';
-import { RemoteMappings } from './bundle_remotes/remote_mappings';
+import { BundleRemotesPlugin, RemoteMappings } from './bundle_remotes';
 import { EmitStatsPlugin } from './emit_stats_plugin';
 import { PopulateBundleCachePlugin } from './populate_bundle_cache_plugin';
 
@@ -32,6 +31,8 @@ export function getWebpackConfig(
 ) {
   const ENTRY_CREATOR = require.resolve('./entry_point_creator.js');
   const remoteMappings = new RemoteMappings();
+
+  const fileId = bundle.id.startsWith('@kbn/') ? bundle.id.slice(5) : bundle.id;
 
   const webpackConfig: webpack.Configuration = {
     mode: 'development',
@@ -50,12 +51,12 @@ export function getWebpackConfig(
 
     output: {
       path: bundle.outputDir,
-      filename: `${bundle.id}.js`,
-      chunkFilename: `${bundle.id}.chunk.[id].js`,
+      filename: `${fileId}.js`,
+      chunkFilename: `${fileId}.chunk.[id].js`,
       devtoolModuleFilenameTemplate: (info) =>
-        `/${bundle.id}/${Path.relative(bundle.sourceRoot, info.absoluteResourcePath)}${info.query}`,
-      jsonpFunction: `${bundle.id}_bundle_jsonpfunction`,
-      library: `__kbnBundles__.jsonp.${bundle.id}`,
+        `/${fileId}/${Path.relative(bundle.sourceRoot, info.absoluteResourcePath)}${info.query}`,
+      jsonpFunction: `jsonp_webpack_${bundle.id}`,
+      library: `__kbnBundles__.jsonp[${JSON.stringify(bundle.id)}]`,
       libraryTarget: 'jsonp',
     },
 
@@ -74,7 +75,7 @@ export function getWebpackConfig(
     plugins: [
       new CleanWebpackPlugin(),
       new BundleRemotesPlugin(bundle, bundleRemotes, remoteMappings),
-      new PopulateBundleCachePlugin(worker, bundle),
+      new PopulateBundleCachePlugin(worker, bundle, remoteMappings),
       ...(worker.profileWebpack ? [new EmitStatsPlugin(bundle)] : []),
       ...(bundle.banner ? [new webpack.BannerPlugin({ banner: bundle.banner, raw: true })] : []),
     ],

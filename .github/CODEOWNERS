@@ -803,6 +803,7 @@ packages/kbn-managed-vscode-config-cli @elastic/kibana-operations
 packages/kbn-mapbox-gl @elastic/kibana-gis
 packages/kbn-monaco @elastic/appex-sharedux
 packages/kbn-optimizer @elastic/kibana-operations
+packages/kbn-optimizer-bundle-zones @elastic/kibana-operations
 packages/kbn-optimizer-webpack-helpers @elastic/kibana-operations
 packages/kbn-osquery-io-ts-types @elastic/security-asset-management
 packages/kbn-peggy @elastic/kibana-operations

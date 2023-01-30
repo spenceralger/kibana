@@ -1,0 +1,5 @@
+{
+  "type": "shared-common",
+  "id": "@kbn/optimizer-bundle-zones",
+  "owner": "@elastic/kibana-operations"
+}

@@ -7,10 +7,12 @@
  */
 
 import type { CoreSetup, CoreStart, Plugin } from '@kbn/core/public';
+import { APP_WRAPPER_CLASS } from '@kbn/core/public';
 import { getScreenshotContext, getScreenshotMode } from '../common';
 import type { ScreenshotModePluginSetup, ScreenshotModePluginStart } from './types';
 
 export class ScreenshotModePlugin implements Plugin<ScreenshotModePluginSetup> {
+  public APP_WRAPPER_CLASS = APP_WRAPPER_CLASS;
   private publicContract = Object.freeze({
     getScreenshotContext,
     isScreenshotMode: () => getScreenshotMode() === true,

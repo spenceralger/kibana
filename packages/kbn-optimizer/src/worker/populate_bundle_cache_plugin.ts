@@ -32,8 +32,14 @@ import { BundleRemoteModule } from './bundle_remotes/bundle_remote_module';
  */
 const EXTRA_SCSS_WORK_UNITS = 100;
 
+import type { RemoteMappings } from './bundle_remotes';
+
 export class PopulateBundleCachePlugin {
-  constructor(private readonly workerConfig: WorkerConfig, private readonly bundle: Bundle) {}
+  constructor(
+    private readonly workerConfig: WorkerConfig,
+    private readonly bundle: Bundle,
+    private readonly mappings: RemoteMappings
+  ) {}
 
   public apply(compiler: webpack.Compiler) {
     const { bundle, workerConfig } = this;
@@ -126,6 +132,10 @@ export class PopulateBundleCachePlugin {
         const referencedPaths = Array.from(paths).sort(ascending((p) => p));
         const sortedDllRefKeys = Array.from(dllRefKeys).sort(ascending((p) => p));
 
+        const syncZoneDeps = Array.from(
+          this.mappings.getBundleRefsForChunk(compilation.namedChunks.get(bundle.id))
+        );
+
         bundle.cache.set({
           remoteBundleImportReqs: bundleRefExportIds.sort(ascending((p) => p)),
           optimizerCacheKey: workerConfig.optimizerCacheKey,
@@ -134,6 +144,7 @@ export class PopulateBundleCachePlugin {
           workUnits,
           referencedPaths,
           dllRefKeys: sortedDllRefKeys,
+          syncZoneDeps,
         });
 
         // write the cache to the compilation so that it isn't cleaned by clean-webpack-plugin

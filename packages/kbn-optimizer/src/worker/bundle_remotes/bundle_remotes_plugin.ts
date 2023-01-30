@@ -11,11 +11,6 @@
 import webpack from 'webpack';
 import { ConcatSource } from 'webpack-sources';
 
-import {
-  isNormalModule,
-  isConcatenatedModule,
-  getModulePath,
-} from '@kbn/optimizer-webpack-helpers';
 import { Bundle, BundleRemotes } from '../../common';
 import { BundleRemoteModule } from './bundle_remote_module';
 import { RemoteMappings } from './remote_mappings';
@@ -82,35 +77,18 @@ export class BundleRemotesPlugin {
       compilation.hooks.optimizeChunkAssets.tapPromise(
         'BundleRemotesPlugin/wrapChunks',
         async (chunks) => {
-          function getPathsFromModules(modules: any[]): string[] {
-            return modules.flatMap((module): string | string[] => {
-              if (isNormalModule(module)) {
-                return getModulePath(module);
-              }
-
-              if (isConcatenatedModule(module)) {
-                return getPathsFromModules(module.modules);
-              }
-
-              return [];
-            });
-          }
-
           for (const chunk of chunks) {
-            const referencedBundles = new Set(
-              getPathsFromModules(Array.from(chunk.modulesIterable)).flatMap((p) =>
-                Array.from(this.remoteMapping.get(p) ?? [])
-              )
-            );
-
+            const referencedBundles = this.remoteMapping.getBundleRefsForChunk(chunk);
             referencedBundles.delete(this.bundle.id);
 
             if (referencedBundles.size) {
+              const deps = JSON.stringify(
+                Array.from(referencedBundles).sort((a, b) => a.localeCompare(b))
+              );
+
               for (const file of chunk.files) {
                 compilation.assets[file] = new ConcatSource(
-                  `__kbnBundles__.ensure(${JSON.stringify(
-                    Array.from(referencedBundles).sort((a, b) => a.localeCompare(b))
-                  )}, function () {\n`,
+                  `__kbnBundles__.ensure(${deps}, function () {\n`,
                   compilation.assets[file],
                   `\n});`
                 );

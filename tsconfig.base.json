@@ -598,6 +598,8 @@
       "@kbn/monaco/*": ["packages/kbn-monaco/*"],
       "@kbn/optimizer": ["packages/kbn-optimizer"],
       "@kbn/optimizer/*": ["packages/kbn-optimizer/*"],
+      "@kbn/optimizer-bundle-zones": ["packages/kbn-optimizer-bundle-zones"],
+      "@kbn/optimizer-bundle-zones/*": ["packages/kbn-optimizer-bundle-zones/*"],
       "@kbn/optimizer-webpack-helpers": ["packages/kbn-optimizer-webpack-helpers"],
       "@kbn/optimizer-webpack-helpers/*": ["packages/kbn-optimizer-webpack-helpers/*"],
       "@kbn/osquery-io-ts-types": ["packages/kbn-osquery-io-ts-types"],

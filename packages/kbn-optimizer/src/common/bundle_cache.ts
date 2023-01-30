@@ -20,6 +20,7 @@ export interface State {
   referencedPaths?: string[];
   remoteBundleImportReqs?: string[];
   dllRefKeys?: string[];
+  syncZoneDeps?: string[];
 }
 
 const DEFAULT_STATE: State = {};
@@ -105,6 +106,10 @@ export class BundleCache {
 
   public getOptimizerCacheKey() {
     return this.get().optimizerCacheKey;
+  }
+
+  public getSyncZoneDeps() {
+    return this.get().syncZoneDeps;
   }
 
   public clear() {
