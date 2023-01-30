@@ -7,6 +7,7 @@
  */
 
 import { inspect } from 'util';
+import { BundleZones } from '@kbn/optimizer-bundle-zones';
 
 import { WorkerMsg, CompilerMsg, Bundle, Summarizer } from '../common';
 
@@ -38,6 +39,7 @@ export interface OptimizerState {
   compilerStates: CompilerMsg[];
   onlineBundles: Bundle[];
   offlineBundles: Bundle[];
+  zones: BundleZones;
 }
 
 const msToSec = (ms: number) => Math.round(ms / 100) / 10;
@@ -149,10 +151,19 @@ export function createOptimizerStateSummarizer(
         }
       }
 
+      const zoneDeps = { ...state.zones.deps };
+      if (event.type === 'bundle cached') {
+        zoneDeps[event.bundle.id] = event.bundle.cache.getSyncZoneDeps() ?? [];
+      }
+
       return createOptimizerState(state, {
         phase: state.phase === 'initializing' ? 'initializing' : 'running',
         onlineBundles,
         offlineBundles,
+        zones: {
+          ...state.zones,
+          deps: zoneDeps,
+        },
       });
     }
 
@@ -165,9 +176,27 @@ export function createOptimizerStateSummarizer(
         ...state.compilerStates.filter((c) => c.bundleId !== event.bundleId),
         event,
       ];
+
+      const zoneDeps = { ...state.zones.deps };
+      if (event.type === 'compiler success') {
+        const bundle = config.bundles.find((b) => b.id === event.bundleId);
+        if (!bundle) {
+          throw new Error(
+            `unable to update optimizer state because there is no bundle with id [${event.bundleId}]`
+          );
+        }
+
+        bundle.cache.refresh();
+        zoneDeps[bundle.id] = bundle.cache.getSyncZoneDeps() ?? [];
+      }
+
       return createOptimizerState(state, {
         phase: getStatePhase(compilerStates),
         compilerStates,
+        zones: {
+          ...state.zones,
+          deps: zoneDeps,
+        },
       });
     }
 

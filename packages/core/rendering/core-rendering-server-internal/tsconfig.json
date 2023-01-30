@@ -15,7 +15,6 @@
   "kbn_references": [
     "@kbn/i18n",
     "@kbn/ui-shared-deps-npm",
-    "@kbn/ui-shared-deps-src",
     "@kbn/core-base-server-internal",
     "@kbn/core-injected-metadata-common-internal",
     "@kbn/core-http-server",
@@ -37,6 +36,7 @@
     "@kbn/core-custom-branding-server-internal",
     "@kbn/core-custom-branding-common",
     "@kbn/core-custom-branding-server-mocks",
+    "@kbn/optimizer-bundle-zones",
   ],
   "exclude": [
     "target/**/*",

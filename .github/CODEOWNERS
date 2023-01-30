@@ -964,6 +964,7 @@ x-pack/plugins/observability @elastic/observability-ui
 x-pack/test/security_api_integration/plugins/oidc_provider @elastic/kibana-security
 test/common/plugins/otel_metrics @elastic/infra-monitoring-ui
 packages/kbn-optimizer @elastic/kibana-operations
+packages/kbn-optimizer-bundle-zones @elastic/kibana-operations
 packages/kbn-optimizer-webpack-helpers @elastic/kibana-operations
 packages/kbn-osquery-io-ts-types @elastic/security-asset-management
 x-pack/plugins/osquery @elastic/security-defend-workflows

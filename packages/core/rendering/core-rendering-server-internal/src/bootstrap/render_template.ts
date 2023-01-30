@@ -6,15 +6,17 @@
  * Side Public License, v 1.
  */
 
+import { BundleZones } from '@kbn/optimizer-bundle-zones';
 export interface BootstrapTemplateData {
   themeTag: string;
   publicPathMap: Record<string, string>;
   zoneBaseUrl: string;
+  zones: BundleZones;
 }
 
-type RequireFn = (key: string) => unknown;
+type Getter = () => unknown;
 
-function boostrapFunction(themeTag: string, publicPathMap: string, zoneBaseUrl: string) {
+function boostrapFunction({ themeTag, publicPathMap, zoneBaseUrl, zones }: BootstrapTemplateData) {
   let fatalRendered = false;
   function fatal() {
     if (fatalRendered) {
@@ -37,49 +39,67 @@ function boostrapFunction(themeTag: string, publicPathMap: string, zoneBaseUrl: 
 
   function kbnBundlesLoader() {
     const scriptsTarget = document.querySelector('head meta[name="add-scripts-here"]');
-    const reqs = new Map<string, RequireFn>();
-    const zones = new Map<string, { pending: boolean; promise: Promise<void> }>();
+    const getExport = new Map<string, Getter>();
+    const loaded = new Map<string, { pending: boolean; promise: Promise<void> }>();
     const jsonp = Object.create(null);
 
     function has(prop: string) {
-      return reqs.has(prop);
+      return getExport.has(prop);
     }
 
-    function define(key: string, req: RequireFn) {
+    function define(key: string, req: (modId: string) => unknown, modId: string) {
       if (has(key)) {
         throw new Error('__kbnBundles__ already has a module defined for "' + key + '"');
       }
-      reqs.set(key, req);
+      getExport.set(key, () => req(modId));
     }
 
     function get(key: string) {
-      const req = reqs.get(key);
+      const req = getExport.get(key);
       if (!req) {
         throw new Error('__kbnBundles__ does not have a module defined for "' + key + '"');
       }
-      return req(key);
+      return req();
+    }
+
+    const depMap = new Map(Object.entries(zones.deps));
+    function getDepsDeep(id: string, history: string[] = []): string[] {
+      const deps = depMap.get(id);
+      if (!deps) {
+        return [];
+      }
+
+      return deps.flatMap((dep) => {
+        if (history.includes(dep)) {
+          throw new Error('circular dependency in zone deps');
+        }
+
+        return [dep, ...getDepsDeep(dep, [...history, id])];
+      });
     }
 
     function ensure(zoneIds: string[], cb: () => void) {
       Promise.all(
-        zoneIds.map((id) => {
-          const existing = zones.get(id);
-          if (existing) {
-            return existing;
-          }
+        zoneIds
+          .flatMap((id) => [id, ...getDepsDeep(id)])
+          .map((id) => {
+            const existing = loaded.get(id);
+            if (existing) {
+              return existing;
+            }
 
-          const promise = new Promise<void>((resolve, reject) => {
-            const dom = document.createElement('script');
-            dom.async = false;
-            dom.src = `${zoneBaseUrl}/${id}/${id}.js`;
-            dom.addEventListener('error', reject);
-            jsonp[id] = () => resolve();
-            document.head.insertBefore(dom, scriptsTarget);
-          });
+            const promise = new Promise<void>((resolve, reject) => {
+              const dom = document.createElement('script');
+              dom.async = false;
+              dom.src = `${zoneBaseUrl}/${id}/${id}.js`;
+              dom.addEventListener('error', reject);
+              jsonp[id] = () => resolve();
+              document.head.insertBefore(dom, scriptsTarget);
+            });
 
-          zones.set(id, { pending: true, promise });
-          return promise;
-        })
+            loaded.set(id, { pending: true, promise });
+            return promise;
+          })
       ).then(
         () => {
           cb();
@@ -119,19 +139,15 @@ function boostrapFunction(themeTag: string, publicPathMap: string, zoneBaseUrl: 
         detail: 'load_started',
       });
 
-      global.__kbnBundles__.ensure(['zone1', 'zone2', 'zone3', 'zone4', 'zone5'], function () {
+      global.__kbnBundles__.ensure(zones.init, function () {
         global.__kbnBundles__.get('@kbn/core/public').__kbnBootstrap__();
       });
     };
   }
 }
 
-export const renderTemplate = ({ themeTag, publicPathMap, zoneBaseUrl }: BootstrapTemplateData) => {
+export const renderTemplate = (data: BootstrapTemplateData) => {
   return `'use strict';
-(${boostrapFunction.toString()}).apply(null, ${JSON.stringify([
-    themeTag,
-    publicPathMap,
-    zoneBaseUrl,
-  ])});
+(${boostrapFunction.toString()}).call(null, ${JSON.stringify(data)});
 `;
 };

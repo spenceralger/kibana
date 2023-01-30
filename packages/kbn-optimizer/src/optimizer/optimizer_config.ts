@@ -20,7 +20,7 @@ import {
   omit,
 } from '../common';
 
-import { determineBundles } from './determine_bundles';
+import { getDevBundles } from './determine_bundles';
 
 export interface Limits {
   pageLoadAssetSize?: {
@@ -183,11 +183,26 @@ export class OptimizerConfig {
         : pluginFilter(p)
     );
 
-    const bundles = determineBundles(packages, options.outputRoot, options.repoRoot);
+    const bundles = getDevBundles(packages, options.outputRoot, options.repoRoot);
+
+    const bundlesByEntryPkgId = new Map(
+      ['@kbn/core', ...packages.filter(pluginFilter).map((p) => p.id)].map((pkgId) => {
+        const bundle = bundles.find((b) => b.entries.some((e) => e.pkgId === pkgId));
+        if (!bundle) {
+          throw new Error(`unable to find bundle containing [${pkgId}]`);
+        }
+        return [pkgId, bundle];
+      })
+    );
+
+    const initBundles = Array.from(new Set(bundlesByEntryPkgId.values()))
+      .map((b) => b.id)
+      .sort((a, b) => a.localeCompare(b));
 
     return new OptimizerConfig(
       bundles,
       bundles,
+      initBundles,
       options.cache,
       options.watch,
       options.inspectWorkers,
@@ -202,6 +217,7 @@ export class OptimizerConfig {
   constructor(
     public readonly bundles: Bundle[],
     public readonly filteredBundles: Bundle[],
+    public readonly initBundles: string[],
     public readonly cache: boolean,
     public readonly watch: boolean,
     public readonly inspectWorkers: boolean,

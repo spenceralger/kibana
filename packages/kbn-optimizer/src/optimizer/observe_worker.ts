@@ -59,12 +59,7 @@ function usingWorkerProc<T>(config: OptimizerConfig, fn: (proc: ChildProcess) =>
   return Rx.using(
     (): ProcResource => {
       const proc = fork(require.resolve('../worker/run_worker'), [], {
-        execArgv: [
-          `--require=@kbn/babel-register/install`,
-          ...(inspectFlag && config.inspectWorkers
-            ? [`${inspectFlag}=${inspectPortCounter++}`]
-            : []),
-        ],
+        execArgv: [`--require=@kbn/babel-register/install`],
         stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       });
 

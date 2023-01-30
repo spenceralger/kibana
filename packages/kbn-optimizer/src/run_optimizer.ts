@@ -8,6 +8,7 @@
 
 import * as Rx from 'rxjs';
 import { mergeMap, share, observeOn } from 'rxjs/operators';
+import { updateZoneInfo } from '@kbn/optimizer-bundle-zones';
 
 import { summarizeEventStream, Update } from './common';
 
@@ -80,8 +81,23 @@ export function runOptimizer(config: OptimizerConfig) {
           onlineBundles: [],
           startTime,
           durSec: 0,
+          zones: {
+            init: config.initBundles,
+            deps: {},
+          },
         },
         createOptimizerStateSummarizer(config)
+      ).pipe(
+        Rx.scan((prev, update): OptimizerUpdate => {
+          const zonesChanged =
+            !prev || JSON.stringify(prev.state.zones) !== JSON.stringify(update.state.zones);
+
+          if (zonesChanged) {
+            updateZoneInfo(update.state.zones);
+          }
+
+          return update;
+        }, null as unknown as OptimizerUpdate)
       );
     }),
     handleOptimizerCompletion(config)

@@ -184,7 +184,7 @@ export const MANIFEST_V2: JSONSchema = {
       type: 'object',
       properties: {
         type: {
-          const: 'shared-browser',
+          enum: ['shared-browser', 'shared-common'],
         },
         sharedBrowserBundle: {
           type: 'boolean',
@@ -199,13 +199,7 @@ export const MANIFEST_V2: JSONSchema = {
       type: 'object',
       properties: {
         type: {
-          enum: [
-            'shared-server',
-            'shared-common',
-            'functional-tests',
-            'test-helper',
-            'shared-scss',
-          ],
+          enum: ['shared-server', 'functional-tests', 'test-helper', 'shared-scss'],
         },
       },
     },

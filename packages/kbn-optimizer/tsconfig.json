@@ -19,8 +19,6 @@
     "@kbn/dev-utils",
     "@kbn/optimizer-webpack-helpers",
     "@kbn/std",
-    "@kbn/ui-shared-deps-npm",
-    "@kbn/ui-shared-deps-src",
     "@kbn/tooling-log",
     "@kbn/ci-stats-reporter",
     "@kbn/dev-cli-errors",
@@ -28,5 +26,6 @@
     "@kbn/dev-cli-runner",
     "@kbn/jest-serializers",
     "@kbn/repo-packages",
+    "@kbn/optimizer-bundle-zones",
   ]
 }

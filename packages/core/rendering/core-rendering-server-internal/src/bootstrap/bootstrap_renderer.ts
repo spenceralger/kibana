@@ -9,6 +9,7 @@
 import { createHash } from 'crypto';
 import { PackageInfo } from '@kbn/config';
 import { ThemeVersion } from '@kbn/ui-shared-deps-npm';
+import { readZoneInfo } from '@kbn/optimizer-bundle-zones';
 import type { KibanaRequest, HttpAuth } from '@kbn/core-http-server';
 import type { IUiSettingsClient } from '@kbn/core-ui-settings-server';
 import type { UiPlugins } from '@kbn/core-plugins-base-server-internal';
@@ -48,6 +49,8 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
     // status is 'unknown' when auth is disabled. we just need to not be `unauthenticated` here.
     return authStatus !== 'unauthenticated';
   };
+
+  const zones = readZoneInfo();
 
   return async function bootstrapRenderer({ uiSettingsClient, request, isAnonymousPage = false }) {
     let darkMode = false;
@@ -89,6 +92,7 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
       themeTag,
       zoneBaseUrl: regularBundlePath,
       publicPathMap,
+      zones,
     });
 
     const hash = createHash('sha1');
