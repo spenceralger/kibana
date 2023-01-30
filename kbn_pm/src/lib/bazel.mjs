@@ -19,8 +19,6 @@ import { indent } from './indent.mjs';
 const BAZEL_RUNNER_SRC = '../../../packages/kbn-bazel-runner/index.js';
 
 const BAZEL_TARGETS = [
-  '//packages/kbn-ui-shared-deps-npm:shared_built_assets',
-  '//packages/kbn-ui-shared-deps-src:shared_built_assets',
   '//packages/kbn-monaco:target_workers',
 ];
 

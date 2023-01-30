@@ -6,9 +6,6 @@
  * Side Public License, v 1.
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-const { stringifyRequest } = require('loader-utils');
-
 const VAL_LOADER = require.resolve('val-loader');
 const MODULE_CREATOR = require.resolve('./public_path_module_creator');
 
@@ -19,6 +16,11 @@ const MODULE_CREATOR = require.resolve('./public_path_module_creator');
 module.exports = function (source) {
   const options = this.query;
   const valOpts = new URLSearchParams({ key: options.key }).toString();
-  const req = `${VAL_LOADER}?${valOpts}!${MODULE_CREATOR}`;
-  return `require(${stringifyRequest(this, req)});${source}`;
+  const req = JSON.stringify(
+    this.utils.contextify(
+      this.context || this.rootContext,
+      `${VAL_LOADER}?${valOpts}!${MODULE_CREATOR}`
+    )
+  );
+  return `require(${req});${source}`;
 };
