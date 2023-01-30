@@ -6,8 +6,7 @@
  * Side Public License, v 1.
  */
 
-// @ts-ignore
-import src from '!!raw-loader!./x_json.ace.worker';
+import src from './x_json.ace.worker?raw';
 
 export const workerModule = {
   id: 'ace/mode/json_worker',

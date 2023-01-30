@@ -8,15 +8,14 @@
 
 import Path from 'path';
 
-import { stringifyRequest } from 'loader-utils';
 import webpack from 'webpack';
-// @ts-expect-error
+import { container } from 'webpack';
 import TerserPlugin from 'terser-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
 
 import { Bundle, BundleRemotes, WorkerConfig } from '../common';
-import { BundleRemotesPlugin, RemoteMappings } from './bundle_remotes';
+import { RemoteMappings } from './bundle_remotes';
 import { EmitStatsPlugin } from './emit_stats_plugin';
 import { PopulateBundleCachePlugin } from './populate_bundle_cache_plugin';
 
@@ -36,10 +35,6 @@ export function getWebpackConfig(
 
   const webpackConfig: webpack.Configuration = {
     mode: 'development',
-    node: {
-      child_process: 'empty',
-      fs: 'empty',
-    },
     context: bundle.sourceRoot,
     cache: true,
     entry: {
@@ -53,9 +48,9 @@ export function getWebpackConfig(
       path: bundle.outputDir,
       filename: `${fileId}.js`,
       chunkFilename: `${fileId}.chunk.[id].js`,
-      devtoolModuleFilenameTemplate: (info) =>
+      devtoolModuleFilenameTemplate: (info: any) =>
         `/${fileId}/${Path.relative(bundle.sourceRoot, info.absoluteResourcePath)}${info.query}`,
-      jsonpFunction: `jsonp_webpack_${bundle.id}`,
+      chunkLoadingGlobal: `jsonp_webpack_${bundle.id}`,
       library: `__kbnBundles__.jsonp[${JSON.stringify(bundle.id)}]`,
       libraryTarget: 'jsonp',
     },
@@ -74,10 +69,21 @@ export function getWebpackConfig(
 
     plugins: [
       new CleanWebpackPlugin(),
-      new BundleRemotesPlugin(bundle, bundleRemotes, remoteMappings),
       new PopulateBundleCachePlugin(worker, bundle, remoteMappings),
       ...(worker.profileWebpack ? [new EmitStatsPlugin(bundle)] : []),
       ...(bundle.banner ? [new webpack.BannerPlugin({ banner: bundle.banner, raw: true })] : []),
+      new container.ModuleFederationPlugin({
+        remotes: Object.fromEntries(
+          Array.from(bundleRemotes.byPkgId.values(), (remote) => {
+            return [
+              remote.pkgId,
+              `promise __kbnBundles__.getPkg(${JSON.stringify(remote.bundleId)}, ${JSON.stringify(
+                remote.pkgId
+              )})`,
+            ];
+          })
+        ),
+      }),
     ],
 
     module: {
@@ -161,14 +167,17 @@ export function getWebpackConfig(
                 {
                   loader: 'sass-loader',
                   options: {
-                    additionalData(content: string, loaderContext: webpack.loader.LoaderContext) {
-                      return `@import ${stringifyRequest(
-                        loaderContext,
-                        Path.resolve(
-                          worker.repoRoot,
-                          `src/core/public/styles/core_app/_globals_${theme}.scss`
+                    additionalData(content: string, loaderContext: webpack.LoaderContext<any>) {
+                      const req = JSON.stringify(
+                        loaderContext.utils.contextify(
+                          loaderContext.context || loaderContext.rootContext,
+                          Path.resolve(
+                            worker.repoRoot,
+                            `src/core/public/styles/core_app/_globals_${theme}.scss`
+                          )
                         )
-                      )};\n${content}`;
+                      );
+                      return `@import ${req};\n${content}`;
                     },
                     webpackImporter: false,
                     implementation: require('node-sass'),
@@ -189,13 +198,6 @@ export function getWebpackConfig(
               },
             },
           ],
-        },
-        {
-          test: /\.(woff|woff2|ttf|eot|svg|ico|png|jpg|gif|jpeg)(\?|$)/,
-          loader: 'url-loader',
-          options: {
-            limit: 8192,
-          },
         },
         {
           test: /\.(js|tsx?)$/,
@@ -220,14 +222,26 @@ export function getWebpackConfig(
           },
         },
         {
-          test: /\.(html|md|txt|tmpl)$/,
-          use: {
-            loader: 'raw-loader',
-          },
-        },
-        {
           test: /\.peggy$/,
           loader: require.resolve('@kbn/peggy-loader'),
+        },
+        // emits a separate file and exports the URL. Previously achievable by using file-loader.
+        {
+          test: [
+            require.resolve('@mapbox/mapbox-gl-rtl-text/mapbox-gl-rtl-text.min.js'),
+            require.resolve('maplibre-gl/dist/maplibre-gl-csp-worker'),
+          ],
+          type: 'asset/resource',
+        },
+        // exports the source code of the asset. Previously achievable by using raw-loader.
+        {
+          test: [/\.(html|md|txt|tmpl)$/],
+          type: 'asset/source',
+        },
+        // automatically chooses between exporting a data URI and emitting a separate file. Previously achievable by using url-loader with asset size limit.
+        {
+          test: /\.(woff|woff2|ttf|eot|svg|ico|png|jpg|gif|jpeg)(\?|$)/,
+          type: 'asset',
         },
       ],
     },
@@ -247,6 +261,8 @@ export function getWebpackConfig(
         // https://gist.github.com/bvaughn/25e6233aeb1b4f0cdb8d8366e54a3977#webpack-4
         'react-dom$': 'react-dom/profiling',
         'scheduler/tracing': 'scheduler/tracing-profiling',
+        child_process: false,
+        fs: false,
       },
     },
 
@@ -270,7 +286,6 @@ export function getWebpackConfig(
         algorithm: 'brotliCompress',
         filename: '[path].br',
         test: /\.(js|css)$/,
-        cache: false,
         compressionOptions: {
           level: 11,
         },
@@ -280,8 +295,6 @@ export function getWebpackConfig(
       ...webpackConfig.optimization,
       minimizer: [
         new TerserPlugin({
-          cache: false,
-          sourceMap: false,
           extractComments: false,
           parallel: false,
           terserOptions: {

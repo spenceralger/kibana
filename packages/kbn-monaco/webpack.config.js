@@ -21,16 +21,22 @@ const getWorkerEntry = (language) => {
   }
 };
 
+/** @returns {import('webpack').Configuration} */
 const getWorkerConfig = (language) => ({
   mode: process.env.NODE_ENV || 'development',
   entry: getWorkerEntry(language),
-  devtool: process.env.NODE_ENV === 'production' ? false : '#cheap-source-map',
+  devtool: process.env.NODE_ENV === 'production' ? false : 'cheap-source-map',
+  target: 'web',
   output: {
     path: path.resolve(__dirname, 'target_workers'),
     filename: `${language}.editor.worker.js`,
   },
   resolve: {
     extensions: ['.js', '.ts', '.tsx'],
+    fallback: {
+      assert: require.resolve('@browser-polyfills/assert'),
+      buffer: require.resolve('@browser-polyfills/buffer'),
+    },
   },
   stats: 'errors-only',
   module: {
