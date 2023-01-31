@@ -13,10 +13,7 @@ module.exports = function (opts) {
       .flatMap((entry) =>
         entry.targets
           .map((dir) => (dir ? `${entry.pkgId}/${dir}` : entry.pkgId))
-          .map(
-            (importReq) =>
-              `__kbnBundles__.define('${importReq}', __webpack_require__, require.resolve('${importReq}'));`
-          )
+          .map((importReq) => `import(/* webpackMode: "eager" */ ${JSON.stringify(importReq)});`)
       )
       .join('\n')}`,
   };

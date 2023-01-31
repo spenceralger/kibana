@@ -201,7 +201,7 @@ export class OptimizerConfig {
 
     return new OptimizerConfig(
       bundles,
-      bundles,
+      bundles.filter((b) => b.id === '@kbn/screenshotting-plugin' || b.id === 'npm'),
       initBundles,
       options.cache,
       options.watch,

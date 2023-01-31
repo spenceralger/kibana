@@ -38,8 +38,8 @@ webpack_cli(
     "//packages/kbn-babel-preset",
     "@npm//@babel/runtime",
     "@npm//babel-loader",
-    "@npm//@browser-polyfills/assert",
-    "@npm//@browser-polyfills/buffer",
+    "@npm//assert",
+    "@npm//buffer",
     "@npm//rxjs",
 
     "webpack.config.js",

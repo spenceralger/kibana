@@ -8,22 +8,14 @@
 
 export type {
   WebpackConcatenatedModule,
-  WebpackDelegatedModule,
-  WebpackExternalModule,
-  WebpackIgnoredModule,
   WebpackNormalModule,
   WebpackResolveData,
-  WebpackContextModule,
 } from './src/webpack_helpers';
 
 export {
   isFailureStats,
   failedStatsToErrorMessage,
-  getModulePath,
   isConcatenatedModule,
-  isDelegatedModule,
-  isExternalModule,
-  isIgnoredModule,
   isNormalModule,
-  isContextModule,
+  getModulePath,
 } from './src/webpack_helpers';

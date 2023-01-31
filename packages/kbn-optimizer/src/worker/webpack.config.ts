@@ -41,30 +41,19 @@ export function getWebpackConfig(
       [bundle.id]: ENTRY_CREATOR,
     },
 
-    devtool: worker.dist ? false : '#cheap-source-map',
+    devtool: worker.dist ? false : 'cheap-source-map',
     profile: worker.profileWebpack,
 
     output: {
       path: bundle.outputDir,
-      filename: `${fileId}.js`,
-      chunkFilename: `${fileId}.chunk.[id].js`,
-      devtoolModuleFilenameTemplate: (info: any) =>
-        `/${fileId}/${Path.relative(bundle.sourceRoot, info.absoluteResourcePath)}${info.query}`,
-      chunkLoadingGlobal: `jsonp_webpack_${bundle.id}`,
-      library: `__kbnBundles__.jsonp[${JSON.stringify(bundle.id)}]`,
-      libraryTarget: 'jsonp',
+      filename: `${fileId}.entry.js`,
+      library: {
+        type: 'global',
+      },
     },
 
     optimization: {
-      noEmitOnErrors: true,
-      splitChunks: {
-        maxAsyncRequests: 10,
-        cacheGroups: {
-          default: {
-            reuseExistingChunk: false,
-          },
-        },
-      },
+      emitOnErrors: false,
     },
 
     plugins: [
@@ -73,15 +62,27 @@ export function getWebpackConfig(
       ...(worker.profileWebpack ? [new EmitStatsPlugin(bundle)] : []),
       ...(bundle.banner ? [new webpack.BannerPlugin({ banner: bundle.banner, raw: true })] : []),
       new container.ModuleFederationPlugin({
+        name: bundle.id,
+        filename: `${fileId}.js`,
+        library: {
+          type: 'global',
+        },
+        exposes: Object.fromEntries(
+          bundle.entries.flatMap((e) => {
+            return e.targets.map((target) => {
+              return [`./${e.pkgId}/${target}`, `${e.pkgId}/${target}`];
+            });
+          })
+        ),
         remotes: Object.fromEntries(
-          Array.from(bundleRemotes.byPkgId.values(), (remote) => {
-            return [
+          Array.from(bundleRemotes.byPkgId.values())
+            .filter((r) => r.bundleId !== bundle.id)
+            .map((remote) => [
               remote.pkgId,
               `promise __kbnBundles__.getPkg(${JSON.stringify(remote.bundleId)}, ${JSON.stringify(
                 remote.pkgId
               )})`,
-            ];
-          })
+            ])
         ),
       }),
     ],
@@ -261,8 +262,10 @@ export function getWebpackConfig(
         // https://gist.github.com/bvaughn/25e6233aeb1b4f0cdb8d8366e54a3977#webpack-4
         'react-dom$': 'react-dom/profiling',
         'scheduler/tracing': 'scheduler/tracing-profiling',
+        // ignored node built-ins
         child_process: false,
         fs: false,
+        path: require.resolve('path-browserify'),
       },
     },
 
