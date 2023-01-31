@@ -39,7 +39,7 @@ function toPluginOrPackage(pkg: Package): PluginOrPackage {
     manifestPath: Path.resolve(REPO_ROOT, pkg.normalizedRepoRelativeDir, 'kibana.jsonc'),
     isPlugin: pkg.isPlugin(),
     manifest: {
-      id: pkg.manifest.id,
+      id: pkg.isPlugin() ? pkg.manifest.plugin.id : pkg.manifest.id,
       pluginId: pkg.isPlugin() ? pkg.manifest.plugin.id : undefined,
       owner: {
         name: pkg.manifest.owner?.[0] ?? '[Owner missing]',
