@@ -7,18 +7,10 @@
  */
 
 import Path from 'path';
-import { inspect } from 'util';
 
+import { CachedInputFileSystem } from 'enhanced-resolve';
 import webpack from 'webpack';
-import {
-  isExternalModule,
-  isNormalModule,
-  isIgnoredModule,
-  isConcatenatedModule,
-  isContextModule,
-  isDelegatedModule,
-  getModulePath,
-} from '@kbn/optimizer-webpack-helpers';
+import { isNormalModule, isConcatenatedModule } from '@kbn/optimizer-webpack-helpers';
 
 import { Bundle, WorkerConfig, ascending, parseFilePath, Hashes } from '../common';
 import { BundleRemoteModule } from './bundle_remotes/bundle_remote_module';
@@ -43,113 +35,102 @@ export class PopulateBundleCachePlugin {
 
   public apply(compiler: webpack.Compiler) {
     const { bundle, workerConfig } = this;
+    const inputFs = compiler.inputFileSystem;
+    if (!(inputFs instanceof CachedInputFileSystem)) {
+      throw new Error('expected inputFs to be a CachedInputFileSystem');
+    }
 
-    compiler.hooks.emit.tap(
-      {
-        name: 'PopulateBundleCachePlugin',
-        before: ['BundleMetricsPlugin'],
-      },
-      (compilation) => {
-        const bundleRefExportIds: string[] = [];
-        let moduleCount = 0;
-        let workUnits = compilation.fileDependencies.size;
+    compiler.hooks.emit.tap('PopulateBundleCachePlugin', (compilation) => {
+      let workUnits = compilation.fileDependencies.size;
+      const bundleRefExportIds: string[] = [];
 
-        const paths = new Set<string>();
-        const rawHashes = new Map<string, string | null>();
-        const addReferenced = (path: string) => {
-          if (paths.has(path)) {
-            return;
-          }
-
-          paths.add(path);
-          let content: Buffer;
-          try {
-            content = compiler.inputFileSystem.readFileSync(path);
-          } catch {
-            return rawHashes.set(path, null);
-          }
-
-          return rawHashes.set(path, Hashes.hash(content));
-        };
-
-        const dllRefKeys = new Set<string>();
-
-        for (const module of compilation.modules) {
-          if (isNormalModule(module)) {
-            moduleCount += 1;
-            const path = getModulePath(module);
-            const parsedPath = parseFilePath(path);
-
-            // TODO: Does this need to be updated to support @kbn/ packages?
-            if (!parsedPath.dirs.includes('node_modules')) {
-              addReferenced(path);
-
-              if (path.endsWith('.scss')) {
-                workUnits += EXTRA_SCSS_WORK_UNITS;
-
-                for (const depPath of module.buildInfo.fileDependencies) {
-                  addReferenced(depPath);
-                }
-              }
-
-              continue;
-            }
-
-            const nmIndex = parsedPath.dirs.lastIndexOf('node_modules');
-            const isScoped = parsedPath.dirs[nmIndex + 1].startsWith('@');
-            const pkgJsonPath = Path.join(
-              parsedPath.root,
-              ...parsedPath.dirs.slice(0, nmIndex + 1 + (isScoped ? 2 : 1)),
-              'package.json'
-            );
-            addReferenced(pkgJsonPath);
-            continue;
-          }
-
-          if (module instanceof BundleRemoteModule) {
-            bundleRefExportIds.push(module.req);
-            continue;
-          }
-
-          if (isConcatenatedModule(module)) {
-            moduleCount += module.modules.length;
-            continue;
-          }
-
-          if (isDelegatedModule(module)) {
-            // delegated modules are the references to the ui-shared-deps-npm dll
-            dllRefKeys.add(module.userRequest);
-            continue;
-          }
-
-          if (isExternalModule(module) || isIgnoredModule(module) || isContextModule(module)) {
-            continue;
-          }
-
-          throw new Error(`Unexpected module type: ${inspect(module)}`);
+      const paths = new Set<string>();
+      const rawHashes = new Map<string, string | null>();
+      const addReferenced = (path: string) => {
+        if (paths.has(path)) {
+          return;
         }
 
-        const referencedPaths = Array.from(paths).sort(ascending((p) => p));
-        const sortedDllRefKeys = Array.from(dllRefKeys).sort(ascending((p) => p));
+        paths.add(path);
+        let content: Buffer;
+        try {
+          const stringOrBuffer = inputFs.readFileSync(path);
+          content =
+            typeof stringOrBuffer === 'string' ? Buffer.from(stringOrBuffer) : stringOrBuffer;
+        } catch {
+          return rawHashes.set(path, null);
+        }
 
-        const syncZoneDeps = Array.from(
-          this.mappings.getBundleRefsForChunk(compilation.namedChunks.get(bundle.id))
+        return rawHashes.set(path, Hashes.hash(content));
+      };
+
+      // add all files from the fileDependencies (which includes a bunch of directories) to the cache
+      for (const path of compilation.fileDependencies) {
+        const stat = inputFs.statSync(path);
+        if (!stat.isFile()) {
+          continue;
+        }
+
+        addReferenced(path);
+        if (path.endsWith('.scss')) {
+          workUnits += EXTRA_SCSS_WORK_UNITS;
+          continue;
+        }
+
+        const parsedPath = parseFilePath(path);
+        if (!parsedPath.dirs.includes('node_modules')) {
+          continue;
+        }
+
+        const nmIndex = parsedPath.dirs.lastIndexOf('node_modules');
+        const isScoped = parsedPath.dirs[nmIndex + 1].startsWith('@');
+        const pkgJsonPath = Path.join(
+          parsedPath.root,
+          ...parsedPath.dirs.slice(0, nmIndex + 1 + (isScoped ? 2 : 1)),
+          'package.json'
         );
-
-        bundle.cache.set({
-          remoteBundleImportReqs: bundleRefExportIds.sort(ascending((p) => p)),
-          optimizerCacheKey: workerConfig.optimizerCacheKey,
-          cacheKey: bundle.createCacheKey(referencedPaths, new Hashes(rawHashes)),
-          moduleCount,
-          workUnits,
-          referencedPaths,
-          dllRefKeys: sortedDllRefKeys,
-          syncZoneDeps,
-        });
-
-        // write the cache to the compilation so that it isn't cleaned by clean-webpack-plugin
-        bundle.cache.writeWebpackAsset(compilation);
+        addReferenced(pkgJsonPath);
+        continue;
       }
-    );
+
+      let moduleCount = 0;
+      for (const module of compilation.modules) {
+        if (isNormalModule(module)) {
+          moduleCount += 1;
+          continue;
+        }
+
+        if (module instanceof BundleRemoteModule) {
+          bundleRefExportIds.push(module.req);
+          continue;
+        }
+
+        if (isConcatenatedModule(module)) {
+          moduleCount += module.modules.length;
+          continue;
+        }
+      }
+
+      const referencedPaths = Array.from(paths).sort(ascending((p) => p));
+
+      const chunk = compilation.namedChunks.get('main');
+      if (!chunk) {
+        throw new Error(`expected to find chunk named "main"`);
+      }
+      const syncZoneDeps = Array.from(this.mappings.getBundleRefsForChunk(chunk));
+
+      bundle.cache.set({
+        remoteBundleImportReqs: bundleRefExportIds.sort(ascending((p) => p)),
+        optimizerCacheKey: workerConfig.optimizerCacheKey,
+        cacheKey: bundle.createCacheKey(referencedPaths, new Hashes(rawHashes)),
+        moduleCount,
+        workUnits,
+        referencedPaths,
+        syncZoneDeps,
+      });
+
+      // write the cache to the compilation so that it isn't cleaned by clean-webpack-plugin
+      bundle.cache.writeWebpackAsset(compilation);
+    });
   }
 }

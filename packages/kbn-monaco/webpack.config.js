@@ -34,8 +34,8 @@ const getWorkerConfig = (language) => ({
   resolve: {
     extensions: ['.js', '.ts', '.tsx'],
     fallback: {
-      assert: require.resolve('@browser-polyfills/assert'),
-      buffer: require.resolve('@browser-polyfills/buffer'),
+      assert: require.resolve('assert'),
+      buffer: require.resolve('buffer'),
     },
   },
   stats: 'errors-only',

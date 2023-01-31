@@ -19,7 +19,6 @@ export interface State {
   workUnits?: number;
   referencedPaths?: string[];
   remoteBundleImportReqs?: string[];
-  dllRefKeys?: string[];
   syncZoneDeps?: string[];
 }
 
@@ -92,10 +91,6 @@ export class BundleCache {
     return this.get().remoteBundleImportReqs;
   }
 
-  public getDllRefKeys() {
-    return this.get().dllRefKeys;
-  }
-
   public getCacheKey() {
     return this.get().cacheKey;
   }
@@ -126,7 +121,7 @@ export class BundleCache {
     }
   }
 
-  public writeWebpackAsset(compilation: webpack.compilation.Compilation) {
+  public writeWebpackAsset(compilation: webpack.Compilation) {
     if (!this.path) {
       return;
     }

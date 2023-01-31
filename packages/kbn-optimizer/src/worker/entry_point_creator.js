@@ -6,17 +6,14 @@
  * Side Public License, v 1.
  */
 
-/** @param {{ entries: BundleEntry[] }} opts */
+/** @param {{ key: string, entries: BundleEntry[] }} opts */
 module.exports = function (opts) {
   return {
-    code: `${opts.entries
+    code: `__webpack_public_path__ = window.__kbnPublicPath__['${opts.key}'];\n${opts.entries
       .flatMap((entry) =>
         entry.targets
           .map((dir) => (dir ? `${entry.pkgId}/${dir}` : entry.pkgId))
-          .map(
-            (importReq) =>
-              `__kbnBundles__.define('${importReq}', __webpack_require__, require.resolve('${importReq}'));`
-          )
+          .map((importReq) => `require(${JSON.stringify(importReq)});`)
       )
       .join('\n')}`,
   };

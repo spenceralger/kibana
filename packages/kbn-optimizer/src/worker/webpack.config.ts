@@ -37,34 +37,21 @@ export function getWebpackConfig(
     mode: 'development',
     context: bundle.sourceRoot,
     cache: true,
-    entry: {
-      [bundle.id]: ENTRY_CREATOR,
-    },
+    entry: ENTRY_CREATOR,
 
-    devtool: worker.dist ? false : '#cheap-source-map',
+    devtool: worker.dist ? false : 'cheap-source-map',
     profile: worker.profileWebpack,
 
     output: {
       path: bundle.outputDir,
       filename: `${fileId}.js`,
-      chunkFilename: `${fileId}.chunk.[id].js`,
-      devtoolModuleFilenameTemplate: (info: any) =>
-        `/${fileId}/${Path.relative(bundle.sourceRoot, info.absoluteResourcePath)}${info.query}`,
-      chunkLoadingGlobal: `jsonp_webpack_${bundle.id}`,
-      library: `__kbnBundles__.jsonp[${JSON.stringify(bundle.id)}]`,
-      libraryTarget: 'jsonp',
+      library: {
+        type: 'global',
+      },
     },
 
     optimization: {
-      noEmitOnErrors: true,
-      splitChunks: {
-        maxAsyncRequests: 10,
-        cacheGroups: {
-          default: {
-            reuseExistingChunk: false,
-          },
-        },
-      },
+      emitOnErrors: false,
     },
 
     plugins: [
@@ -74,12 +61,26 @@ export function getWebpackConfig(
       ...(bundle.banner ? [new webpack.BannerPlugin({ banner: bundle.banner, raw: true })] : []),
       new container.ModuleFederationPlugin({
         remotes: Object.fromEntries(
-          Array.from(bundleRemotes.byPkgId.values(), (remote) => {
+          Array.from(bundleRemotes.byPkgId.values())
+            .filter((r) => r.bundleId !== bundle.id)
+            .map((remote) => {
+              const bundleId = JSON.stringify(remote.bundleId);
+              const pkgId = JSON.stringify(remote.pkgId);
+              return [
+                remote.pkgId,
+                `promise __kbnBundles__.getPkgFromBundle(${bundleId}, ${pkgId})`,
+              ];
+            })
+        ),
+        shared: Object.fromEntries(
+          bundle.entries.map((e) => {
             return [
-              remote.pkgId,
-              `promise __kbnBundles__.getPkg(${JSON.stringify(remote.bundleId)}, ${JSON.stringify(
-                remote.pkgId
-              )})`,
+              e.pkgId,
+              {
+                eager: true,
+                version: '0.0.0',
+                requiredVersion: false,
+              },
             ];
           })
         ),
@@ -102,14 +103,9 @@ export function getWebpackConfig(
           include: [ENTRY_CREATOR],
           use: [
             {
-              loader: require.resolve('./public_path_loader'),
-              options: {
-                key: bundle.id,
-              },
-            },
-            {
               loader: require.resolve('val-loader'),
               options: {
+                key: bundle.id,
                 entries: bundle.entries,
               },
             },
@@ -261,8 +257,10 @@ export function getWebpackConfig(
         // https://gist.github.com/bvaughn/25e6233aeb1b4f0cdb8d8366e54a3977#webpack-4
         'react-dom$': 'react-dom/profiling',
         'scheduler/tracing': 'scheduler/tracing-profiling',
+        // ignored node built-ins
         child_process: false,
         fs: false,
+        path: require.resolve('path-browserify'),
       },
     },
 

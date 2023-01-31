@@ -109,15 +109,6 @@ export function getBundleCacheEvent$(
         continue;
       }
 
-      if (!bundle.cache.getDllRefKeys()) {
-        events.push({
-          type: 'bundle not cached',
-          reason: 'dll references missing',
-          bundle,
-        });
-        continue;
-      }
-
       eligibleBundles.push(bundle);
     }
 
