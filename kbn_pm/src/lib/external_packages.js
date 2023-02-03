@@ -32,4 +32,9 @@ module.exports = {
     require('@kbn/babel-register').install();
     return require('@kbn/get-repo-files');
   },
+
+  ['@kbn/json-ast']() {
+    require('@kbn/babel-register').install();
+    return require('@kbn/json-ast');
+  },
 };
