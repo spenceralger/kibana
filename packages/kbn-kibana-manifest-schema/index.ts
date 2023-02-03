@@ -6,5 +6,4 @@
  * Side Public License, v 1.
  */
 
-export { MANIFEST_V1 } from './src/kibana_json_v1_schema';
 export { MANIFEST_V2 } from './src/kibana_json_v2_schema';

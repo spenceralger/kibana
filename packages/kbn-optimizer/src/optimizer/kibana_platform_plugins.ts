@@ -17,7 +17,7 @@ export interface KibanaPlatformPlugin {
   readonly id: string;
   readonly pkgId: string;
   readonly isUiPlugin: boolean;
-  readonly extraPublicDirs: string[];
+  readonly publicDirs: string[];
   readonly ignoreMetrics: boolean;
 }
 
@@ -32,7 +32,7 @@ export function toKibanaPlatformPlugin(repoRoot: string, pkg: PluginPackage): Ki
     id: pkg.manifest.plugin.id,
     pkgId: pkg.manifest.id,
     isUiPlugin: pkg.isPlugin() && pkg.manifest.plugin.browser,
-    extraPublicDirs: pkg.getExtraPublicDirs(),
+    publicDirs: pkg.getPublicDirs(),
     ignoreMetrics: !isDefaultPlugin(pkg),
   };
 }

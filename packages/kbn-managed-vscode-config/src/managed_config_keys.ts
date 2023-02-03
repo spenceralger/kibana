@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { MANIFEST_V1, MANIFEST_V2 } from '@kbn/kibana-manifest-schema';
+import { MANIFEST_V2 } from '@kbn/kibana-manifest-schema';
 
 export interface ManagedConfigKey {
   key: string;
@@ -76,10 +76,6 @@ export const MANAGED_CONFIG_KEYS: ManagedConfigKey[] = [
 ];
 
 export const MANAGED_CONFIG_FILES = [
-  {
-    name: 'kibana-json-schema.json',
-    content: JSON.stringify(MANIFEST_V1, null, 2),
-  },
   {
     name: 'kibana-manifest-schema-v2.json',
     content: JSON.stringify(MANIFEST_V2, null, 2),

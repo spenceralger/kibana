@@ -55,7 +55,6 @@ function validatePackageManifestPlugin(plugin, path) {
     id,
     browser,
     server,
-    extraPublicDirs,
     configPath,
     requiredPlugins,
     optionalPlugins,
@@ -73,9 +72,6 @@ function validatePackageManifestPlugin(plugin, path) {
   }
   if (typeof server !== 'boolean') {
     throw err('plugin.server', server, 'must be a boolean');
-  }
-  if (extraPublicDirs !== undefined && !isArrOfStrings(extraPublicDirs)) {
-    throw err(`plugin.extraPublicDirs`, extraPublicDirs, `must be an array of strings`);
   }
   if (configPath !== undefined && !(isSomeString(configPath) || isArrOfStrings(configPath))) {
     throw err(
@@ -149,7 +145,6 @@ function validatePackageManifestPlugin(plugin, path) {
     optionalPlugins,
     requiredBundles,
     enabledOnAnonymousPages,
-    extraPublicDirs,
     [PLUGIN_CATEGORY]: __category__,
   };
 }
@@ -213,6 +208,7 @@ function validatePackageManifest(parsed, path) {
     build,
     description,
     serviceFolders,
+    publicDirs,
     ...extra
   } = parsed;
 
@@ -252,6 +248,35 @@ function validatePackageManifest(parsed, path) {
     throw err(`serviceFolders`, serviceFolders, `must be an array of non-empty strings`);
   }
 
+  // parse the sharedBrowserBundle for shared-browser and shared-common types
+  if (sharedBrowserBundle !== undefined) {
+    if (type !== 'shared-browser' && type !== 'shared-common') {
+      throw err(
+        `sharedBrowserBundle`,
+        sharedBrowserBundle,
+        'may only be set in packages of type "shared-browser" or "shared-common"'
+      );
+    }
+
+    if (typeof sharedBrowserBundle !== 'boolean') {
+      throw err(`sharedBrowserBundle`, sharedBrowserBundle, `must be a boolean when defined`);
+    }
+  }
+
+  if (publicDirs !== undefined) {
+    if (!sharedBrowserBundle && type !== 'plugin') {
+      throw err(
+        `publicDirs`,
+        publicDirs,
+        'can only be set on packages of type "plugin" or packages with "sharedBrowserBundle: true"'
+      );
+    }
+
+    if (!isArrOfStrings(publicDirs, { allowEmpty: true })) {
+      throw err(`publicDirs`, publicDirs, 'must be an array of strings');
+    }
+  }
+
   const base = {
     id,
     owner: Array.isArray(owner) ? owner : [owner],
@@ -274,17 +299,15 @@ function validatePackageManifest(parsed, path) {
       type,
       ...base,
       plugin: validatePackageManifestPlugin(plugin, path),
+      publicDirs,
     };
   }
 
-  // parse the sharedBrowserBundle for shared-browser and shared-common types
-  if (sharedBrowserBundle !== undefined && typeof sharedBrowserBundle !== 'boolean') {
-    throw err(`sharedBrowserBundle`, sharedBrowserBundle, `must be a boolean when defined`);
-  }
   return {
     type,
     ...base,
     sharedBrowserBundle,
+    publicDirs,
   };
 }
 

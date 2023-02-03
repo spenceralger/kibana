@@ -61,9 +61,7 @@ export function getDevBundles(packages: Package[], outputRoot: string, repoRoot:
         entries: [
           {
             pkgId: pkg.id,
-            targets: pkg.isPlugin()
-              ? Array.from(new Set(['public', ...(pkg.manifest.plugin.extraPublicDirs ?? [])]))
-              : [''],
+            targets: pkg.getPublicDirs(),
           },
         ],
       });

@@ -104,7 +104,6 @@ export interface PluginPackageManifest extends PackageManifestBaseFields {
     requiredPlugins?: string[];
     optionalPlugins?: string[];
     requiredBundles?: string[];
-    extraPublicDirs?: string[];
     enabledOnAnonymousPages?: boolean;
     type?: 'preboot';
     [PLUGIN_CATEGORY]?: PluginCategoryInfo;
@@ -117,7 +116,7 @@ export interface PluginPackageManifest extends PackageManifestBaseFields {
   publicDirs?: string[];
 }
 
-export interface SharedBrowserPackageManifest extends PackageManifestBaseFields {
+export interface BrowserCapablePackageManifest extends PackageManifestBaseFields {
   type: 'shared-browser' | 'shared-common';
   /**
    * When a package is used by many other packages in the browser, or requires some
@@ -127,6 +126,12 @@ export interface SharedBrowserPackageManifest extends PackageManifestBaseFields 
    * use it. (not yet implemented)
    */
   sharedBrowserBundle?: boolean;
+  /**
+   * Directories which are importable in the browser. The default for `plugin` type packages
+   * is `["public"]` and for all other package types it's `[""]` meaning the "root" of the
+   * package is importable
+   */
+  publicDirs?: string[];
 }
 
 export interface BasePackageManifest extends PackageManifestBaseFields {
@@ -135,11 +140,15 @@ export interface BasePackageManifest extends PackageManifestBaseFields {
 
 export type KibanaPackageManifest =
   | PluginPackageManifest
-  | SharedBrowserPackageManifest
+  | BrowserCapablePackageManifest
   | BasePackageManifest;
 
 export type PluginPackage = Package & {
   manifest: PluginPackageManifest;
+};
+
+export type BrowserCapablePackage = Package & {
+  manifest: BrowserCapablePackageManifest;
 };
 
 export interface PluginSelector {
