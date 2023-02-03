@@ -32,7 +32,7 @@ export function toKibanaPlatformPlugin(repoRoot: string, pkg: PluginPackage): Ki
     id: pkg.manifest.plugin.id,
     pkgId: pkg.manifest.id,
     isUiPlugin: pkg.isPlugin() && pkg.manifest.plugin.browser,
-    extraPublicDirs: (pkg.isPlugin() && pkg.manifest.plugin.extraPublicDirs) || [],
+    extraPublicDirs: pkg.getExtraPublicDirs(),
     ignoreMetrics: !isDefaultPlugin(pkg),
   };
 }

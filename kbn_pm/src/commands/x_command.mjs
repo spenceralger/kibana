@@ -22,18 +22,18 @@ export const command = {
 
     for (const pkg of getPackages(REPO_ROOT)) {
       if (pkg.manifest.type !== 'plugin' || !pkg.manifest.plugin.extraPublicDirs) {
-        return;
+        continue;
       }
 
       const path = Path.resolve(pkg.directory, 'kibana.jsonc');
       let jsonc = Fs.readFileSync(path, 'utf8');
-      const prop = getProp(jsonc, 'plugin');
-      if (!T.isObjectExpression(prop)) {
-        throw new Error('expected plugin property to be an object');
+      const prop = getProp(jsonc, 'plugin')?.value;
+      if (!prop || !T.isObjectExpression(prop)) {
+        throw new Error('expected "plugin" property to be an object expression');
       }
 
       jsonc = removeProp(jsonc, 'extraPublicDirs', { node: prop });
-      jsonc = setProp(jsonc, 'publicDirs', pkg.manifest.plugin.extraPublicDirs);
+      jsonc = setProp(jsonc, 'publicDirs', ['public', ...pkg.manifest.plugin.extraPublicDirs]);
       Fs.writeFileSync(path, jsonc);
     }
   },

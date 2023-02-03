@@ -139,6 +139,18 @@ class Package {
     return this.manifest.type === 'plugin';
   }
 
+  getExtraPublicDirs() {
+    if (this.manifest.type === 'plugin') {
+      return this.manifest.plugin.extraPublicDirs ?? ['public'];
+    }
+
+    if (this.manifest.type === 'shared-common' || this.manifest.type === 'shared-browser') {
+      return [''];
+    }
+
+    return [];
+  }
+
   /**
    * Returns true if the package represents some type of plugin
    * @returns {import('./types').PluginCategoryInfo}

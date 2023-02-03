@@ -104,11 +104,17 @@ export interface PluginPackageManifest extends PackageManifestBaseFields {
     requiredPlugins?: string[];
     optionalPlugins?: string[];
     requiredBundles?: string[];
+    extraPublicDirs?: string[];
     enabledOnAnonymousPages?: boolean;
     type?: 'preboot';
-    extraPublicDirs?: string[];
     [PLUGIN_CATEGORY]?: PluginCategoryInfo;
   };
+  /**
+   * Directories which are importable in the browser. The default for `plugin` type packages
+   * is `["public"]` and for all other package types it's `[""]` meaning the "root" of the
+   * package is importable
+   */
+  publicDirs?: string[];
 }
 
 export interface SharedBrowserPackageManifest extends PackageManifestBaseFields {
