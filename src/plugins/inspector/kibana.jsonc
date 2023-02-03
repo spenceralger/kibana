@@ -12,9 +12,10 @@
     "requiredBundles": [
       "kibanaReact"
     ],
-    "extraPublicDirs": [
-      "common",
-      "common/adapters/request"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common",
+    "common/adapters/request"
+  ]
 }

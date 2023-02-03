@@ -55,8 +55,9 @@
       "fieldFormats",
       "charts"
     ],
-    "extraPublicDirs": [
-      "common/constants"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common/constants"
+  ]
 }

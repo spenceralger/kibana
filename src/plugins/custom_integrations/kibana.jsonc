@@ -7,8 +7,9 @@
     "id": "customIntegrations",
     "server": true,
     "browser": true,
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

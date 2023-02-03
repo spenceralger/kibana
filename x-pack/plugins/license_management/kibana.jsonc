@@ -24,8 +24,9 @@
       "esUiShared",
       "kibanaReact"
     ],
-    "extraPublicDirs": [
-      "common/constants"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common/constants"
+  ]
 }

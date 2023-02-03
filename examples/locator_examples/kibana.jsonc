@@ -10,8 +10,9 @@
     "requiredPlugins": [
       "share"
     ],
-    "extraPublicDirs": [
-      "public/locator"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "public/locator"
+  ]
 }

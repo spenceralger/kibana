@@ -66,8 +66,9 @@
       "ml",
       "unifiedSearch"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

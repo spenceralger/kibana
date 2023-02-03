@@ -39,8 +39,9 @@
       "kibanaReact",
       "ml"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

@@ -18,8 +18,9 @@
       "kibanaReact",
       "kibanaUtils"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

@@ -22,11 +22,12 @@
       "security",
       "spaces"
     ],
-    "extraPublicDirs": [
-      "common",
-      "common/assets/field_maps/technical_rule_field_map",
-      "common/assets/field_maps/experimental_rule_field_map",
-      "common/assets/field_maps/ecs_field_map"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common",
+    "common/assets/field_maps/technical_rule_field_map",
+    "common/assets/field_maps/experimental_rule_field_map",
+    "common/assets/field_maps/ecs_field_map"
+  ]
 }
