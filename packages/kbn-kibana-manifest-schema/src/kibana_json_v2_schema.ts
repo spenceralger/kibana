@@ -11,6 +11,18 @@ import { desc } from './desc';
 
 export const PLUGIN_ID_PATTERN = /^[a-z][a-zA-Z_]*$/;
 
+const publicDirsSchema: JSONSchema = {
+  type: 'array',
+  description: desc`
+    List of directories which can be imported by other packages in the browser. By default "plugin"
+    type packages have the value ["public"], and all other sharedBrowserBundle packages have the value
+    [""] (meaning the root of the package can be imported).
+  `,
+  items: {
+    type: 'string',
+  },
+};
+
 export const MANIFEST_V2: JSONSchema = {
   type: 'object',
   required: ['id', 'type', 'owner'],
@@ -165,19 +177,9 @@ export const MANIFEST_V2: JSONSchema = {
                 to be imported by the server and the plugin started by core.
               `,
             },
-            extraPublicDirs: {
-              type: 'array',
-              description: desc`
-                List of directories which can be imported by other plugins. By default other plugins can import
-                this plugin's "public" directory, but adding items to this list extends those options. Plugins
-                commonly expose "common" as well.
-              `,
-              items: {
-                type: 'string',
-              },
-            },
           },
         },
+        publicDirs: publicDirsSchema,
       },
     },
     {
@@ -193,6 +195,7 @@ export const MANIFEST_V2: JSONSchema = {
             asynchronously when needed. Defaults to false.
           `,
         },
+        publicDirs: publicDirsSchema,
       },
     },
     {
