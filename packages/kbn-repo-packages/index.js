@@ -10,7 +10,7 @@
 /** @typedef {import('./modern/types').PluginSelector} PluginSelector */
 /** @typedef {import('./modern/types').KibanaPackageManifest} KibanaPackageManifest */
 /** @typedef {import('./modern/types').PluginPackageManifest} PluginPackageManifest */
-/** @typedef {import('./modern/types').SharedBrowserPackageManifest} SharedBrowserPackageManifest */
+/** @typedef {import('./modern/types').BrowserCapablePackageManifest} BrowserCapablePackageManifest */
 /** @typedef {import('./modern/types').BasePackageManifest} BasePackageManifest */
 /** @typedef {import('./modern/types').KibanaPackageType} KibanaPackageType */
 /** @typedef {import('./modern/types').ParsedPackageJson} ParsedPackageJson */
@@ -24,6 +24,7 @@ const {
   findPackageForPath,
   getPkgDirMap,
   getPkgsById,
+  getPkgsByPluginId,
   updatePackageMap,
   readHashOfPackageMap,
   readPackageMap,
@@ -42,6 +43,7 @@ module.exports = {
   getPackages,
   getPkgDirMap,
   getPkgsById,
+  getPkgsByPluginId,
   updatePackageMap,
   findPackageForPath,
   readPackageManifest,

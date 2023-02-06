@@ -4,5 +4,6 @@
   "owner": "@elastic/kibana-core",
   "description": "The core plugin has core functionality",
   "serviceFolders": ["http", "saved_objects", "chrome", "application"],
-  "sharedBrowserBundle": true
+  "sharedBrowserBundle": true,
+  "publicDirs": ["public"],
 }

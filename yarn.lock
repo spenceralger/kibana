@@ -5221,6 +5221,10 @@
   version "0.0.0"
   uid ""
 
+"@kbn/theme-version@link:packages/kbn-theme-version":
+  version "0.0.0"
+  uid ""
+
 "@kbn/third-party-lens-navigation-prompt-plugin@link:x-pack/examples/third_party_lens_navigation_prompt":
   version "0.0.0"
   uid ""

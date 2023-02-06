@@ -10,7 +10,7 @@ import type { NodePath } from '@babel/traverse';
 import type { PluginPass } from '@babel/core';
 import * as T from '@babel/types';
 import { declare } from '@babel/helper-plugin-utils';
-import { Bundle, BundleRemotes } from '../../common';
+import { Bundle, BundleRemotes } from '../common';
 import { RemoteMappings } from './remote_mappings';
 
 function isDynamicImport(

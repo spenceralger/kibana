@@ -6,6 +6,4 @@
  * Side Public License, v 1.
  */
 
-export { BundleRemoteModule } from './bundle_remote_module';
-export { BundleRemotesPlugin } from './bundle_remotes_plugin';
-export { RemoteMappings } from './remote_mappings';
+export type ThemeVersion = 'v8';

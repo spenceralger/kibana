@@ -27,8 +27,6 @@ import { Fonts } from '@kbn/core-rendering-server-internal';
 import type { IBasePath } from '@kbn/core/server';
 import { i18n } from '@kbn/i18n';
 import { I18nProvider } from '@kbn/i18n-react';
-import UiSharedDepsNpm from '@kbn/ui-shared-deps-npm';
-import * as UiSharedDepsSrc from '@kbn/ui-shared-deps-src';
 
 // Preload the alert icon used by `EuiEmptyPrompt` to ensure that it's loaded
 // in advance the first time this page is rendered server-side. If not, the
@@ -84,10 +82,7 @@ export function PromptPage({
   const emotionStyles = constructStyleTagsFromChunks(chunks);
 
   const uiPublicURL = `${basePath.serverBasePath}/ui`;
-  const regularBundlePath = `${basePath.serverBasePath}/${buildNumber}/bundles`;
   const styleSheetPaths = [
-    `${regularBundlePath}/kbn-ui-shared-deps-src/${UiSharedDepsSrc.cssDistFilename}`,
-    `${regularBundlePath}/kbn-ui-shared-deps-npm/${UiSharedDepsNpm.lightCssDistFilename('v8')}`,
     `${basePath.serverBasePath}/node_modules/@kbn/ui-framework/dist/kui_light.css`,
     `${basePath.serverBasePath}/ui/legacy_light_theme.css`,
   ];

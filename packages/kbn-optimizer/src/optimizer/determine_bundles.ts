@@ -18,7 +18,7 @@ export function getDevBundles(packages: Package[], outputRoot: string, repoRoot:
       id: 'npm',
       sourceRoot: repoRoot,
       outputDir: Path.resolve(outputRoot, 'target/bundles/npm'),
-      banner: 'this is code from NPM!',
+      banner: '/** this is code from NPM! */',
       entries: [
         { pkgId: 'lodash', targets: ['', 'fp'] },
         {
@@ -36,7 +36,7 @@ export function getDevBundles(packages: Package[], outputRoot: string, repoRoot:
         { pkgId: '@emotion/cache' },
         { pkgId: '@emotion/react' },
         { pkgId: 'jquery' },
-        { pkgId: 'moment-timezone', targets: ['moment-timezone', 'data/packed/latest.json'] },
+        { pkgId: 'moment-timezone', targets: ['', 'data/packed/latest.json'] },
         { pkgId: 'moment' },
         { pkgId: 'react' },
         { pkgId: 'react-ace' },

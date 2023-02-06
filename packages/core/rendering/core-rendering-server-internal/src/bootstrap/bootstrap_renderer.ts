@@ -8,7 +8,9 @@
 
 import { createHash } from 'crypto';
 import { PackageInfo } from '@kbn/config';
-import { ThemeVersion } from '@kbn/ui-shared-deps-npm';
+import { ThemeVersion } from '@kbn/theme-version';
+import { REPO_ROOT } from '@kbn/repo-info';
+import { getPkgsByPluginId } from '@kbn/repo-packages';
 import { readZoneInfo } from '@kbn/optimizer-bundle-zones';
 import type { KibanaRequest, HttpAuth } from '@kbn/core-http-server';
 import type { IUiSettingsClient } from '@kbn/core-ui-settings-server';
@@ -50,7 +52,9 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
     return authStatus !== 'unauthenticated';
   };
 
+  // TODO: reduce the zone info to just the dependency information, init package ids are defined by server settings
   const zones = readZoneInfo();
+  const pkgsByPluginId = getPkgsByPluginId(REPO_ROOT);
 
   return async function bootstrapRenderer({ uiSettingsClient, request, isAnonymousPage = false }) {
     let darkMode = false;
@@ -92,7 +96,16 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
       themeTag,
       zoneBaseUrl: regularBundlePath,
       publicPathMap,
-      zones,
+      zones: {
+        ...zones,
+        // TODO: this should be a list of zone files to download, not package ids
+        init: [
+          '@kbn/core',
+          ...Array.from(bundlePaths.keys()).flatMap((pluginId) => {
+            return pkgsByPluginId.get(pluginId)?.id ?? [];
+          }),
+        ],
+      },
     });
 
     const hash = createHash('sha1');

@@ -13,7 +13,6 @@ import webpack from 'webpack';
 import { isNormalModule, isConcatenatedModule } from '@kbn/optimizer-webpack-helpers';
 
 import { Bundle, WorkerConfig, ascending, parseFilePath, Hashes } from '../common';
-import { BundleRemoteModule } from './bundle_remotes/bundle_remote_module';
 
 /**
  * sass-loader creates about a 40% overhead on the overall optimizer runtime, and
@@ -24,7 +23,7 @@ import { BundleRemoteModule } from './bundle_remotes/bundle_remote_module';
  */
 const EXTRA_SCSS_WORK_UNITS = 100;
 
-import type { RemoteMappings } from './bundle_remotes';
+import type { RemoteMappings } from './remote_mappings';
 
 export class PopulateBundleCachePlugin {
   constructor(
@@ -100,10 +99,11 @@ export class PopulateBundleCachePlugin {
           continue;
         }
 
-        if (module instanceof BundleRemoteModule) {
-          bundleRefExportIds.push(module.req);
-          continue;
-        }
+        // TODO: we need to find module federation remote modules somehow
+        // if (module instanceof BundleRemoteModule) {
+        //   bundleRefExportIds.push(module.req);
+        //   continue;
+        // }
 
         if (isConcatenatedModule(module)) {
           moduleCount += module.modules.length;

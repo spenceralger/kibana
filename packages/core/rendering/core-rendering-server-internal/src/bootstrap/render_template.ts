@@ -15,6 +15,10 @@ export interface BootstrapTemplateData {
 }
 
 type Getter = () => unknown;
+interface Container {
+  init(): Promise<void>;
+  get(id: './entry'): Promise<() => void>;
+}
 
 function boostrapFunction({ themeTag, publicPathMap, zoneBaseUrl, zones }: BootstrapTemplateData) {
   let fatalRendered = false;
@@ -40,8 +44,8 @@ function boostrapFunction({ themeTag, publicPathMap, zoneBaseUrl, zones }: Boots
   function kbnBundlesLoader() {
     const scriptsTarget = document.querySelector('head meta[name="add-scripts-here"]');
     const getExport = new Map<string, Getter>();
-    const loaded = new Map<string, { pending: boolean; promise: Promise<void> }>();
-    const jsonp = Object.create(null);
+    const loaded = new Map<string, Promise<void>>();
+    const scope = Object.create(null);
 
     function has(prop: string) {
       return getExport.has(prop);
@@ -78,9 +82,14 @@ function boostrapFunction({ themeTag, publicPathMap, zoneBaseUrl, zones }: Boots
       });
     }
 
-    function ensure(zoneIds: string[], cb: () => void) {
-      Promise.all(
-        zoneIds
+    async function getPkgFromBundle(bundleId: string, pkgId: string) {
+      await ensure([bundleId]);
+      return get(pkgId);
+    }
+
+    async function ensure(bundleIds: string[]) {
+      await Promise.all(
+        bundleIds
           .flatMap((id) => [id, ...getDepsDeep(id)])
           .map((id) => {
             const existing = loaded.get(id);
@@ -91,28 +100,45 @@ function boostrapFunction({ themeTag, publicPathMap, zoneBaseUrl, zones }: Boots
             const promise = new Promise<void>((resolve, reject) => {
               const dom = document.createElement('script');
               dom.async = false;
-              dom.src = `${zoneBaseUrl}/${id}/${id}.js`;
+              dom.src = `${zoneBaseUrl}/${id}/remoteEntry.js`;
               dom.addEventListener('error', reject);
-              jsonp[id] = () => resolve();
+              dom.addEventListener('load', () => {
+                const cont = window[id as any] as unknown as Container;
+                if (!cont) {
+                  reject(new Error(`expected bundle ${id} to write to window[${id}]`));
+                } else {
+                  Promise.resolve(cont.init(scope))
+                    .then(async () => {
+                      debugger;
+                      const exec = await cont.get('./entry');
+                      debugger;
+                      return exec();
+                    })
+                    .then(
+                      () => {
+                        debugger;
+                        console.log('bundle', id, 'is fully loaded');
+                        resolve();
+                      },
+                      (err) => {
+                        debugger;
+                        console.error('bundle', id, 'failed to load', err);
+                        reject(err);
+                      }
+                    );
+                }
+              });
+
               document.head.insertBefore(dom, scriptsTarget);
             });
 
-            loaded.set(id, { pending: true, promise });
+            loaded.set(id, promise);
             return promise;
           })
-      ).then(
-        () => {
-          cb();
-        },
-        (error) => {
-          // eslint-disable-next-line no-console
-          console.error('failed to load zone:', error);
-          fatal();
-        }
       );
     }
 
-    return { has, define, get, ensure, jsonp };
+    return { has, define, get, getPkgFromBundle, ensure };
   }
 
   const kbnCsp = JSON.parse(document.querySelector('kbn-csp')!.getAttribute('data')!);
@@ -139,7 +165,7 @@ function boostrapFunction({ themeTag, publicPathMap, zoneBaseUrl, zones }: Boots
         detail: 'load_started',
       });
 
-      global.__kbnBundles__.ensure(zones.init, function () {
+      global.__kbnBundles__.ensure(['@kbn/core']).then(() => {
         global.__kbnBundles__.get('@kbn/core/public').__kbnBootstrap__();
       });
     };

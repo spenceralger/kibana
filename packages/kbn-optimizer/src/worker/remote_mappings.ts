@@ -13,7 +13,7 @@ import {
   isConcatenatedModule,
 } from '@kbn/optimizer-webpack-helpers';
 
-import { BundleRemote } from '../../common';
+import { BundleRemote } from '../common';
 
 function getPathsFromModules(modules: any[]): string[] {
   return modules.flatMap((module): string | string[] => {

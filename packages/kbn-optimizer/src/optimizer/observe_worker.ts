@@ -33,27 +33,6 @@ export type WorkerStatus = WorkerStdio | WorkerStarted;
 interface ProcResource extends Rx.Unsubscribable {
   proc: ChildProcess;
 }
-const isNumeric = (input: any) => String(input).match(/^[0-9]+$/);
-
-let inspectPortCounter = 9230;
-const inspectFlagIndex = process.execArgv.findIndex((flag) => flag.startsWith('--inspect'));
-let inspectFlag: string | undefined;
-if (inspectFlagIndex !== -1) {
-  const argv = process.execArgv[inspectFlagIndex];
-  if (argv.includes('=')) {
-    // --inspect=port
-    const [flag, port] = argv.split('=');
-    inspectFlag = flag;
-    inspectPortCounter = Number.parseInt(port, 10) + 1;
-  } else {
-    // --inspect
-    inspectFlag = argv;
-    if (isNumeric(process.execArgv[inspectFlagIndex + 1])) {
-      // --inspect port
-      inspectPortCounter = Number.parseInt(process.execArgv[inspectFlagIndex + 1], 10) + 1;
-    }
-  }
-}
 
 function usingWorkerProc<T>(config: OptimizerConfig, fn: (proc: ChildProcess) => Rx.Observable<T>) {
   return Rx.using(

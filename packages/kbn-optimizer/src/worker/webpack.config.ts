@@ -15,7 +15,7 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
 
 import { Bundle, BundleRemotes, WorkerConfig } from '../common';
-import { RemoteMappings } from './bundle_remotes';
+import { RemoteMappings } from './remote_mappings';
 import { EmitStatsPlugin } from './emit_stats_plugin';
 import { PopulateBundleCachePlugin } from './populate_bundle_cache_plugin';
 
@@ -31,7 +31,27 @@ export function getWebpackConfig(
   const ENTRY_CREATOR = require.resolve('./entry_point_creator.js');
   const remoteMappings = new RemoteMappings();
 
-  const fileId = bundle.id.startsWith('@kbn/') ? bundle.id.slice(5) : bundle.id;
+  const resolvedBundleEntryAliases = Object.fromEntries(
+    bundle.entries.flatMap((e) => {
+      if (!e.pkgId.startsWith('@kbn/')) {
+        return [];
+      }
+
+      return e.targets.map((target) => {
+        const req = target ? `${e.pkgId}/${target}` : e.pkgId;
+        let path;
+        try {
+          path = require.resolve(req);
+        } catch (error) {
+          throw new Error(
+            `unable to resolve bundle entrypoint: ${req}. Make sure that the "publicDirs" in the manifest of ${e.pkgId} are up-to-date.`
+          );
+        }
+
+        return [`${req}$`, path];
+      });
+    })
+  );
 
   const webpackConfig: webpack.Configuration = {
     mode: 'development',
@@ -44,14 +64,15 @@ export function getWebpackConfig(
 
     output: {
       path: bundle.outputDir,
-      filename: `${fileId}.js`,
-      library: {
-        type: 'global',
-      },
+      filename: `${bundle.id}.js`,
+      chunkLoading: 'jsonp',
+      chunkLoadingGlobal: `jsonp_${bundle.id}`,
+      chunkFilename: `${bundle.id}/chunk-[chunkhash].js`,
     },
 
     optimization: {
-      emitOnErrors: false,
+      emitOnErrors: true,
+      chunkIds: 'deterministic',
     },
 
     plugins: [
@@ -60,6 +81,12 @@ export function getWebpackConfig(
       ...(worker.profileWebpack ? [new EmitStatsPlugin(bundle)] : []),
       ...(bundle.banner ? [new webpack.BannerPlugin({ banner: bundle.banner, raw: true })] : []),
       new container.ModuleFederationPlugin({
+        name: bundle.id,
+        filename: 'remoteEntry.js',
+        library: {
+          type: 'global',
+          name: bundle.id,
+        },
         remotes: Object.fromEntries(
           Array.from(bundleRemotes.byPkgId.values())
             .filter((r) => r.bundleId !== bundle.id)
@@ -72,17 +99,20 @@ export function getWebpackConfig(
               ];
             })
         ),
+        exposes: {
+          './entry': ENTRY_CREATOR,
+        },
         shared: Object.fromEntries(
-          bundle.entries.map((e) => {
-            return [
-              e.pkgId,
+          bundle.entries.flatMap((e) =>
+            e.targets.map((target) => [
+              target ? `${e.pkgId}/${target}` : e.pkgId,
               {
                 eager: true,
                 version: '0.0.0',
                 requiredVersion: false,
               },
-            ];
-          })
+            ])
+          )
         ),
       }),
     ],
@@ -206,7 +236,7 @@ export function getWebpackConfig(
               presets: [BABEL_PRESET],
               plugins: [
                 [
-                  require.resolve('./bundle_remotes/babel_plugin'),
+                  require.resolve('./remote_babel_plugin'),
                   {
                     bundle,
                     remotes: bundleRemotes,
@@ -234,6 +264,10 @@ export function getWebpackConfig(
           test: [/\.(html|md|txt|tmpl)$/],
           type: 'asset/source',
         },
+        {
+          resourceQuery: '?raw',
+          type: 'asset/source',
+        },
         // automatically chooses between exporting a data URI and emitting a separate file. Previously achievable by using url-loader with asset size limit.
         {
           test: /\.(woff|woff2|ttf|eot|svg|ico|png|jpg|gif|jpeg)(\?|$)/,
@@ -244,6 +278,7 @@ export function getWebpackConfig(
 
     resolve: {
       extensions: ['.js', '.ts', '.tsx', '.json'],
+      aliasFields: ['browser'],
       mainFields: ['browser', 'main'],
       alias: {
         core_app_image_assets: Path.resolve(
@@ -252,15 +287,24 @@ export function getWebpackConfig(
         ),
         vega: Path.resolve(worker.repoRoot, 'node_modules/vega/build-es5/vega.js'),
         '@elastic/eui$': '@elastic/eui/optimize/es',
-        moment: MOMENT_SRC,
+        moment$: MOMENT_SRC,
+        'moment-timezone$': require.resolve('moment-timezone/moment-timezone'),
         // NOTE: Used to include react profiling on bundles
         // https://gist.github.com/bvaughn/25e6233aeb1b4f0cdb8d8366e54a3977#webpack-4
         'react-dom$': 'react-dom/profiling',
         'scheduler/tracing': 'scheduler/tracing-profiling',
         // ignored node built-ins
         child_process: false,
+        zlib: false,
+        path: false,
+        crypto: false,
+        os: false,
+        stream: false,
+        timers: false,
         fs: false,
-        path: require.resolve('path-browserify'),
+        // resolve the bundle entry-points so that @kbn/ imports into plugins are not discovered by webpack. All the other plugins are
+        // remotes, so they are already overwritten
+        ...resolvedBundleEntryAliases,
       },
     },
 

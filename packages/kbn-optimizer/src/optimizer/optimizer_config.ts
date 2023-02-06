@@ -201,7 +201,7 @@ export class OptimizerConfig {
 
     return new OptimizerConfig(
       bundles,
-      bundles,
+      bundles.filter((b) => b.id === 'npm' || b.id === '@kbn/core'),
       initBundles,
       options.cache,
       options.watch,

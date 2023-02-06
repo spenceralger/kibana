@@ -1,0 +1,5 @@
+{
+  "type": "shared-common",
+  "id": "@kbn/theme-version",
+  "owner": "@elastic/kibana-operations"
+}

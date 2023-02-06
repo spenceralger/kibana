@@ -12,11 +12,13 @@ const Crypto = require('crypto');
 
 const { Package } = require('./package');
 const { getRepoRelsSync } = require('./get_repo_rels');
+const { getPluginPackagesFilter } = require('./plugins');
 
 const PACKAGE_MAP_PATH = Path.resolve(__dirname, '../package-map.json');
 
 /** @typedef {Map<string, import('./package').Package>} PkgDirMap */
 /** @typedef {Map<string, import('./package').Package>} PkgsById */
+/** @typedef {Map<string, import('./types').PluginPackage>} PkgsByPluginId */
 
 /**
  * @type {Map<any, any>}
@@ -165,6 +167,28 @@ function getPkgsById(repoRoot) {
 }
 
 /**
+ * Get a map of packages by plugin id
+ * @param {string} repoRoot
+ * @returns {PkgsByPluginId}
+ */
+function getPkgsByPluginId(repoRoot) {
+  const packages = getPackages(repoRoot);
+
+  const cacheKey = `getPkgsByPluginId-${repoRoot}`;
+  /** @type {PkgsByPluginId | undefined} */
+  const cached = CACHE.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const pkgsByPluginId = new Map(
+    packages.filter(getPluginPackagesFilter()).map((p) => [p.manifest.plugin.id, p])
+  );
+  CACHE.set(cacheKey, pkgsByPluginId);
+  return pkgsByPluginId;
+}
+
+/**
  *
  * @template T
  * @param {string} repoRelDir
@@ -200,6 +224,7 @@ module.exports = {
   getPackages,
   getPkgDirMap,
   getPkgsById,
+  getPkgsByPluginId,
   updatePackageMap,
   findPackageForPath,
   readPackageMap,

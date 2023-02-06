@@ -24,6 +24,10 @@ const createUpdate$ = (phase: OptimizerState['phase']) =>
       offlineBundles: [],
       onlineBundles: [],
       startTime: Date.now(),
+      zones: {
+        init: [],
+        deps: {},
+      },
     },
   });
 
