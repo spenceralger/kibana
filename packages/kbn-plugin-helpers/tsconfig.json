@@ -17,8 +17,9 @@
     "@kbn/dev-cli-runner",
     "@kbn/dev-cli-errors",
     "@kbn/repo-info",
-    "@kbn/plugin-discovery",
     "@kbn/jest-serializers",
+    "@kbn/stdio-dev-helpers",
+    "@kbn/repo-packages",
   ],
   "exclude": [
     "target/**/*",
