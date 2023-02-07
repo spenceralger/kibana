@@ -140,6 +140,36 @@ class Package {
   }
 
   /**
+   * Is this package capable of being run in the browser ("shared-browser" or "shared-common")
+   * @returns {this is import('./types').BrowserCapablePackage}
+   */
+  isBrowserCapablePackage() {
+    return this.manifest.type === 'shared-browser' || this.manifest.type === 'shared-common';
+  }
+
+  /**
+   * Get the directories that are importable from this package in the browser. If
+   * this package is a plugin with a browser component or a "browser-capable"
+   * package then the publicDirs will include all of the valid import targets
+   * within the package, which "" representing imports of the root of the package.
+   *
+   * If the package is not capable with the browser then the array will be empty.
+   *
+   * @returns {string[]}
+   */
+  getPublicDirs() {
+    if (this.manifest.type === 'plugin') {
+      return this.manifest.plugin.browser ? this.manifest.publicDirs ?? ['public'] : [];
+    }
+
+    if (this.isBrowserCapablePackage()) {
+      return this.manifest.publicDirs ?? [''];
+    }
+
+    return [];
+  }
+
+  /**
    * Returns true if the package represents some type of plugin
    * @returns {import('./types').PluginCategoryInfo}
    */

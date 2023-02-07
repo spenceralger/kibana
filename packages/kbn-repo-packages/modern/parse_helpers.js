@@ -57,10 +57,13 @@ function isValidPkgType(v) {
 
 /**
  * @param {unknown} v
+ * @param {{ allowEmpty?: boolean }} opts
  * @returns {v is string[]}
  */
-function isArrOfStrings(v) {
-  return Array.isArray(v) && v.every(isSomeString);
+function isArrOfStrings(v, opts = {}) {
+  return (
+    Array.isArray(v) && v.every((v) => (opts?.allowEmpty ? typeof v === 'string' : isSomeString(v)))
+  );
 }
 
 /**

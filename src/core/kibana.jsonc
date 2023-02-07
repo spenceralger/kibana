@@ -3,5 +3,7 @@
   "id": "@kbn/core",
   "owner": "@elastic/kibana-core",
   "description": "The core plugin has core functionality",
-  "serviceFolders": ["http", "saved_objects", "chrome", "application"]
+  "serviceFolders": ["http", "saved_objects", "chrome", "application"],
+  "sharedBrowserBundle": true,
+  "publicDirs": ["public"]
 }
