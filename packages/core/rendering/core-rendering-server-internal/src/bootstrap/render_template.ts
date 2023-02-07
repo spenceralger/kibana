@@ -6,130 +6,160 @@
  * Side Public License, v 1.
  */
 
+import { BundleZones } from '@kbn/optimizer-bundle-zones';
+
 export interface BootstrapTemplateData {
   themeTag: string;
-  jsDependencyPaths: string[];
-  publicPathMap: string;
+  zoneBaseUrl: string;
+  zones: BundleZones;
 }
 
-export const renderTemplate = ({
-  themeTag,
-  jsDependencyPaths,
-  publicPathMap,
-}: BootstrapTemplateData) => {
-  return `
-function kbnBundlesLoader() {
-  var modules = {};
+type Req = (key: string) => any;
 
-  function has(prop) {
-    return Object.prototype.hasOwnProperty.call(modules, prop);
+function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
+  let fatalRendered = false;
+  function fatal() {
+    if (fatalRendered) {
+      return;
+    }
+
+    fatalRendered = true;
+    const err = document.createElement('h1');
+    err.style.color = 'white';
+    err.style.fontFamily = 'monospace';
+    err.style.textAlign = 'center';
+    err.style.background = '#F44336';
+    err.style.padding = '25px';
+    err.innerText =
+      document.querySelector<HTMLElement>('[data-error-message]')?.dataset?.errorMessage ?? '';
+
+    // eslint-disable-next-line no-unsanitized/property
+    document.body.innerHTML = err.outerHTML;
   }
 
-  function define(key, bundleRequire, bundleModuleKey) {
-    if (has(key)) {
-      throw new Error('__kbnBundles__ already has a module defined for "' + key + '"');
+  function kbnBundlesLoader() {
+    const scriptsTarget = document.querySelector('head meta[name="add-scripts-here"]')!;
+    const own = Object.prototype.hasOwnProperty;
+    const getModuleById = new Map<string, () => any>();
+    const loaded = new Map<string, Promise<void>>();
+    const jsonp = Object.create(null);
+
+    function has(prop: string) {
+      return own.call(getModuleById, prop);
     }
 
-    modules[key] = {
-      bundleRequire,
-      bundleModuleKey,
-    };
-  }
+    function define(id: string, req: Req, internalId: string) {
+      if (fatalRendered) {
+        return;
+      }
 
-  function get(key) {
-    if (!has(key)) {
-      throw new Error('__kbnBundles__ does not have a module defined for "' + key + '"');
+      if (has(id)) {
+        throw new Error('__kbnBundles__ already has a module defined for "' + id + '"');
+      }
+
+      getModuleById.set(id, () => req(internalId));
     }
 
-    return modules[key].bundleRequire(modules[key].bundleModuleKey);
-  }
-
-  return { has: has, define: define, get: get };
-}
-
-var kbnCsp = JSON.parse(document.querySelector('kbn-csp').getAttribute('data'));
-window.__kbnStrictCsp__ = kbnCsp.strictCsp;
-window.__kbnThemeTag__ = "${themeTag}";
-window.__kbnPublicPath__ = ${publicPathMap};
-window.__kbnBundles__ = kbnBundlesLoader();
-
-if (window.__kbnStrictCsp__ && window.__kbnCspNotEnforced__) {
-  var legacyBrowserError = document.getElementById('kbn_legacy_browser_error');
-  legacyBrowserError.style.display = 'flex';
-} else {
-  if (!window.__kbnCspNotEnforced__ && window.console) {
-    window.console.log("^ A single error about an inline script not firing due to content security policy is expected!");
-  }
-  var loadingMessage = document.getElementById('kbn_loading_message');
-  loadingMessage.style.display = 'flex';
-
-  window.onload = function () {
-    function failure() {
-      // make subsequent calls to failure() noop
-      failure = function () {};
-
-      var err = document.createElement('h1');
-      err.style['color'] = 'white';
-      err.style['font-family'] = 'monospace';
-      err.style['text-align'] = 'center';
-      err.style['background'] = '#F44336';
-      err.style['padding'] = '25px';
-      err.innerText = document.querySelector('[data-error-message]').dataset.errorMessage;
-
-      document.body.innerHTML = err.outerHTML;
+    function get(key: string) {
+      const req = getModuleById.get(key);
+      if (!req) {
+        throw new Error('__kbnBundles__ does not have a module defined for "' + key + '"');
+      }
+      return req();
     }
 
-    var stylesheetTarget = document.querySelector('head meta[name="add-styles-here"]')
-    function loadStyleSheet(url, cb) {
-      var dom = document.createElement('link');
-      dom.rel = 'stylesheet';
-      dom.type = 'text/css';
-      dom.href = url;
-      dom.addEventListener('error', failure);
-      dom.addEventListener('load', cb);
-      document.head.insertBefore(dom, stylesheetTarget);
+    function expose(id: string, exports: Record<string, unknown>, req: any) {
+      req.r(exports);
+      Object.defineProperties(exports, Object.getOwnPropertyDescriptors(get(id)));
     }
 
-    var scriptsTarget = document.querySelector('head meta[name="add-scripts-here"]')
-    function loadScript(url, cb) {
-      var dom = document.createElement('script');
-      dom.async = false;
-      dom.src = url;
-      dom.addEventListener('error', failure);
-      dom.addEventListener('load', cb);
-      document.head.insertBefore(dom, scriptsTarget);
+    function getPublicPath(bundleId: string) {
+      return `${zoneBaseUrl}/${bundleId}`;
     }
 
-    function load(urls, cb) {
-      var pending = urls.length;
-      urls.forEach(function (url) {
-        var innerCb = function () {
-          pending = pending - 1;
-          if (pending === 0 && typeof cb === 'function') {
-            cb();
-          }
+    function getUrl(bundleId: string) {
+      return `${getPublicPath(bundleId)}/${bundleId}.js`;
+    }
+
+    const depMap = new Map(Object.entries(zones.deps));
+    function getDepsDeep(id: string, history: string[] = []): string[] {
+      const deps = depMap.get(id);
+      if (!deps) {
+        return [];
+      }
+
+      return deps.flatMap((dep) => {
+        if (history.includes(dep)) {
+          throw new Error('circular dependency in zone deps');
         }
 
-        if (typeof url !== 'string') {
-          load(url, innerCb);
-        } else if (url.slice(-4) === '.css') {
-          loadStyleSheet(url, innerCb);
-        } else {
-          loadScript(url, innerCb);
-        }
+        return [dep, ...getDepsDeep(dep, [...history, id])];
       });
     }
 
-    performance.mark('kbnLoad', {
-      detail: 'load_started',
-    })
+    async function ensure(bundleIds: string[]) {
+      await Promise.all(
+        bundleIds
+          .flatMap((id) => [id, ...getDepsDeep(id)])
+          .map(async (id) => {
+            const existing = loaded.get(id);
+            if (existing) {
+              await existing;
+            }
 
-    load([
-      ${jsDependencyPaths.map((path) => `'${path}'`).join(',')}
-    ], function () {
-      __kbnBundles__.get('entry/core/public').__kbnBootstrap__();
-    });
+            const promise = new Promise<void>((resolve) => {
+              const dom = document.createElement('script');
+              dom.async = false;
+              dom.src = getUrl(id);
+              dom.addEventListener('error', fatal);
+              jsonp[id] = () => {
+                delete jsonp[id];
+                resolve();
+              };
+              document.head.insertBefore(dom, scriptsTarget);
+            });
+
+            loaded.set(id, promise);
+            await promise;
+          })
+      );
+    }
+
+    return { has, define, get, expose, ensure, getUrl, getPublicPath, jsonp };
+  }
+
+  const global: typeof window & { [k: string]: unknown } = window as any;
+  const kbnCsp = JSON.parse(document.querySelector('kbn-csp')!.getAttribute('data')!);
+  const loader = kbnBundlesLoader();
+  global.__kbnStrictCsp__ = kbnCsp.strictCsp;
+  global.__kbnThemeTag__ = themeTag;
+  global.__kbnBundles__ = loader;
+
+  if (global.__kbnStrictCsp__ && global.__kbnCspNotEnforced__) {
+    const legacyBrowserError = document.getElementById('kbn_legacy_browser_error');
+    legacyBrowserError!.style.display = 'flex';
+  } else {
+    if (!global.__kbnCspNotEnforced__ && global.console) {
+      global.console.log(
+        '^ A single error about an inline script not firing due to content security policy is expected!'
+      );
+    }
+    const loadingMessage = document.getElementById('kbn_loading_message');
+    loadingMessage!.style.display = 'flex';
+
+    global.onload = function () {
+      performance.mark('kbnLoad', {
+        detail: 'load_started',
+      });
+
+      loader
+        .ensure(zones.init)
+        .then(() => loader.get('entry/core/public').__kbnBootstrap__())
+        .catch(fatal);
+    };
   }
 }
-  `;
+
+export const renderTemplate = (data: BootstrapTemplateData) => {
+  return `;(${bootstrap.toString()})(${JSON.stringify(data)});`;
 };

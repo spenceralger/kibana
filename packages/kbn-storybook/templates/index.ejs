@@ -13,12 +13,12 @@
     <% } %>
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    
+
     <meta name="eui-global" />
 
     <!-- Added for Kibana shared dependencies -->
     <script>
-      window.__kbnPublicPath__ = { 'kbn-ui-shared-deps-npm': '', 'kbn-ui-shared-deps-src': '' };
+      window.__kbnBundles__ = { getPublicPath() { return '' }  };
     </script>
     <script src="kbn-ui-shared-deps-npm.dll.js"></script>
     <script src="kbn-ui-shared-deps-src.js"></script>

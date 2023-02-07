@@ -10,8 +10,7 @@
 
 import webpack from 'webpack';
 import { ConcatSource } from 'webpack-sources';
-import { parseKbnImportReq } from '@kbn/repo-packages';
-import { isNormalModule } from '@kbn/optimizer-webpack-helpers';
+import { isNormalModule, isConcatenatedModule } from '@kbn/optimizer-webpack-helpers';
 
 import { Bundle, BundleRemotes } from '../common';
 import { BundleRemoteModule } from './bundle_remote_module';
@@ -87,6 +86,10 @@ export class BundleRemotesPlugin {
                 });
               }
 
+              if (isConcatenatedModule(m)) {
+                debugger;
+              }
+
               return [];
             }).flat()
           )
@@ -98,36 +101,23 @@ export class BundleRemotesPlugin {
 
         compilation.updateAsset(filename, (source) => {
           return new ConcatSource(
-            `__kbnBundles__.ensure(${JSON.stringify(remotes)}, () => {`,
+            `__kbnBundles__.ensure(${JSON.stringify(remotes)}, () => {\n`,
             source,
-            '});'
+            '\n});'
           );
         });
       });
     });
   }
 
-  public resolve(request: string, cb: (error?: Error, bundle?: null | BundleRemoteModule) => void) {
-    if (request.endsWith('.json')) {
+  public resolve(req: string, cb: (error?: Error, bundle?: null | BundleRemoteModule) => void) {
+    if (req.endsWith('.json')) {
       return cb(undefined, null);
     }
 
-    const parsed = parseKbnImportReq(request);
-    if (!parsed) {
+    const { parsed, remote } = this.remotes.get(req);
+    if (!remote || remote.bundleId === this.bundle.id) {
       return cb(undefined, null);
-    }
-
-    const remote = this.remotes.getForPkgId(parsed.pkgId);
-    if (!remote) {
-      return cb(undefined, null);
-    }
-
-    if (!remote.targets.includes(parsed.target)) {
-      return cb(
-        new Error(
-          `import [${request}] references a non-public export of the [${remote.bundleId}] bundle and must point to one of the public directories: [${remote.targets}]`
-        )
-      );
     }
 
     return cb(undefined, new BundleRemoteModule(remote, parsed));

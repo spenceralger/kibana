@@ -13,7 +13,6 @@ import type { KibanaRequest, HttpAuth } from '@kbn/core-http-server';
 import type { IUiSettingsClient } from '@kbn/core-ui-settings-server';
 import type { UiPlugins } from '@kbn/core-plugins-base-server-internal';
 import { getPluginsBundlePaths } from './get_plugin_bundle_paths';
-import { getJsDependencyPaths } from './get_js_dependency_paths';
 import { getThemeTag } from './get_theme_tag';
 import { renderTemplate } from './render_template';
 
@@ -74,24 +73,13 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
       isAnonymousPage,
     });
 
-    const jsDependencyPaths = getJsDependencyPaths(regularBundlePath, bundlePaths);
-
-    // These paths should align with the bundle routes configured in
-    // src/optimize/bundles_route/bundles_route.ts
-    const publicPathMap = JSON.stringify({
-      core: `${regularBundlePath}/core/`,
-      'kbn-ui-shared-deps-src': `${regularBundlePath}/kbn-ui-shared-deps-src/`,
-      'kbn-ui-shared-deps-npm': `${regularBundlePath}/kbn-ui-shared-deps-npm/`,
-      'kbn-monaco': `${regularBundlePath}/kbn-monaco/`,
-      ...Object.fromEntries(
-        [...bundlePaths.entries()].map(([pluginId, plugin]) => [pluginId, plugin.publicPath])
-      ),
-    });
-
     const body = renderTemplate({
       themeTag,
-      jsDependencyPaths,
-      publicPathMap,
+      zoneBaseUrl: regularBundlePath,
+      zones: {
+        init: ['@kbn/core', '@kbn/ui-shared-deps-npm', '@kbn/ui-shared-deps-src'],
+        deps: {},
+      },
     });
 
     const hash = createHash('sha1');

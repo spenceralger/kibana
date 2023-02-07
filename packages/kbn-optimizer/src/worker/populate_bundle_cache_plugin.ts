@@ -78,8 +78,8 @@ export class PopulateBundleCachePlugin {
 
         const dllRefKeys = new Set<string>();
 
-        if (bundle.manifestPath) {
-          addReferenced(bundle.manifestPath);
+        for (const p of bundle.manifestPaths) {
+          addReferenced(p);
         }
 
         for (const module of compilation.modules) {

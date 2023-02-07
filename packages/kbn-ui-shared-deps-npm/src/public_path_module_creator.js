@@ -7,10 +7,11 @@
  */
 
 /**
- * @param {{ key: string }} param0
+ * @param {{ bundleId: string }} param0
  */
-module.exports = function ({ key }) {
+module.exports = function ({ bundleId }) {
+  const id = JSON.stringify(bundleId);
   return {
-    code: `__webpack_public_path__ = window.__kbnPublicPath__['${key}']`,
+    code: `__webpack_public_path__ = window.__kbnBundles__.getPublicDir(${id})`,
   };
 };

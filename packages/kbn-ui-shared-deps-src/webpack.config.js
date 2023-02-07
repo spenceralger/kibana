@@ -31,17 +31,17 @@ module.exports = {
   },
   mode: process.env.NODE_ENV || 'development',
   entry: {
-    'kbn-ui-shared-deps-src': './src/entry.js',
+    '@kbn/ui-shared-deps-src': './src/entry.js',
   },
   context: __dirname,
   devtool: 'cheap-source-map',
   output: {
     path: UiSharedDepsSrcDistDir,
     filename: '[name].js',
-    chunkFilename: 'kbn-ui-shared-deps-src.chunk.[id].js',
+    chunkFilename: '@kbn/ui-shared-deps-src.chunk.[id].js',
     sourceMapFilename: '[file].map',
     devtoolModuleFilenameTemplate: (info) =>
-      `kbn-ui-shared-deps-src/${Path.relative(REPO_ROOT, info.absoluteResourcePath)}`,
+      `@kbn/ui-shared-deps-src/${Path.relative(REPO_ROOT, info.absoluteResourcePath)}`,
     library: '__kbnSharedDeps__',
     futureEmitAssets: true,
   },
@@ -54,7 +54,7 @@ module.exports = {
           {
             loader: UiSharedDepsNpm.publicPathLoader,
             options: {
-              key: 'kbn-ui-shared-deps-src',
+              bundleId: '@kbn/ui-shared-deps-src',
             },
           },
         ],

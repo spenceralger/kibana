@@ -1079,6 +1079,7 @@
     "@kbn/managed-vscode-config": "link:packages/kbn-managed-vscode-config",
     "@kbn/managed-vscode-config-cli": "link:packages/kbn-managed-vscode-config-cli",
     "@kbn/optimizer": "link:packages/kbn-optimizer",
+    "@kbn/optimizer-bundle-zones": "link:packages/kbn-optimizer-bundle-zones",
     "@kbn/optimizer-webpack-helpers": "link:packages/kbn-optimizer-webpack-helpers",
     "@kbn/peggy": "link:packages/kbn-peggy",
     "@kbn/peggy-loader": "link:packages/kbn-peggy-loader",

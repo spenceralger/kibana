@@ -20,7 +20,6 @@ import * as UiSharedDepsSrc from '@kbn/ui-shared-deps-src';
 
 import { Bundle, BundleRemotes, WorkerConfig, parseDllManifest } from '../common';
 import { BundleRemotesPlugin } from './bundle_remotes_plugin';
-import { BundleMetricsPlugin } from './bundle_metrics_plugin';
 import { EmitStatsPlugin } from './emit_stats_plugin';
 import { PopulateBundleCachePlugin } from './populate_bundle_cache_plugin';
 
@@ -36,7 +35,7 @@ export function getWebpackConfig(
 
   const commonConfig: webpack.Configuration = {
     node: { fs: 'empty' },
-    context: bundle.contextDir,
+    context: worker.repoRoot,
     cache: true,
     entry: {
       [bundle.id]: ENTRY_CREATOR,
@@ -47,14 +46,11 @@ export function getWebpackConfig(
 
     output: {
       path: bundle.outputDir,
-      filename: `${bundle.id}.${bundle.type}.js`,
+      filename: `${bundle.id}.js`,
       chunkFilename: `${bundle.id}.chunk.[id].js`,
       devtoolModuleFilenameTemplate: (info) =>
-        `/${bundle.type}:${bundle.id}/${Path.relative(
-          bundle.sourceRoot,
-          info.absoluteResourcePath
-        )}${info.query}`,
-      jsonpFunction: `${bundle.id}_bundle_jsonpfunction`,
+        `/${bundle.id}/${Path.relative(worker.repoRoot, info.absoluteResourcePath)}${info.query}`,
+      jsonpFunction: `webpack_${bundle.id}_jsonp`,
       libraryTarget: 'jsonp',
       library: `__kbnBundles__.jsonp[${JSON.stringify(bundle.id)}]`,
     },
@@ -77,7 +73,6 @@ export function getWebpackConfig(
       new CleanWebpackPlugin(),
       new BundleRemotesPlugin(bundle, bundleRemotes),
       new PopulateBundleCachePlugin(worker, bundle, parseDllManifest(DLL_MANIFEST)),
-      new BundleMetricsPlugin(bundle),
       new webpack.DllReferencePlugin({
         context: worker.repoRoot,
         manifest: DLL_MANIFEST,
@@ -98,33 +93,13 @@ export function getWebpackConfig(
       rules: [
         {
           include: [ENTRY_CREATOR],
-          use: [
-            {
-              loader: UiSharedDepsNpm.publicPathLoader,
-              options: {
-                key: bundle.id,
-              },
-            },
-            {
-              loader: require.resolve('val-loader'),
-              options: {
-                entries: bundle.remoteInfo.targets.map((target) => {
-                  const absolute = Path.resolve(bundle.contextDir, target);
-                  const newContext = Path.dirname(ENTRY_CREATOR);
-                  const importId = `${bundle.type}/${bundle.id}/${target}`;
-
-                  // relative path from context of the ENTRY_CREATOR, with linux path separators
-                  let requirePath = Path.relative(newContext, absolute).split('\\').join('/');
-                  if (!requirePath.startsWith('.')) {
-                    // ensure requirePath is identified by node as relative
-                    requirePath = `./${requirePath}`;
-                  }
-
-                  return { importId, requirePath };
-                }),
-              },
-            },
-          ],
+          loader: require.resolve('val-loader'),
+          options: {
+            bundleId: bundle.id,
+            reqs: bundle.entries.flatMap((entry) =>
+              entry.targets.map((target) => (target ? `${entry.pkgId}/${target}` : entry.pkgId))
+            ),
+          },
         },
         {
           test: /\.css$/,
@@ -192,7 +167,7 @@ export function getWebpackConfig(
                     sassOptions: {
                       outputStyle: worker.dist ? 'compressed' : 'nested',
                       includePaths: [Path.resolve(worker.repoRoot, 'node_modules')],
-                      sourceMapRoot: `/${bundle.type}:${bundle.id}`,
+                      sourceMapRoot: `/${bundle.id}`,
                     },
                   },
                 },

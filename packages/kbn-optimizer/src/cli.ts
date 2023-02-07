@@ -54,11 +54,6 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
         throw createFlagError('expected --cache to have no value');
       }
 
-      const includeCoreBundle = flags.core ?? true;
-      if (typeof includeCoreBundle !== 'boolean') {
-        throw createFlagError('expected --core to have no value');
-      }
-
       const dist = flags.dist ?? false;
       if (typeof dist !== 'boolean') {
         throw createFlagError('expected --dist to have no value');
@@ -107,11 +102,6 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
         throw createFlagError('expected --filter to be one or more strings');
       }
 
-      const focus = typeof flags.focus === 'string' ? [flags.focus] : flags.focus;
-      if (!Array.isArray(focus) || !focus.every((f) => typeof f === 'string')) {
-        throw createFlagError('expected --focus to be one or more strings');
-      }
-
       const limitsPath = getLimitsPath(flags, options.defaultLimitsPath);
 
       const validateLimits = flags['validate-limits'] ?? false;
@@ -134,9 +124,7 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
         testPlugins: testPlugins && !(validateLimits || updateLimits),
         profileWebpack,
         inspectWorkers,
-        includeCoreBundle,
         filter,
-        focus,
         limitsPath,
       });
 
@@ -167,7 +155,6 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
     {
       flags: {
         boolean: [
-          'core',
           'watch',
           'oss',
           'examples',
@@ -182,13 +169,11 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
         ],
         string: ['workers', 'scan-dir', 'filter', 'limits'],
         default: {
-          core: true,
           examples: true,
           cache: true,
           'inspect-workers': true,
           progress: true,
           filter: [],
-          focus: [],
         },
         help: `
           --watch            run the optimizer in watch mode
@@ -196,9 +181,7 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
           --no-progress      disable logging of progress information
           --oss              only build oss plugins
           --profile          profile the webpack builds and write stats.json files to build outputs
-          --no-core          disable generating the core bundle
           --no-cache         disable the cache
-          --focus            just like --filter, except dependencies are automatically included, --filter applies to result
           --filter           comma-separated list of bundle id filters, results from multiple flags are merged, * and ! are supported
           --no-examples      don't build the example plugins
           --test-plugins     build test plugins too

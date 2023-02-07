@@ -12,7 +12,6 @@ import UiSharedDepsNpm from '@kbn/ui-shared-deps-npm';
 import { distDir as UiSharedDepsSrcDistDir } from '@kbn/ui-shared-deps-src';
 import * as KbnMonaco from '@kbn/monaco/server';
 import type { IRouter } from '@kbn/core-http-server';
-import type { UiPlugins } from '@kbn/core-plugins-base-server-internal';
 import { FileHashCache } from './file_hash_cache';
 import { registerRouteForBundle } from './bundles_route';
 
@@ -29,12 +28,10 @@ import { registerRouteForBundle } from './bundles_route';
 export function registerBundleRoutes({
   router,
   serverBasePath,
-  uiPlugins,
   packageInfo,
 }: {
   router: IRouter;
   serverBasePath: string;
-  uiPlugins: UiPlugins;
   packageInfo: PackageInfo;
 }) {
   const { dist: isDist, buildNum } = packageInfo;
@@ -44,43 +41,31 @@ export function registerBundleRoutes({
   const fileHashCache = new FileHashCache();
 
   registerRouteForBundle(router, {
-    publicPath: `${serverBasePath}/${buildNum}/bundles/kbn-ui-shared-deps-npm/`,
-    routePath: `/${buildNum}/bundles/kbn-ui-shared-deps-npm/`,
+    publicPath: `${serverBasePath}/${buildNum}/bundles/@kbn/ui-shared-deps-npm/`,
+    routePath: `/${buildNum}/bundles/@kbn/ui-shared-deps-npm/`,
     bundlesPath: UiSharedDepsNpm.distDir,
     fileHashCache,
     isDist,
   });
   registerRouteForBundle(router, {
-    publicPath: `${serverBasePath}/${buildNum}/bundles/kbn-ui-shared-deps-src/`,
-    routePath: `/${buildNum}/bundles/kbn-ui-shared-deps-src/`,
+    publicPath: `${serverBasePath}/${buildNum}/bundles/@kbn/ui-shared-deps-src/`,
+    routePath: `/${buildNum}/bundles/@kbn/ui-shared-deps-src/`,
     bundlesPath: UiSharedDepsSrcDistDir,
     fileHashCache,
     isDist,
   });
   registerRouteForBundle(router, {
-    publicPath: `${serverBasePath}/${buildNum}/bundles/core/`,
-    routePath: `/${buildNum}/bundles/core/`,
-    bundlesPath: isDist
-      ? fromRoot('node_modules/@kbn/core/target/public')
-      : fromRoot('src/core/target/public'),
-    fileHashCache,
-    isDist,
-  });
-  registerRouteForBundle(router, {
-    publicPath: `${serverBasePath}/${buildNum}/bundles/kbn-monaco/`,
-    routePath: `/${buildNum}/bundles/kbn-monaco/`,
+    publicPath: `${serverBasePath}/${buildNum}/bundles/@kbn/monaco/`,
+    routePath: `/${buildNum}/bundles/@kbn/monaco/`,
     bundlesPath: KbnMonaco.bundleDir,
     fileHashCache,
     isDist,
   });
-
-  [...uiPlugins.internal.entries()].forEach(([id, { publicTargetDir, version }]) => {
-    registerRouteForBundle(router, {
-      publicPath: `${serverBasePath}/${buildNum}/bundles/plugin/${id}/${version}/`,
-      routePath: `/${buildNum}/bundles/plugin/${id}/${version}/`,
-      bundlesPath: publicTargetDir,
-      fileHashCache,
-      isDist,
-    });
+  registerRouteForBundle(router, {
+    publicPath: `${serverBasePath}/${buildNum}/bundles/`,
+    routePath: `/${buildNum}/bundles/`,
+    bundlesPath: fromRoot('target/bundles'),
+    fileHashCache,
+    isDist,
   });
 }

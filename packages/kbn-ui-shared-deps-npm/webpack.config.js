@@ -31,7 +31,7 @@ module.exports = (_, argv) => {
     },
     mode: process.env.NODE_ENV || 'development',
     entry: {
-      'kbn-ui-shared-deps-npm': [
+      '@kbn/ui-shared-deps-npm': [
         // polyfill code
         'core-js/stable',
         'whatwg-fetch',
@@ -107,17 +107,17 @@ module.exports = (_, argv) => {
         'tslib',
         'uuid',
       ],
-      'kbn-ui-shared-deps-npm.v8.dark': ['@elastic/eui/dist/eui_theme_dark.css'],
-      'kbn-ui-shared-deps-npm.v8.light': ['@elastic/eui/dist/eui_theme_light.css'],
+      '@kbn/ui-shared-deps-npm.v8.dark': ['@elastic/eui/dist/eui_theme_dark.css'],
+      '@kbn/ui-shared-deps-npm.v8.light': ['@elastic/eui/dist/eui_theme_light.css'],
     },
     context: __dirname,
     devtool: 'cheap-source-map',
     output: {
       path: outputPath,
-      filename: '[name].dll.js',
-      chunkFilename: 'kbn-ui-shared-deps-npm.chunk.[id].js',
+      filename: '[name].js',
+      chunkFilename: '@kbn/ui-shared-deps-npm.chunk.[id].js',
       devtoolModuleFilenameTemplate: (info) =>
-        `kbn-ui-shared-deps-npm/${Path.relative(REPO_ROOT, info.absoluteResourcePath)}`,
+        `@kbn/ui-shared-deps-npm/${Path.relative(REPO_ROOT, info.absoluteResourcePath)}`,
       library: '__kbnSharedDeps_npm__',
       futureEmitAssets: true,
     },
@@ -131,7 +131,7 @@ module.exports = (_, argv) => {
             {
               loader: UiSharedDepsNpm.publicPathLoader,
               options: {
-                key: 'kbn-ui-shared-deps-npm',
+                bundleId: '@kbn/ui-shared-deps-npm',
               },
             },
           ],

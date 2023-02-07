@@ -13,16 +13,11 @@ import { parseDllManifest } from './dll_manifest';
 jest.mock('fs');
 
 const SPEC: BundleSpec = {
-  contextDir: '/foo/bar',
   id: 'bar',
   outputDir: '/foo/bar/target',
   sourceRoot: '/foo',
-  type: 'plugin',
-  remoteInfo: {
-    pkgId: '@kbn/foo-bundle',
-    targets: ['public'],
-  },
-  ignoreMetrics: false,
+  entries: [],
+  manifestPaths: [],
 };
 
 it('creates cache keys', () => {

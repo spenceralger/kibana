@@ -13,4 +13,3 @@ export * from './src/log_optimizer_progress';
 export * from './src/limits';
 export * from './src/cli';
 export * from './src/report_optimizer_timings';
-export * from './src/audit_bundle_dependencies';
