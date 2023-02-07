@@ -47,8 +47,9 @@
       "usageCollection",
       "visualizations"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

@@ -37,11 +37,12 @@
       "kibanaReact",
       "charts"
     ],
-    "extraPublicDirs": [
-      "common/constants",
-      "common/utils",
-      "common/expression_functions",
-      "common/convert_to_lens"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common/constants",
+    "common/utils",
+    "common/expression_functions",
+    "common/convert_to_lens"
+  ]
 }

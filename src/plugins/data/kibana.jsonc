@@ -36,8 +36,9 @@
       "kibanaReact",
       "inspector"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

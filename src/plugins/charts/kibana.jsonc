@@ -9,8 +9,9 @@
     "requiredPlugins": [
       "expressions"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

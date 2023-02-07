@@ -23,8 +23,9 @@
       "security",
       "monitoringCollection"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

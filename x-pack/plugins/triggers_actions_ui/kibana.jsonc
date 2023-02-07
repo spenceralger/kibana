@@ -36,9 +36,10 @@
       "kibanaUtils",
       "actions"
     ],
-    "extraPublicDirs": [
-      "public/common",
-      "public/common/constants"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "public/common",
+    "public/common/constants"
+  ]
 }

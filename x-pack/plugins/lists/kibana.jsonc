@@ -14,8 +14,9 @@
       "spaces",
       "security"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

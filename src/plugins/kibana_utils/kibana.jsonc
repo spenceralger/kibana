@@ -6,10 +6,11 @@
     "id": "kibanaUtils",
     "server": false,
     "browser": true,
-    "extraPublicDirs": [
-      "common",
-      "demos/state_containers/todomvc",
-      "common/state_containers"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common",
+    "demos/state_containers/todomvc",
+    "common/state_containers"
+  ]
 }

@@ -44,8 +44,9 @@
       "usageCollection",
       "unifiedSearch"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

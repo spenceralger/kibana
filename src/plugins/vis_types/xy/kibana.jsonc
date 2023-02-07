@@ -18,8 +18,9 @@
       "kibanaUtils",
       "visDefaultEditor"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

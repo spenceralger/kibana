@@ -17,8 +17,9 @@
     "requiredBundles": [
       "kibanaReact"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

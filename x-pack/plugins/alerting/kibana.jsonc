@@ -28,9 +28,10 @@
       "monitoringCollection",
       "spaces"
     ],
-    "extraPublicDirs": [
-      "common",
-      "common/parse_duration"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common",
+    "common/parse_duration"
+  ]
 }

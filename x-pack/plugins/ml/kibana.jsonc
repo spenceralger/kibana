@@ -58,8 +58,9 @@
       "unifiedFieldList",
       "unifiedSearch"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

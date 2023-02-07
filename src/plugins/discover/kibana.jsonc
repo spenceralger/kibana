@@ -42,8 +42,9 @@
       "unifiedSearch",
       "savedSearch"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

@@ -11,9 +11,10 @@
       "kibanaUtils",
       "inspector"
     ],
-    "extraPublicDirs": [
-      "common",
-      "common/fonts"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common",
+    "common/fonts"
+  ]
 }

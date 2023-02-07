@@ -14,8 +14,9 @@
       "expressions",
       "dataViews"
     ],
-    "extraPublicDirs": [
-      "common"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "common"
+  ]
 }

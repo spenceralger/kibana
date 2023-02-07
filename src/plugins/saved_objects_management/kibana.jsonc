@@ -19,8 +19,9 @@
     "requiredBundles": [
       "kibanaReact"
     ],
-    "extraPublicDirs": [
-      "public/lib"
-    ]
-  }
+  },
+  "publicDirs": [
+    "public",
+    "public/lib"
+  ]
 }
