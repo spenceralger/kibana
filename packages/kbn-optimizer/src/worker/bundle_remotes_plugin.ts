@@ -9,11 +9,14 @@
  */
 
 import webpack from 'webpack';
-
+import { ConcatSource } from 'webpack-sources';
 import { parseKbnImportReq } from '@kbn/repo-packages';
+import { isNormalModule } from '@kbn/optimizer-webpack-helpers';
 
 import { Bundle, BundleRemotes } from '../common';
 import { BundleRemoteModule } from './bundle_remote_module';
+
+const PLUGIN_NAME = 'BundleRemotesPlugin';
 
 interface RequestData {
   context: string;
@@ -24,8 +27,6 @@ type Callback<T> = (error?: any, result?: T) => void;
 type ModuleFactory = (data: RequestData, callback: Callback<BundleRemoteModule>) => void;
 
 export class BundleRemotesPlugin {
-  private allowedBundleIds = new Set<string>();
-
   constructor(private readonly bundle: Bundle, private readonly remotes: BundleRemotes) {}
 
   /**
@@ -34,7 +35,7 @@ export class BundleRemotesPlugin {
   public apply(compiler: webpack.Compiler) {
     // called whenever the compiler starts to compile, passed the params
     // that will be used to create the compilation
-    compiler.hooks.compile.tap('BundleRemotesPlugin', (compilationParams: any) => {
+    compiler.hooks.compile.tap(PLUGIN_NAME, (compilationParams: any) => {
       const moduleCache = new Map<string, BundleRemoteModule | null>();
 
       // hook into the creation of NormalModule instances in webpack, if the import
@@ -71,39 +72,38 @@ export class BundleRemotesPlugin {
       );
     });
 
-    compiler.hooks.compilation.tap('BundleRefsPlugin/populateAllowedBundleIds', (compilation) => {
-      const manifestPath = this.bundle.manifestPath;
-      if (!manifestPath) {
-        return;
-      }
+    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
+      compilation.hooks.chunkAsset.tap(PLUGIN_NAME, (chunk, filename) => {
+        const remotes = Array.from(
+          new Set(
+            Array.from(chunk.modulesIterable, (m) => {
+              if (isNormalModule(m)) {
+                return m.dependencies.flatMap((d) => {
+                  if (d.module instanceof BundleRemoteModule) {
+                    return d.module.req.pkgId;
+                  }
 
-      const deps = this.bundle.readBundleDeps();
-      this.allowedBundleIds = new Set([...deps.explicit, ...deps.implicit]);
+                  return [];
+                });
+              }
 
-      compilation.hooks.additionalAssets.tap('BundleRefsPlugin/watchManifest', () => {
-        compilation.fileDependencies.add(manifestPath);
-      });
+              return [];
+            }).flat()
+          )
+        );
 
-      compilation.hooks.finishModules.tapPromise(
-        'BundleRefsPlugin/finishModules',
-        async (modules) => {
-          const usedBundleIds = (modules as any[])
-            .filter((m: any): m is BundleRemoteModule => m instanceof BundleRemoteModule)
-            .map((m) => m.remote.bundleId);
-
-          const unusedBundleIds = deps.explicit
-            .filter((id) => !usedBundleIds.includes(id))
-            .join(', ');
-
-          if (unusedBundleIds) {
-            const error = new Error(
-              `Bundle for [${this.bundle.id}] lists [${unusedBundleIds}] as a required bundle, but does not use it. Please remove it.`
-            );
-            (error as any).file = manifestPath;
-            compilation.errors.push(error);
-          }
+        if (!remotes.length) {
+          return;
         }
-      );
+
+        compilation.updateAsset(filename, (source) => {
+          return new ConcatSource(
+            `__kbnBundles__.ensure(${JSON.stringify(remotes)}, () => {`,
+            source,
+            '});'
+          );
+        });
+      });
     });
   }
 
@@ -126,14 +126,6 @@ export class BundleRemotesPlugin {
       return cb(
         new Error(
           `import [${request}] references a non-public export of the [${remote.bundleId}] bundle and must point to one of the public directories: [${remote.targets}]`
-        )
-      );
-    }
-
-    if (!this.allowedBundleIds.has(remote.bundleId)) {
-      return cb(
-        new Error(
-          `import [${request}] references a public export of the [${remote.bundleId}] bundle, but that bundle is not in the "requiredPlugins" or "requiredBundles" list in the plugin manifest [${this.bundle.manifestPath}]`
         )
       );
     }

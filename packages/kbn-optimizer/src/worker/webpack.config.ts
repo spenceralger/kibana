@@ -13,7 +13,6 @@ import { stringifyRequest } from 'loader-utils';
 import webpack from 'webpack';
 // @ts-expect-error
 import TerserPlugin from 'terser-webpack-plugin';
-import webpackMerge from 'webpack-merge';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
 import UiSharedDepsNpm from '@kbn/ui-shared-deps-npm';
@@ -32,7 +31,7 @@ export function getWebpackConfig(
   bundle: Bundle,
   bundleRemotes: BundleRemotes,
   worker: WorkerConfig
-) {
+): webpack.Configuration {
   const ENTRY_CREATOR = require.resolve('./entry_point_creator');
 
   const commonConfig: webpack.Configuration = {
@@ -56,6 +55,8 @@ export function getWebpackConfig(
           info.absoluteResourcePath
         )}${info.query}`,
       jsonpFunction: `${bundle.id}_bundle_jsonpfunction`,
+      libraryTarget: 'jsonp',
+      library: `__kbnBundles__.jsonp[${JSON.stringify(bundle.id)}]`,
     },
 
     optimization: {
@@ -258,14 +259,19 @@ export function getWebpackConfig(
     },
   };
 
-  const nonDistributableConfig: webpack.Configuration = {
-    mode: 'development',
-  };
+  if (!worker.dist) {
+    return {
+      ...commonConfig,
+      mode: 'development',
+    };
+  }
 
-  const distributableConfig: webpack.Configuration = {
+  return {
+    ...commonConfig,
     mode: 'production',
 
     plugins: [
+      ...(commonConfig.plugins ?? []),
       new webpack.DefinePlugin({
         'process.env': {
           IS_KIBANA_DISTRIBUTABLE: `"true"`,
@@ -283,6 +289,7 @@ export function getWebpackConfig(
     ],
 
     optimization: {
+      ...commonConfig.optimization,
       minimizer: [
         new TerserPlugin({
           cache: false,
@@ -298,6 +305,4 @@ export function getWebpackConfig(
       ],
     },
   };
-
-  return webpackMerge(commonConfig, worker.dist ? distributableConfig : nonDistributableConfig);
 }
