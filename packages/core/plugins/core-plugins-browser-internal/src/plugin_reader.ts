@@ -19,7 +19,7 @@ export type UnknownPluginInitializer = PluginInitializer<unknown, Record<string,
  * @internal
  */
 export interface CoreWindow {
-  __kbnBundles__: {
+  __kbn: {
     plugin(key: string): { plugin: UnknownPluginInitializer } | undefined;
   };
 }
@@ -29,7 +29,7 @@ export interface CoreWindow {
  */
 export function read(name: string) {
   const coreWindow = window as unknown as CoreWindow;
-  const pluginExport = coreWindow.__kbnBundles__.plugin(name);
+  const pluginExport = coreWindow.__kbn.plugin(name);
 
   if (pluginExport === undefined) {
     throw new Error(`Definition of plugin "${name}" not found and may have failed to load.`);

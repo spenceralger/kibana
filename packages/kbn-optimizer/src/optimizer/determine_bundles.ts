@@ -8,66 +8,73 @@
 
 import Path from 'path';
 
-import { Package } from '@kbn/repo-packages';
+import { Package, getRepoRelsSync } from '@kbn/repo-packages';
+import { RepoPath } from '@kbn/repo-path';
+import { PackageFileMap } from '@kbn/repo-file-maps';
 
 import { Bundle } from '../common';
 
+interface Entry {
+  pkgId: string;
+  pluginId?: string;
+  size?: number;
+  targets?: string[];
+  manifest?: string;
+}
+
+interface Group {
+  entries: Entry[];
+  size: number;
+}
+
 export function getDevBundles(packages: Package[], outputRoot: string, repoRoot: string) {
-  return [
-    new Bundle({
-      id: 'npm',
+  const allFiles = getRepoRelsSync(repoRoot, ['**/public/**', '**/common/**']);
+  const fileMap = new PackageFileMap(
+    packages,
+    Array.from(allFiles, (rel) => new RepoPath(repoRoot, rel))
+  );
+
+  const queue = packages.map(
+    (pkg): Entry => ({
+      pkgId: pkg.id,
+      targets: pkg.getPublicDirs(),
+      size: Array.from(fileMap.getFiles(pkg)).length * 0.5,
+      pluginId: pkg.isPlugin() ? pkg.manifest.plugin.id : undefined,
+    })
+  );
+
+  const pkgGroups: Group[] = Array.from(
+    new Array(5),
+    (): Group => ({
+      entries: [],
+      size: 0,
+    })
+  );
+
+  for (const item of queue) {
+    const group = pkgGroups[0];
+    group.entries.push(item);
+    group.size += item.size ?? 1;
+    if (group.size > pkgGroups[1].size) {
+      pkgGroups.sort((a, b) => a.size - b.size);
+    }
+  }
+
+  return pkgGroups.map((group, i) => {
+    const id = `zone${i + 1}`;
+    return new Bundle({
+      id,
+      manifestPaths: group.entries.flatMap((e) => e.manifest || []),
+      outputDir: Path.resolve(outputRoot, 'target/bundles', id),
       sourceRoot: repoRoot,
-      outputDir: Path.resolve(outputRoot, 'target/bundles/npm'),
-      banner: '/** this is code from NPM! */',
-      entries: [
-        { pkgId: 'lodash', targets: ['', 'fp'] },
-        {
-          pkgId: '@elastic/eui',
-          targets: [
-            '',
-            'optimize/es/services',
-            'optimize/es/services/format',
-            'dist/eui_charts_theme',
-            'dist/eui_theme_light.json',
-            'dist/eui_theme_dark.json',
-          ],
-        },
-        { pkgId: '@elastic/charts' },
-        { pkgId: '@emotion/cache' },
-        { pkgId: '@emotion/react' },
-        { pkgId: 'jquery' },
-        { pkgId: 'moment-timezone', targets: ['', 'data/packed/latest.json'] },
-        { pkgId: 'moment' },
-        { pkgId: 'react' },
-        { pkgId: 'react-ace' },
-        { pkgId: 'react-beautiful-dnd' },
-        { pkgId: 'react-dom', targets: ['', 'server'] },
-        { pkgId: 'react-router-dom' },
-        { pkgId: 'react-router' },
-        { pkgId: 'rxjs', targets: ['', 'operators'] },
-        { pkgId: 'styled-components' },
-        { pkgId: 'tslib' },
-        { pkgId: 'uuid' },
-      ],
-      manifestPaths: [],
-    }),
-    ...packages.map((pkg) => {
-      return new Bundle({
-        id: pkg.id,
-        sourceRoot: repoRoot,
-        outputDir: Path.resolve(outputRoot, 'target/bundles', pkg.id),
-        banner:
-          `/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements.\n` +
-          ` * Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */\n`,
-        entries: [
-          {
-            pkgId: pkg.id,
-            targets: pkg.getPublicDirs(),
-            pluginId: pkg.isPlugin() ? pkg.manifest.plugin.id : undefined,
-          },
-        ],
-        manifestPaths: [Path.resolve(pkg.directory, 'kibana.jsonc')],
-      });
-    }),
-  ];
+      banner:
+        `/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements.\n` +
+        ` * Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */\n`,
+      entries: group.entries.map((e) => ({
+        pkgId: e.pkgId,
+        targets: e.targets,
+        pluginId: e.pluginId,
+      })),
+    });
+  });
 }

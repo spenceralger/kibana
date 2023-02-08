@@ -9,12 +9,12 @@
 import { CoreWindow, read } from './plugin_reader';
 
 const coreWindow: CoreWindow & {
-  __kbnBundles__: { stub(key: string, value: any): void };
+  __kbn: { stub(key: string, value: any): void };
 } = window as any;
 
 beforeEach(() => {
   const stubs = new Map<string, any>();
-  coreWindow.__kbnBundles__ = {
+  coreWindow.__kbn = {
     get(key) {
       return stubs.get(key);
     },
@@ -34,7 +34,7 @@ it('handles undefined plugin exports', () => {
 });
 
 it('handles plugin exports with a "plugin" export that is not a function', () => {
-  coreWindow.__kbnBundles__.stub('plugin/foo/public', {
+  coreWindow.__kbn.stub('plugin/foo/public', {
     plugin: 1234,
   });
 
@@ -45,7 +45,7 @@ it('handles plugin exports with a "plugin" export that is not a function', () =>
 
 it('returns the plugin initializer when the "plugin" named export is a function', () => {
   const plugin = () => {};
-  coreWindow.__kbnBundles__.stub('plugin/foo/public', { plugin });
+  coreWindow.__kbn.stub('plugin/foo/public', { plugin });
 
   expect(read('foo')).toBe(plugin);
 });

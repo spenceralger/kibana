@@ -42,7 +42,7 @@ module.exports = {
     sourceMapFilename: '[file].map',
     devtoolModuleFilenameTemplate: (info) =>
       `@kbn/ui-shared-deps-src/${Path.relative(REPO_ROOT, info.absoluteResourcePath)}`,
-    library: `__kbnBundles__.jsonp['@kbn/ui-shared-deps-src']`,
+    library: `__kbn.jsonp['@kbn/ui-shared-deps-src']`,
     libraryTarget: 'jsonp',
     futureEmitAssets: true,
   },
@@ -120,7 +120,7 @@ module.exports = {
     new webpack.DllReferencePlugin({
       context: REPO_ROOT,
       manifest: require(UiSharedDepsNpm.dllManifestPath), // eslint-disable-line import/no-dynamic-require
-      name: '__kbnBundles__.dll',
+      name: '__kbn.exports.dll',
     }),
   ],
 };

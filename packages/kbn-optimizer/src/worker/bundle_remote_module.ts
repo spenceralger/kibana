@@ -54,7 +54,7 @@ export class BundleRemoteModule extends Module {
 
   source() {
     const req = JSON.stringify(this.req.full);
-    return `__kbnBundles__.expose(${req}, __webpack_exports__, __webpack_require__);\n`;
+    return `__kbn.expose(${req}, __webpack_exports__, __webpack_require__);\n`;
   }
 
   size() {

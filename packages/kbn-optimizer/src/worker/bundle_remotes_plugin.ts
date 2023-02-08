@@ -98,7 +98,7 @@ export class BundleRemotesPlugin {
 
         compilation.updateAsset(filename, (source) => {
           return new ConcatSource(
-            `__kbnBundles__.ensure(${JSON.stringify(remotes)}).then(() => {\n`,
+            `__kbn.ensure(${JSON.stringify(remotes)}).then(() => {\n`,
             source,
             '\n});'
           );

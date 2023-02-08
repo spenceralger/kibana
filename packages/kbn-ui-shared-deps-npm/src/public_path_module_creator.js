@@ -12,6 +12,6 @@
 module.exports = function ({ bundleId }) {
   const id = JSON.stringify(bundleId);
   return {
-    code: `__webpack_public_path__ = window.__kbnBundles__.getPublicDir(${id})`,
+    code: `__webpack_public_path__ = window.__kbn.getPublicDir(${id})`,
   };
 };

@@ -54,8 +54,8 @@ export class PopulateBundleCachePlugin {
         before: ['BundleMetricsPlugin'],
       },
       (compilation) => {
-        const bundleRefExportIds: string[] = [];
-        const remoteBundleDeps: string[] = [];
+        const bundleRefExportIds = new Set<string>();
+        const remoteBundleDeps = new Set<string>();
         let moduleCount = 0;
         let workUnits = compilation.fileDependencies.size;
 
@@ -116,8 +116,8 @@ export class PopulateBundleCachePlugin {
           }
 
           if (module instanceof BundleRemoteModule) {
-            bundleRefExportIds.push(module.req.full);
-            remoteBundleDeps.push(module.remote.bundleId);
+            bundleRefExportIds.add(module.req.full);
+            remoteBundleDeps.add(module.remote.bundleId);
             continue;
           }
 
@@ -143,7 +143,7 @@ export class PopulateBundleCachePlugin {
         const sortedDllRefKeys = Array.from(dllRefKeys).sort(ascending((p) => p));
 
         bundle.cache.set({
-          remoteBundleImportReqs: bundleRefExportIds.sort(ascending((p) => p)),
+          remoteBundleImportReqs: Array.from(bundleRefExportIds).sort(ascending((p) => p)),
           optimizerCacheKey: workerConfig.optimizerCacheKey,
           cacheKey: bundle.createCacheKey(
             referencedPaths,
@@ -155,7 +155,7 @@ export class PopulateBundleCachePlugin {
           workUnits,
           referencedPaths,
           dllRefKeys: sortedDllRefKeys,
-          remoteBundleDeps,
+          remoteBundleDeps: Array.from(remoteBundleDeps),
         });
 
         // write the cache to the compilation so that it isn't cleaned by clean-webpack-plugin

@@ -87,6 +87,7 @@ function getRepoRelsSync(repoRoot, include = undefined, exclude = undefined) {
   const stdout = ChildProcess.execFileSync('git', getGitFlags(repoRoot, include, exclude), {
     cwd: repoRoot,
     encoding: 'utf8',
+    maxBuffer: Infinity,
   });
 
   return parseLsFilesOutput(repoRoot, stdout);

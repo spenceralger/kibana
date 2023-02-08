@@ -51,8 +51,6 @@ export function getWebpackConfig(
       devtoolModuleFilenameTemplate: (info) =>
         `/${bundle.id}/${Path.relative(worker.repoRoot, info.absoluteResourcePath)}${info.query}`,
       jsonpFunction: `webpack_${bundle.id}_jsonp`,
-      libraryTarget: 'jsonp',
-      library: `__kbnBundles__.jsonp[${JSON.stringify(bundle.id)}]`,
     },
 
     optimization: {
@@ -76,7 +74,7 @@ export function getWebpackConfig(
       new webpack.DllReferencePlugin({
         context: worker.repoRoot,
         manifest: DLL_MANIFEST,
-        name: '__kbnBundles__.dll',
+        name: '__kbn.exports.dll',
       }),
       ...(worker.profileWebpack ? [new EmitStatsPlugin(bundle)] : []),
       ...(bundle.banner ? [new webpack.BannerPlugin({ banner: bundle.banner, raw: true })] : []),

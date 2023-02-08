@@ -16,17 +16,16 @@ module.exports = function ({
   bundleId: string;
   entries: Array<{ req: string; pluginId?: string }>;
 }) {
-  const id = JSON.stringify(bundleId)
+  const id = JSON.stringify(bundleId);
   const lines = [
-    `__webpack_public_path__ = window.__kbnBundles__.getPublicDir(${id});`,
+    `__webpack_public_path__ = window.__kbn.getPublicDir(${id});`,
     ...entries.flatMap((entry) => {
       const req = JSON.stringify(entry.req);
       return [
-        `__kbnBundles__.define(${req}, __webpack_require__, require.resolve(${req}));`,
-        entry.pluginId ? `__kbnBundles__.plugin(${JSON.stringify(entry.pluginId)}, ${req})` : [],
+        `__kbn.define(${req}, __webpack_require__, require.resolve(${req}));`,
+        entry.pluginId ? `__kbn.plugin(${JSON.stringify(entry.pluginId)}, ${req})` : [],
       ].flat();
     }),
-    `__kbnBundles__.ready(${id})`
   ];
 
   return {

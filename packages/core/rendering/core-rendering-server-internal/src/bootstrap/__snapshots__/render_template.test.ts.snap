@@ -11,7 +11,7 @@ function kbnBundlesLoader() {
 
   function define(key, bundleRequire, bundleModuleKey) {
     if (has(key)) {
-      throw new Error('__kbnBundles__ already has a module defined for \\"' + key + '\\"');
+      throw new Error('__kbn already has a module defined for \\"' + key + '\\"');
     }
 
     modules[key] = {
@@ -22,7 +22,7 @@ function kbnBundlesLoader() {
 
   function get(key) {
     if (!has(key)) {
-      throw new Error('__kbnBundles__ does not have a module defined for \\"' + key + '\\"');
+      throw new Error('__kbn does not have a module defined for \\"' + key + '\\"');
     }
 
     return modules[key].bundleRequire(modules[key].bundleModuleKey);
@@ -34,7 +34,7 @@ function kbnBundlesLoader() {
 var kbnCsp = JSON.parse(document.querySelector('kbn-csp').getAttribute('data'));
 window.__kbnStrictCsp__ = kbnCsp.strictCsp;
 window.__kbnThemeTag__ = \\"v8light\\";
-window.__kbnBundles__ = kbnBundlesLoader();
+window.__kbn = kbnBundlesLoader();
 
 if (window.__kbnStrictCsp__ && window.__kbnCspNotEnforced__) {
   var legacyBrowserError = document.getElementById('kbn_legacy_browser_error');
@@ -110,7 +110,7 @@ if (window.__kbnStrictCsp__ && window.__kbnCspNotEnforced__) {
     load([
       '/js-1','/js-2'
     ], function () {
-      __kbnBundles__.get('entry/core/public').__kbnBootstrap__();
+      __kbn.get('entry/core/public').__kbnBootstrap__();
     });
   }
 }
