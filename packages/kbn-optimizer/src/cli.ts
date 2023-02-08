@@ -169,7 +169,6 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
         ],
         string: ['workers', 'scan-dir', 'filter', 'limits'],
         default: {
-          examples: true,
           cache: true,
           'inspect-workers': true,
           progress: true,
@@ -183,7 +182,7 @@ export function runKbnOptimizerCli(options: { defaultLimitsPath: string }) {
           --profile          profile the webpack builds and write stats.json files to build outputs
           --no-cache         disable the cache
           --filter           comma-separated list of bundle id filters, results from multiple flags are merged, * and ! are supported
-          --no-examples      don't build the example plugins
+          --examples         build the example plugins
           --test-plugins     build test plugins too
           --dist             create bundles that are suitable for inclusion in the Kibana distributable, enabled when running with --update-limits
           --scan-dir         add a directory to the list of directories scanned for plugins (specify as many times as necessary)
