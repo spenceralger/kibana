@@ -1,6 +1,5 @@
 {
   "type": "shared-common",
   "id": "@kbn/optimizer-bundle-info",
-  "owner": "@elastic/kibana-operations",
-  "devOnly": true
+  "owner": "@elastic/kibana-operations"
 }

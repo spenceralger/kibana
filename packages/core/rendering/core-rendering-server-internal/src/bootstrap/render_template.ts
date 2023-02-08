@@ -8,17 +8,18 @@
 
 /* eslint-disable no-console */
 
-import { BundleZones } from '@kbn/optimizer-bundle-info';
+import { BundleDeps } from '@kbn/optimizer-bundle-info';
 
 export interface BootstrapTemplateData {
-  themeTag: string;
-  zoneBaseUrl: string;
-  zones: BundleZones;
+  theme: string;
+  url: string;
+  deps: BundleDeps;
+  init: string[];
 }
 
 type Req = (key: string) => any;
 
-function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
+function bootstrap({ theme, url, deps, init }: BootstrapTemplateData) {
   let fatalRendered = false;
   function fatal(error: unknown) {
     if (error) {
@@ -91,21 +92,21 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
     }
 
     function getPublicDir(bundleId: string) {
-      return `${zoneBaseUrl}/${bundleId}/`;
+      return `${url}/${bundleId}/`;
     }
 
     function getUrl(bundleId: string) {
       return `${getPublicDir(bundleId)}${bundleId}.js`;
     }
 
-    const depMap = new Map(Object.entries(zones.deps));
+    const depMap = new Map(Object.entries(deps));
     function getDepsDeep(id: string, history: string[] = []): string[] {
-      const deps = depMap.get(id);
-      if (!deps) {
+      const ownDeps = depMap.get(id);
+      if (!ownDeps) {
         return [];
       }
 
-      return deps.flatMap((dep) => {
+      return ownDeps.flatMap((dep) => {
         if (history.includes(dep)) {
           throw new Error('circular dependency in zone deps');
         }
@@ -187,7 +188,7 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
   const kbnCsp = JSON.parse(document.querySelector('kbn-csp')!.getAttribute('data')!);
   const loader = kbnBundlesLoader();
   global.__kbnStrictCsp__ = kbnCsp.strictCsp;
-  global.__kbnThemeTag__ = themeTag;
+  global.__kbnThemeTag__ = theme;
   global.__kbnBundles__ = loader;
 
   if (global.__kbnStrictCsp__ && global.__kbnCspNotEnforced__) {
@@ -208,7 +209,7 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
       });
 
       loader
-        .ensure(zones.init)
+        .ensure(init)
         .then(() => loader.get('@kbn/core/public'))
         .then((core) => core.__kbnBootstrap__(), fatal);
     };

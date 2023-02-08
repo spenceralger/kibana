@@ -13,6 +13,7 @@ import type { KibanaRequest, HttpAuth } from '@kbn/core-http-server';
 import type { IUiSettingsClient } from '@kbn/core-ui-settings-server';
 import type { UiPlugins } from '@kbn/core-plugins-base-server-internal';
 import { REPO_ROOT } from '@kbn/repo-info';
+import { getBundleDeps, getBundleIdsByPkgIds } from '@kbn/optimizer-bundle-info';
 import { getPkgsByPluginId } from '@kbn/repo-packages';
 import { filterUiPlugins } from '../filter_ui_plugins';
 import { getThemeTag } from './get_theme_tag';
@@ -70,21 +71,31 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
     const regularBundlePath = `${serverBasePath}/${buildHash}/bundles`;
 
     const pkgsByPluginId = getPkgsByPluginId(REPO_ROOT);
+    const bundleIdsByPkgIds = getBundleIdsByPkgIds();
+    const initBundleIds = [
+      '@kbn/ui-shared-deps-npm',
+      '@kbn/ui-shared-deps-src',
+      ...Array.from(
+        new Set(
+          [
+            '@kbn/core',
+            ...filterUiPlugins({ uiPlugins, isAnonymousPage }).flatMap(([id]) => {
+              const pkg = pkgsByPluginId.get(id);
+              return pkg ? pkg.id : [];
+            }),
+          ].flatMap((pkgId) => {
+            const bundleId = bundleIdsByPkgIds.get(pkgId);
+            return bundleId ? bundleId : [];
+          })
+        )
+      ),
+    ];
+
     const body = renderTemplate({
-      themeTag,
-      zoneBaseUrl: regularBundlePath,
-      zones: {
-        init: [
-          '@kbn/ui-shared-deps-npm',
-          '@kbn/ui-shared-deps-src',
-          '@kbn/core',
-          ...filterUiPlugins({ uiPlugins, isAnonymousPage }).flatMap(([id]) => {
-            const pkg = pkgsByPluginId.get(id);
-            return pkg ? pkg.id : [];
-          }),
-        ],
-        deps: {},
-      },
+      theme: themeTag,
+      url: regularBundlePath,
+      deps: getBundleDeps(),
+      init: initBundleIds,
     });
 
     const hash = createHash('sha1');

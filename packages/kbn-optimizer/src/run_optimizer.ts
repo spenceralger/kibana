@@ -32,6 +32,9 @@ export type OptimizerUpdate$ = Rx.Observable<OptimizerUpdate>;
 
 export function runOptimizer(config: OptimizerConfig) {
   const bundleInfoPath = Path.resolve(config.repoRoot, 'target/bundles/info.json');
+  const bundlePkgs = Object.fromEntries(
+    config.bundles.map((b) => [b.id, b.entries.map((e) => e.pkgId)])
+  );
 
   return Rx.defer(async () => {
     if (process.platform === 'darwin') {
@@ -94,7 +97,7 @@ export function runOptimizer(config: OptimizerConfig) {
           if (prev.state.bundleDeps !== update.state.bundleDeps) {
             Fs.writeFileSync(
               bundleInfoPath,
-              JSON.stringify({ deps: update.state.bundleDeps }, null, 2)
+              JSON.stringify({ deps: update.state.bundleDeps, pkgs: bundlePkgs }, null, 2)
             );
           }
 
