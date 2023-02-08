@@ -8,7 +8,7 @@
 
 /* eslint-disable no-console */
 
-import { BundleZones } from '@kbn/optimizer-bundle-zones';
+import { BundleZones } from '@kbn/optimizer-bundle-info';
 
 export interface BootstrapTemplateData {
   themeTag: string;

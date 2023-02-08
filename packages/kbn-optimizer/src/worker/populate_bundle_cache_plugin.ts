@@ -55,6 +55,7 @@ export class PopulateBundleCachePlugin {
       },
       (compilation) => {
         const bundleRefExportIds: string[] = [];
+        const remoteBundleDeps: string[] = [];
         let moduleCount = 0;
         let workUnits = compilation.fileDependencies.size;
 
@@ -116,6 +117,7 @@ export class PopulateBundleCachePlugin {
 
           if (module instanceof BundleRemoteModule) {
             bundleRefExportIds.push(module.req.full);
+            remoteBundleDeps.push(module.remote.bundleId);
             continue;
           }
 
@@ -153,6 +155,7 @@ export class PopulateBundleCachePlugin {
           workUnits,
           referencedPaths,
           dllRefKeys: sortedDllRefKeys,
+          remoteBundleDeps,
         });
 
         // write the cache to the compilation so that it isn't cleaned by clean-webpack-plugin

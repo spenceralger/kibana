@@ -38,6 +38,7 @@ export interface OptimizerState {
   compilerStates: CompilerMsg[];
   onlineBundles: Bundle[];
   offlineBundles: Bundle[];
+  bundleDeps: Record<string, string[]>;
 }
 
 const msToSec = (ms: number) => Math.round(ms / 100) / 10;
@@ -86,9 +87,19 @@ function getStatePhase(states: CompilerMsg[]) {
   throw new Error(`unable to summarize bundle states: ${JSON.stringify(states)}`);
 }
 
+function updateBundleDeps(deps: Record<string, string[]>, bundleId: string, newDeps?: string[]) {
+  if (!newDeps || !newDeps.length) {
+    const { [bundleId]: _, ...rest } = deps;
+    return rest;
+  }
+
+  return { ...deps, [bundleId]: newDeps };
+}
+
 export function createOptimizerStateSummarizer(
   config: OptimizerConfig
 ): Summarizer<OptimizerEvent, OptimizerState> {
+  const bundlesById = new Map(config.bundles.map((b) => [b.id, b]));
   return (state, event, injectEvent) => {
     if (event.type === 'optimizer initialized') {
       if (state.onlineBundles.length === 0) {
@@ -141,6 +152,15 @@ export function createOptimizerStateSummarizer(
       if (event.type === 'bundle not cached') {
         onlineBundles.push(event.bundle);
       }
+      if (event.type === 'bundle cached') {
+        state = createOptimizerState(state, {
+          bundleDeps: updateBundleDeps(
+            state.bundleDeps,
+            event.bundle.id,
+            event.bundle.cache.getRemoteBundleDeps()
+          ),
+        });
+      }
 
       const offlineBundles: Bundle[] = [];
       for (const bundle of config.filteredBundles) {
@@ -161,13 +181,28 @@ export function createOptimizerStateSummarizer(
       event.type === 'compiler success' ||
       event.type === 'running'
     ) {
+      let bundleDeps = state.bundleDeps;
+      if (event.type === 'compiler success') {
+        const bundle = bundlesById.get(event.bundleId);
+        if (bundle) {
+          bundle.cache.refresh();
+          bundleDeps = updateBundleDeps(
+            state.bundleDeps,
+            bundle.id,
+            bundle.cache.getRemoteBundleDeps()
+          );
+        }
+      }
+
       const compilerStates: CompilerMsg[] = [
         ...state.compilerStates.filter((c) => c.bundleId !== event.bundleId),
         event,
       ];
+
       return createOptimizerState(state, {
         phase: getStatePhase(compilerStates),
         compilerStates,
+        bundleDeps,
       });
     }
 

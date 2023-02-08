@@ -6,6 +6,9 @@
  * Side Public License, v 1.
  */
 
+import Fs from 'fs';
+import Path from 'path';
+
 import * as Rx from 'rxjs';
 import { mergeMap, share, observeOn } from 'rxjs/operators';
 
@@ -28,6 +31,8 @@ export type OptimizerUpdate = Update<OptimizerEvent, OptimizerState>;
 export type OptimizerUpdate$ = Rx.Observable<OptimizerUpdate>;
 
 export function runOptimizer(config: OptimizerConfig) {
+  const bundleInfoPath = Path.resolve(config.repoRoot, 'target/bundles/info.json');
+
   return Rx.defer(async () => {
     if (process.platform === 'darwin') {
       try {
@@ -80,8 +85,21 @@ export function runOptimizer(config: OptimizerConfig) {
           onlineBundles: [],
           startTime,
           durSec: 0,
+          bundleDeps: {},
         },
         createOptimizerStateSummarizer(config)
+      ).pipe(
+        // write bundle deps to disk when bundleDeps on state update
+        Rx.scan((prev, update) => {
+          if (prev.state.bundleDeps !== update.state.bundleDeps) {
+            Fs.writeFileSync(
+              bundleInfoPath,
+              JSON.stringify({ deps: update.state.bundleDeps }, null, 2)
+            );
+          }
+
+          return update;
+        })
       );
     }),
     handleOptimizerCompletion(config)

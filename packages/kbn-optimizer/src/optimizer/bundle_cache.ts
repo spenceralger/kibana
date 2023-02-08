@@ -29,7 +29,9 @@ export interface BundleNotCachedEvent {
     | 'cache disabled'
     | 'bundle references missing'
     | 'bundle references outdated'
-    | 'dll references missing';
+    | 'dll references missing'
+    | 'remote bundle deps missing'
+    | 'remote bundle deps outdated';
   diff?: string;
   bundle: Bundle;
 }
@@ -47,6 +49,7 @@ export function getBundleCacheEvent$(
     const events: BundleCacheEvent[] = [];
     const eligibleBundles: Bundle[] = [];
     const bundleRemotes = BundleRemotes.fromBundles(config.bundles);
+    const bundleIds = new Set(config.bundles.map((b) => b.id));
 
     for (const bundle of config.filteredBundles) {
       if (!config.cache) {
@@ -116,6 +119,28 @@ export function getBundleCacheEvent$(
         events.push({
           type: 'bundle not cached',
           reason: 'dll references missing',
+          bundle,
+        });
+        continue;
+      }
+
+      const remoteBundleDeps = bundle.cache.getRemoteBundleDeps();
+      if (!remoteBundleDeps) {
+        events.push({
+          type: 'bundle not cached',
+          reason: 'remote bundle deps missing',
+          bundle,
+        });
+        continue;
+      }
+
+      const validRemotebundleDeps = remoteBundleDeps.filter((d) => bundleIds.has(d));
+      const remoteBundleDepsDiff = diffCacheKey(remoteBundleDeps, validRemotebundleDeps);
+      if (remoteBundleDepsDiff) {
+        events.push({
+          type: 'bundle not cached',
+          reason: 'remote bundle deps outdated',
+          diff: remoteBundleDepsDiff,
           bundle,
         });
         continue;

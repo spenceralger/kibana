@@ -204,7 +204,8 @@ export class OptimizerConfig {
       options.maxWorkerCount,
       options.dist,
       options.profileWebpack,
-      options.themeTags
+      options.themeTags,
+      Path.resolve(options.outputRoot, 'target/bundles/dep_map.json')
     );
   }
 
@@ -218,7 +219,8 @@ export class OptimizerConfig {
     public readonly maxWorkerCount: number,
     public readonly dist: boolean,
     public readonly profileWebpack: boolean,
-    public readonly themeTags: ThemeTags
+    public readonly themeTags: ThemeTags,
+    public readonly bundleDepsMapPath: string
   ) {}
 
   getWorkerConfig(optimizerCacheKey: unknown): WorkerConfig {

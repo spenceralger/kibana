@@ -4573,7 +4573,7 @@
   version "0.0.0"
   uid ""
 
-"@kbn/optimizer-bundle-zones@link:packages/kbn-optimizer-bundle-zones":
+"@kbn/optimizer-bundle-info@link:packages/kbn-optimizer-bundle-info":
   version "0.0.0"
   uid ""
 
