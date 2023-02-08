@@ -63,6 +63,7 @@ export function getDevBundles(packages: Package[], outputRoot: string, repoRoot:
           {
             pkgId: pkg.id,
             targets: pkg.getPublicDirs(),
+            pluginId: pkg.isPlugin() ? pkg.manifest.plugin.id : undefined,
           },
         ],
         manifestPaths: [Path.resolve(pkg.directory, 'kibana.jsonc')],

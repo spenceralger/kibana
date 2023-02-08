@@ -6,6 +6,8 @@
  * Side Public License, v 1.
  */
 
+/* eslint-disable no-console */
+
 import { BundleZones } from '@kbn/optimizer-bundle-zones';
 
 export interface BootstrapTemplateData {
@@ -18,23 +20,31 @@ type Req = (key: string) => any;
 
 function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
   let fatalRendered = false;
-  function fatal() {
+  function fatal(error: unknown) {
+    if (error) {
+      console.error('FATAL ERROR', error);
+    }
     if (fatalRendered) {
       return;
     }
 
-    fatalRendered = true;
+    const errMessage =
+      document.querySelector<HTMLElement>('[data-error-message]')?.dataset?.errorMessage;
+    if (!errMessage) {
+      return;
+    }
+
     const err = document.createElement('h1');
     err.style.color = 'white';
     err.style.fontFamily = 'monospace';
     err.style.textAlign = 'center';
     err.style.background = '#F44336';
     err.style.padding = '25px';
-    err.innerText =
-      document.querySelector<HTMLElement>('[data-error-message]')?.dataset?.errorMessage ?? '';
+    err.innerText = errMessage;
 
     // eslint-disable-next-line no-unsanitized/property
     document.body.innerHTML = err.outerHTML;
+    fatalRendered = true;
   }
 
   function kbnBundlesLoader() {
@@ -42,7 +52,10 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
     const own = Object.prototype.hasOwnProperty;
     const getModuleById = new Map<string, () => any>();
     const loaded = new Map<string, Promise<void>>();
+    const plugins = new Map<string, string>();
     const jsonp = Object.create(null);
+    let shared: unknown;
+    let dll: unknown;
 
     function has(prop: string) {
       return own.call(getModuleById, prop);
@@ -68,17 +81,21 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
       return req();
     }
 
-    function expose(id: string, exports: Record<string, unknown>, req: any) {
-      req.r(exports);
-      Object.defineProperties(exports, Object.getOwnPropertyDescriptors(get(id)));
+    function reflect(source: object, target: object) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
     }
 
-    function getPublicPath(bundleId: string) {
-      return `${zoneBaseUrl}/${bundleId}`;
+    function expose(id: string, exports: Record<string, unknown>, req: any) {
+      req.r(exports);
+      reflect(get(id), exports);
+    }
+
+    function getPublicDir(bundleId: string) {
+      return `${zoneBaseUrl}/${bundleId}/`;
     }
 
     function getUrl(bundleId: string) {
-      return `${getPublicPath(bundleId)}/${bundleId}.js`;
+      return `${getPublicDir(bundleId)}${bundleId}.js`;
     }
 
     const depMap = new Map(Object.entries(zones.deps));
@@ -97,6 +114,20 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
       });
     }
 
+    function plugin(id: string, moduleId?: string) {
+      if (moduleId !== undefined) {
+        plugins.set(id, moduleId);
+        return;
+      }
+
+      moduleId = plugins.get(id);
+      const req = moduleId !== undefined ? getModuleById.get(moduleId) : undefined;
+      if (req === undefined) {
+        return undefined;
+      }
+      return req();
+    }
+
     async function ensure(bundleIds: string[]) {
       await Promise.all(
         bundleIds
@@ -105,6 +136,7 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
             const existing = loaded.get(id);
             if (existing) {
               await existing;
+              return;
             }
 
             const promise = new Promise<void>((resolve) => {
@@ -112,8 +144,15 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
               dom.async = false;
               dom.src = getUrl(id);
               dom.addEventListener('error', fatal);
-              jsonp[id] = () => {
+              jsonp[id] = (exports: object) => {
                 delete jsonp[id];
+
+                if (id === '@kbn/ui-shared-deps-npm') {
+                  dll = exports;
+                } else if (id === '@kbn/ui-shared-deps-src') {
+                  shared = exports;
+                }
+
                 resolve();
               };
               document.head.insertBefore(dom, scriptsTarget);
@@ -125,7 +164,23 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
       );
     }
 
-    return { has, define, get, expose, ensure, getUrl, getPublicPath, jsonp };
+    return {
+      has,
+      define,
+      get,
+      expose,
+      ensure,
+      getUrl,
+      getPublicDir,
+      plugin,
+      jsonp,
+      get shared() {
+        return shared;
+      },
+      get dll() {
+        return dll;
+      },
+    };
   }
 
   const global: typeof window & { [k: string]: unknown } = window as any;
@@ -154,8 +209,8 @@ function bootstrap({ themeTag, zoneBaseUrl, zones }: BootstrapTemplateData) {
 
       loader
         .ensure(zones.init)
-        .then(() => loader.get('entry/core/public').__kbnBootstrap__())
-        .catch(fatal);
+        .then(() => loader.get('@kbn/core/public'))
+        .then((core) => core.__kbnBootstrap__(), fatal);
     };
   }
 }

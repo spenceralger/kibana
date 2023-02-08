@@ -23,12 +23,12 @@ const distDir = Fs.existsSync(localDist) ? localDist : bazelDist;
 /**
  * Filename of the main bundle file in the distributable directory
  */
-const jsFilename = 'kbn-ui-shared-deps-src.js';
+const jsFilename = '@kbn/ui-shared-deps-src.js';
 
 /**
  * Filename of the main bundle file in the distributable directory
  */
-const cssDistFilename = 'kbn-ui-shared-deps-src.css';
+const cssDistFilename = '@kbn/ui-shared-deps-src.css';
 
 /**
  * Externals mapping inteded to be used in a webpack config
@@ -37,58 +37,58 @@ const externals = {
   /**
    * stateful deps
    */
-  '@kbn/ui-theme': '__kbnSharedDeps__.KbnUiTheme',
-  '@kbn/i18n': '__kbnSharedDeps__.KbnI18n',
-  '@kbn/i18n-react': '__kbnSharedDeps__.KbnI18nReact',
-  '@emotion/cache': '__kbnSharedDeps__.EmotionCache',
-  '@emotion/react': '__kbnSharedDeps__.EmotionReact',
-  jquery: '__kbnSharedDeps__.Jquery',
-  moment: '__kbnSharedDeps__.Moment',
-  'moment-timezone': '__kbnSharedDeps__.MomentTimezone',
-  react: '__kbnSharedDeps__.React',
-  'react-dom': '__kbnSharedDeps__.ReactDom',
-  'react-dom/server': '__kbnSharedDeps__.ReactDomServer',
-  'react-router': '__kbnSharedDeps__.ReactRouter',
-  'react-router-dom': '__kbnSharedDeps__.ReactRouterDom',
-  'styled-components': '__kbnSharedDeps__.StyledComponents',
-  '@kbn/monaco': '__kbnSharedDeps__.KbnMonaco',
+  '@kbn/ui-theme': '__kbnBundles__.shared.KbnUiTheme',
+  '@kbn/i18n': '__kbnBundles__.shared.KbnI18n',
+  '@kbn/i18n-react': '__kbnBundles__.shared.KbnI18nReact',
+  '@emotion/cache': '__kbnBundles__.shared.EmotionCache',
+  '@emotion/react': '__kbnBundles__.shared.EmotionReact',
+  jquery: '__kbnBundles__.shared.Jquery',
+  moment: '__kbnBundles__.shared.Moment',
+  'moment-timezone': '__kbnBundles__.shared.MomentTimezone',
+  react: '__kbnBundles__.shared.React',
+  'react-dom': '__kbnBundles__.shared.ReactDom',
+  'react-dom/server': '__kbnBundles__.shared.ReactDomServer',
+  'react-router': '__kbnBundles__.shared.ReactRouter',
+  'react-router-dom': '__kbnBundles__.shared.ReactRouterDom',
+  'styled-components': '__kbnBundles__.shared.StyledComponents',
+  '@kbn/monaco': '__kbnBundles__.shared.KbnMonaco',
   // this is how plugins/consumers from npm load monaco
-  'monaco-editor/esm/vs/editor/editor.api': '__kbnSharedDeps__.MonacoBarePluginApi',
+  'monaco-editor/esm/vs/editor/editor.api': '__kbnBundles__.shared.MonacoBarePluginApi',
 
   /**
    * big deps which are locked to a single version
    */
-  rxjs: '__kbnSharedDeps__.Rxjs',
-  'rxjs/operators': '__kbnSharedDeps__.RxjsOperators',
-  numeral: '__kbnSharedDeps__.ElasticNumeral',
-  '@elastic/numeral': '__kbnSharedDeps__.ElasticNumeral',
-  '@elastic/charts': '__kbnSharedDeps__.ElasticCharts',
-  '@kbn/datemath': '__kbnSharedDeps__.KbnDatemath',
-  '@elastic/eui': '__kbnSharedDeps__.ElasticEui',
-  '@elastic/eui/lib/services': '__kbnSharedDeps__.ElasticEuiLibServices',
-  '@elastic/eui/lib/services/format': '__kbnSharedDeps__.ElasticEuiLibServicesFormat',
-  '@elastic/eui/dist/eui_charts_theme': '__kbnSharedDeps__.ElasticEuiChartsTheme',
+  rxjs: '__kbnBundles__.shared.Rxjs',
+  'rxjs/operators': '__kbnBundles__.shared.RxjsOperators',
+  numeral: '__kbnBundles__.shared.ElasticNumeral',
+  '@elastic/numeral': '__kbnBundles__.shared.ElasticNumeral',
+  '@elastic/charts': '__kbnBundles__.shared.ElasticCharts',
+  '@kbn/datemath': '__kbnBundles__.shared.KbnDatemath',
+  '@elastic/eui': '__kbnBundles__.shared.ElasticEui',
+  '@elastic/eui/lib/services': '__kbnBundles__.shared.ElasticEuiLibServices',
+  '@elastic/eui/lib/services/format': '__kbnBundles__.shared.ElasticEuiLibServicesFormat',
+  '@elastic/eui/dist/eui_charts_theme': '__kbnBundles__.shared.ElasticEuiChartsTheme',
 
   // transient dep of eui
-  'react-beautiful-dnd': '__kbnSharedDeps__.ReactBeautifulDnD',
-  lodash: '__kbnSharedDeps__.Lodash',
-  'lodash/fp': '__kbnSharedDeps__.LodashFp',
-  fflate: '__kbnSharedDeps__.Fflate',
+  'react-beautiful-dnd': '__kbnBundles__.shared.ReactBeautifulDnD',
+  lodash: '__kbnBundles__.shared.Lodash',
+  'lodash/fp': '__kbnBundles__.shared.LodashFp',
+  fflate: '__kbnBundles__.shared.Fflate',
 
   /**
    * runtime deps which don't need to be copied across all bundles
    */
-  tslib: '__kbnSharedDeps__.TsLib',
-  uuid: '__kbnSharedDeps__.Uuid',
-  '@kbn/analytics': '__kbnSharedDeps__.KbnAnalytics',
-  '@kbn/es-query': '__kbnSharedDeps__.KbnEsQuery',
-  '@kbn/std': '__kbnSharedDeps__.KbnStd',
-  '@kbn/safer-lodash-set': '__kbnSharedDeps__.SaferLodashSet',
-  '@kbn/rison': '__kbnSharedDeps__.KbnRison',
-  history: '__kbnSharedDeps__.History',
-  classnames: '__kbnSharedDeps__.Classnames',
-  '@tanstack/react-query': '__kbnSharedDeps__.ReactQuery',
-  '@tanstack/react-query-devtools': '__kbnSharedDeps__.ReactQueryDevtools',
+  tslib: '__kbnBundles__.shared.TsLib',
+  uuid: '__kbnBundles__.shared.Uuid',
+  '@kbn/analytics': '__kbnBundles__.shared.KbnAnalytics',
+  '@kbn/es-query': '__kbnBundles__.shared.KbnEsQuery',
+  '@kbn/std': '__kbnBundles__.shared.KbnStd',
+  '@kbn/safer-lodash-set': '__kbnBundles__.shared.SaferLodashSet',
+  '@kbn/rison': '__kbnBundles__.shared.KbnRison',
+  history: '__kbnBundles__.shared.History',
+  classnames: '__kbnBundles__.shared.Classnames',
+  '@tanstack/react-query': '__kbnBundles__.shared.ReactQuery',
+  '@tanstack/react-query-devtools': '__kbnBundles__.shared.ReactQueryDevtools',
 };
 
 module.exports = { distDir, jsFilename, cssDistFilename, externals };

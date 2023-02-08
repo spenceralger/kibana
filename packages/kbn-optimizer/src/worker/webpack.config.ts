@@ -76,6 +76,7 @@ export function getWebpackConfig(
       new webpack.DllReferencePlugin({
         context: worker.repoRoot,
         manifest: DLL_MANIFEST,
+        name: '__kbnBundles__.dll',
       }),
       ...(worker.profileWebpack ? [new EmitStatsPlugin(bundle)] : []),
       ...(bundle.banner ? [new webpack.BannerPlugin({ banner: bundle.banner, raw: true })] : []),
@@ -96,8 +97,11 @@ export function getWebpackConfig(
           loader: require.resolve('val-loader'),
           options: {
             bundleId: bundle.id,
-            reqs: bundle.entries.flatMap((entry) =>
-              entry.targets.map((target) => (target ? `${entry.pkgId}/${target}` : entry.pkgId))
+            entries: bundle.entries.flatMap((entry) =>
+              entry.targets.map((target) => ({
+                req: target ? `${entry.pkgId}/${target}` : entry.pkgId,
+                pluginId: target === 'public' ? entry.pluginId : undefined,
+              }))
             ),
           },
         },

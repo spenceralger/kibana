@@ -12,7 +12,9 @@ import { ThemeVersion } from '@kbn/ui-shared-deps-npm';
 import type { KibanaRequest, HttpAuth } from '@kbn/core-http-server';
 import type { IUiSettingsClient } from '@kbn/core-ui-settings-server';
 import type { UiPlugins } from '@kbn/core-plugins-base-server-internal';
-import { getPluginsBundlePaths } from './get_plugin_bundle_paths';
+import { REPO_ROOT } from '@kbn/repo-info';
+import { getPkgsByPluginId } from '@kbn/repo-packages';
+import { filterUiPlugins } from '../filter_ui_plugins';
 import { getThemeTag } from './get_theme_tag';
 import { renderTemplate } from './render_template';
 
@@ -67,17 +69,20 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
     const buildHash = packageInfo.buildNum;
     const regularBundlePath = `${serverBasePath}/${buildHash}/bundles`;
 
-    const bundlePaths = getPluginsBundlePaths({
-      uiPlugins,
-      regularBundlePath,
-      isAnonymousPage,
-    });
-
+    const pkgsByPluginId = getPkgsByPluginId(REPO_ROOT);
     const body = renderTemplate({
       themeTag,
       zoneBaseUrl: regularBundlePath,
       zones: {
-        init: ['@kbn/core', '@kbn/ui-shared-deps-npm', '@kbn/ui-shared-deps-src'],
+        init: [
+          '@kbn/ui-shared-deps-npm',
+          '@kbn/ui-shared-deps-src',
+          '@kbn/core',
+          ...filterUiPlugins({ uiPlugins, isAnonymousPage }).flatMap(([id]) => {
+            const pkg = pkgsByPluginId.get(id);
+            return pkg ? pkg.id : [];
+          }),
+        ],
         deps: {},
       },
     });

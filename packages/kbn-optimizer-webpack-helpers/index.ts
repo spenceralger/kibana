@@ -24,4 +24,5 @@ export {
   isExternalModule,
   isIgnoredModule,
   isNormalModule,
+  getDependecies,
 } from './src/webpack_helpers';

@@ -17,6 +17,7 @@ const PACKAGE_MAP_PATH = Path.resolve(__dirname, '../package-map.json');
 
 /** @typedef {Map<string, import('./package').Package>} PkgDirMap */
 /** @typedef {Map<string, import('./package').Package>} PkgsById */
+/** @typedef {Map<string, import('./types').PluginPackage>} PkgsByPluginId */
 
 /**
  * @type {Map<any, any>}
@@ -37,6 +38,14 @@ function readPackageMap() {
  */
 function readHashOfPackageMap() {
   return Crypto.createHash('sha256').update(Fs.readFileSync(PACKAGE_MAP_PATH)).digest('hex');
+}
+
+/**
+ * @param {import('./package').Package} pkg
+ * @returns {pkg is import('./types').PluginPackage}
+ */
+function isPluginPkg(pkg) {
+  return pkg.isPlugin();
 }
 
 /**
@@ -130,8 +139,6 @@ function getPackages(repoRoot) {
  * @param {string} repoRoot
  */
 function getPkgDirMap(repoRoot) {
-  const packages = getPackages(repoRoot);
-
   const cacheKey = `getPkgDirMap-${repoRoot}`;
   /** @type {PkgDirMap | undefined} */
   const cached = CACHE.get(cacheKey);
@@ -139,6 +146,7 @@ function getPkgDirMap(repoRoot) {
     return cached;
   }
 
+  const packages = getPackages(repoRoot);
   const pkgDirMap = new Map(packages.map((p) => [p.normalizedRepoRelativeDir, p]));
   CACHE.set(cacheKey, pkgDirMap);
   return pkgDirMap;
@@ -150,8 +158,6 @@ function getPkgDirMap(repoRoot) {
  * @returns {PkgsById}
  */
 function getPkgsById(repoRoot) {
-  const packages = getPackages(repoRoot);
-
   const cacheKey = `getPkgsById-${repoRoot}`;
   /** @type {PkgsById | undefined} */
   const cached = CACHE.get(cacheKey);
@@ -159,9 +165,31 @@ function getPkgsById(repoRoot) {
     return cached;
   }
 
+  const packages = getPackages(repoRoot);
   const pkgsById = new Map(packages.map((p) => [p.id, p]));
   CACHE.set(cacheKey, pkgsById);
   return pkgsById;
+}
+
+/**
+ * Get a map of packages by id
+ * @param {string} repoRoot
+ * @returns {PkgsByPluginId}
+ */
+function getPkgsByPluginId(repoRoot) {
+  const cacheKey = `getPkgsByPluginId-${repoRoot}`;
+  /** @type {PkgsByPluginId | undefined} */
+  const cached = CACHE.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const packages = getPackages(repoRoot);
+  const pkgsByPluginId = new Map(
+    packages.filter(isPluginPkg).map((p) => [p.manifest.plugin.id, p])
+  );
+  CACHE.set(cacheKey, pkgsByPluginId);
+  return pkgsByPluginId;
 }
 
 /**
@@ -200,6 +228,7 @@ module.exports = {
   getPackages,
   getPkgDirMap,
   getPkgsById,
+  getPkgsByPluginId,
   updatePackageMap,
   findPackageForPath,
   readPackageMap,

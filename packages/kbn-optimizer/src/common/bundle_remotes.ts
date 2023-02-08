@@ -104,9 +104,17 @@ export class BundleRemotes {
       };
     }
 
+    const remote = this.byPkgId.get(parsed.pkgId);
+    if (!remote?.targets.includes(parsed.target)) {
+      return {
+        parsed,
+        remote: undefined,
+      };
+    }
+
     return {
       parsed,
-      remote: this.byPkgId.get(parsed.pkgId),
+      remote,
     };
   }
 

@@ -9,12 +9,22 @@
 // TODO: we should be able to remove this ts-ignore while using isolatedModules
 // this is a skip for the errors created when typechecking with isolatedModules
 // @ts-ignore
-module.exports = function ({ id, reqs }: { id: string; reqs: string[] }) {
+module.exports = function ({
+  bundleId,
+  entries,
+}: {
+  bundleId: string;
+  entries: Array<{ req: string; pluginId?: string }>;
+}) {
   const lines = [
-    `__webpack_public_path__ = window.__kbnBundles__.getPublicDir(${JSON.stringify(id)});`,
-    ...reqs
-      .map((req) => JSON.stringify(req))
-      .map((req) => `__kbnBundles__.define(${req}, __webpack_require__, require.resolve(${req}));`),
+    `__webpack_public_path__ = window.__kbnBundles__.getPublicDir(${JSON.stringify(bundleId)});`,
+    ...entries.flatMap((entry) => {
+      const req = JSON.stringify(entry.req);
+      return [
+        `__kbnBundles__.define(${req}, __webpack_require__, require.resolve(${req}));`,
+        entry.pluginId ? `__kbnBundles__.plugin(${JSON.stringify(entry.pluginId)}, ${req})` : [],
+      ].flat();
+    }),
   ];
 
   return {

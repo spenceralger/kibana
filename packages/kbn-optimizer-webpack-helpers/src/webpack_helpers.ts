@@ -95,6 +95,14 @@ interface Dependency {
   module: unknown;
 }
 
+export function getDependecies(module: any): Dependency[] {
+  if ('dependencies' in module) {
+    return module.dependencies;
+  }
+
+  return [];
+}
+
 /** used for standard js/ts modules */
 export interface WebpackNormalModule {
   type: string;

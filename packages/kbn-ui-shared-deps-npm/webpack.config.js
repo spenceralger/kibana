@@ -118,7 +118,8 @@ module.exports = (_, argv) => {
       chunkFilename: '@kbn/ui-shared-deps-npm.chunk.[id].js',
       devtoolModuleFilenameTemplate: (info) =>
         `@kbn/ui-shared-deps-npm/${Path.relative(REPO_ROOT, info.absoluteResourcePath)}`,
-      library: '__kbnSharedDeps_npm__',
+      library: `__kbnBundles__.jsonp['@kbn/ui-shared-deps-npm']`,
+      libraryTarget: 'jsonp',
       futureEmitAssets: true,
     },
 

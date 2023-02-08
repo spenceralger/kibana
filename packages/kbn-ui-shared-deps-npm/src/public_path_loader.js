@@ -18,7 +18,7 @@ const MODULE_CREATOR = require.resolve('./public_path_module_creator');
  */
 module.exports = function (source) {
   const options = this.query;
-  const valOpts = new URLSearchParams({ key: options.key }).toString();
+  const valOpts = new URLSearchParams({ bundleId: options.bundleId }).toString();
   const req = `${VAL_LOADER}?${valOpts}!${MODULE_CREATOR}`;
   return `require(${stringifyRequest(this, req)});${source}`;
 };

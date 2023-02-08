@@ -10,7 +10,7 @@
 
 import webpack from 'webpack';
 import { ConcatSource } from 'webpack-sources';
-import { isNormalModule, isConcatenatedModule } from '@kbn/optimizer-webpack-helpers';
+import { getDependecies } from '@kbn/optimizer-webpack-helpers';
 
 import { Bundle, BundleRemotes } from '../common';
 import { BundleRemoteModule } from './bundle_remote_module';
@@ -76,21 +76,13 @@ export class BundleRemotesPlugin {
         const remotes = Array.from(
           new Set(
             Array.from(chunk.modulesIterable, (m) => {
-              if (isNormalModule(m)) {
-                return m.dependencies.flatMap((d) => {
-                  if (d.module instanceof BundleRemoteModule) {
-                    return d.module.req.pkgId;
-                  }
+              return getDependecies(m).flatMap((dep) => {
+                if (dep.module instanceof BundleRemoteModule) {
+                  return dep.module.remote.bundleId;
+                }
 
-                  return [];
-                });
-              }
-
-              if (isConcatenatedModule(m)) {
-                debugger;
-              }
-
-              return [];
+                return [];
+              });
             }).flat()
           )
         );
@@ -101,7 +93,7 @@ export class BundleRemotesPlugin {
 
         compilation.updateAsset(filename, (source) => {
           return new ConcatSource(
-            `__kbnBundles__.ensure(${JSON.stringify(remotes)}, () => {\n`,
+            `__kbnBundles__.ensure(${JSON.stringify(remotes)}).then(() => {\n`,
             source,
             '\n});'
           );

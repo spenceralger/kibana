@@ -18,12 +18,14 @@ import type { Hashes } from './hashes';
 export interface BundleEntry {
   pkgId: string;
   targets: string[];
+  pluginId?: string;
 }
 
 function isBundleEntry(val: unknown): val is BundleEntry {
   return (
     isObj(val) &&
     typeof val.pkgId === 'string' &&
+    (typeof val.pluginId === 'string' || val.pluginId === undefined) &&
     Array.isArray(val.targets) &&
     val.targets.length >= 1 &&
     val.targets.every(isString)
@@ -46,7 +48,7 @@ export interface BundleSpec {
    * bundle. All imports for these modules in other bundles will load
    * and reference this bundle.
    */
-  readonly entries: Array<{ pkgId: string; targets?: string[] } | string>;
+  readonly entries: Array<{ pkgId: string; targets?: string[]; pluginId?: string } | string>;
 }
 
 export class Bundle {
@@ -79,6 +81,7 @@ export class Bundle {
       .map((e) => ({
         pkgId: e.pkgId,
         targets: e.targets ?? [''],
+        pluginId: e.pluginId,
       }));
     this.cache = new BundleCache(this.outputDir);
     this.manifestPaths = spec.manifestPaths;

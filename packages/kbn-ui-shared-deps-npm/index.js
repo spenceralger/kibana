@@ -19,8 +19,8 @@ const bazelDist = Path.resolve(REPO_ROOT, 'bazel-bin', Path.relative(REPO_ROOT, 
 
 // extracted const vars
 const distDir = Fs.existsSync(localDist) ? localDist : bazelDist;
-const dllManifestPath = Path.resolve(distDir, 'kbn-ui-shared-deps-npm-manifest.json');
-const dllFilename = 'kbn-ui-shared-deps-npm.dll.js';
+const dllManifestPath = Path.resolve(distDir, '@kbn/ui-shared-deps-npm-manifest.json');
+const dllFilename = '@kbn/ui-shared-deps-npm.js';
 const publicPathLoader = require.resolve('./src/public_path_loader');
 
 module.exports = {
