@@ -73,6 +73,11 @@ export class BundleRemotesPlugin {
 
     compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
       compilation.hooks.chunkAsset.tap(PLUGIN_NAME, (chunk, filename) => {
+        if (chunk.canBeInitial()) {
+          // we don't wrap entry chunks in amd wrappers, just async chunks
+          return;
+        }
+
         const remotes = Array.from(
           new Set(
             Array.from(chunk.modulesIterable, (m) => {

@@ -16,8 +16,9 @@ module.exports = function ({
   bundleId: string;
   entries: Array<{ req: string; pluginId?: string }>;
 }) {
+  const id = JSON.stringify(bundleId)
   const lines = [
-    `__webpack_public_path__ = window.__kbnBundles__.getPublicDir(${JSON.stringify(bundleId)});`,
+    `__webpack_public_path__ = window.__kbnBundles__.getPublicDir(${id});`,
     ...entries.flatMap((entry) => {
       const req = JSON.stringify(entry.req);
       return [
@@ -25,6 +26,7 @@ module.exports = function ({
         entry.pluginId ? `__kbnBundles__.plugin(${JSON.stringify(entry.pluginId)}, ${req})` : [],
       ].flat();
     }),
+    `__kbnBundles__.ready(${id})`
   ];
 
   return {
