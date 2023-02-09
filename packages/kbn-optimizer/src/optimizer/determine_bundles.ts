@@ -28,6 +28,28 @@ interface Group {
 }
 
 export function getDevBundles(packages: Package[], outputRoot: string, repoRoot: string) {
+  return packages.map((pkg) => {
+    const id = pkg.id;
+    return new Bundle({
+      id,
+      manifestPaths: [Path.resolve(pkg.directory, 'kibana.jsonc')],
+      outputDir: Path.resolve(outputRoot, 'target/bundles', id),
+      sourceRoot: repoRoot,
+      banner:
+        `/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements.\n` +
+        ` * Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */\n`,
+      entries: [
+        {
+          pkgId: pkg.id,
+          targets: pkg.getPublicDirs(),
+          pluginId: pkg.isPlugin() ? pkg.manifest.plugin.id : undefined,
+        },
+      ],
+    });
+  });
+}
+
+export function getDistBundles(packages: Package[], outputRoot: string, repoRoot: string) {
   const allFiles = getRepoRelsSync(repoRoot, ['**/public/**', '**/common/**']);
   const fileMap = new PackageFileMap(
     packages,

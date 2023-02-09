@@ -23,6 +23,7 @@ import { EmitStatsPlugin } from './emit_stats_plugin';
 import { PopulateBundleCachePlugin } from './populate_bundle_cache_plugin';
 
 const BABEL_PRESET = require.resolve('@kbn/babel-preset/webpack_preset');
+const MOMENT_SRC = require.resolve('moment/min/moment-with-locales.js');
 const DLL_MANIFEST = JSON.parse(Fs.readFileSync(UiSharedDepsNpm.dllManifestPath, 'utf8'));
 
 export function getWebpackConfig(
@@ -217,6 +218,12 @@ export function getWebpackConfig(
       extensions: ['.js', '.ts', '.tsx', '.json'],
       mainFields: ['browser', 'main'],
       alias: {
+        '@elastic/eui$': '@elastic/eui/optimize/es',
+        moment: MOMENT_SRC,
+        // NOTE: Used to include react profiling on bundles
+        // https://gist.github.com/bvaughn/25e6233aeb1b4f0cdb8d8366e54a3977#webpack-4
+        'react-dom$': 'react-dom/profiling',
+        'scheduler/tracing': 'scheduler/tracing-profiling',
         core_app_image_assets: Path.resolve(
           worker.repoRoot,
           'src/core/public/styles/core_app/images'

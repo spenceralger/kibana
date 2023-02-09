@@ -20,7 +20,7 @@ import {
   omit,
 } from '../common';
 
-import { getDevBundles } from './determine_bundles';
+import { getDevBundles, getDistBundles } from './determine_bundles';
 import { filterById } from './filter_by_id';
 
 export interface Limits {
@@ -185,7 +185,7 @@ export class OptimizerConfig {
     const options = OptimizerConfig.parseOptions(inputOptions);
     const packages = getPackages(options.repoRoot);
 
-    const bundles = getDevBundles(
+    const bundles = (options.dist ? getDistBundles : getDevBundles)(
       [
         ...packages.filter((p) => p.isBrowserCapablePackage() && !!p.manifest.sharedBrowserBundle),
         ...packages.filter(getPluginPackagesFilter(options.pluginSelector)),
