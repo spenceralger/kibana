@@ -1,5 +1,6 @@
 {
   "type": "shared-common",
   "id": "@kbn/monaco",
-  "owner": "@elastic/appex-sharedux"
+  "owner": "@elastic/appex-sharedux",
+  "sharedBrowserBundle": true
 }

@@ -1,5 +1,6 @@
 {
   "type": "shared-common",
   "id": "@kbn/ui-theme",
-  "owner": "@elastic/kibana-operations"
+  "owner": "@elastic/kibana-operations",
+  "sharedBrowserBundle": true
 }

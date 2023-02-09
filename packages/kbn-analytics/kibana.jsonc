@@ -1,5 +1,6 @@
 {
   "type": "shared-common",
   "id": "@kbn/analytics",
-  "owner": "@elastic/kibana-core"
+  "owner": "@elastic/kibana-core",
+  "sharedBrowserBundle": true
 }

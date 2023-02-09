@@ -1,5 +1,6 @@
 {
   "type": "shared-common",
   "id": "@kbn/datemath",
-  "owner": "@elastic/kibana-data-discovery"
+  "owner": "@elastic/kibana-data-discovery",
+  "sharedBrowserBundle": true
 }
