@@ -10,6 +10,7 @@ import Path from 'path';
 import Os from 'os';
 import { getPackages, getPluginPackagesFilter, type PluginSelector } from '@kbn/repo-packages';
 
+import { DistBundleZones } from './dist_bundle_zones';
 import {
   Bundle,
   WorkerConfig,
@@ -20,7 +21,6 @@ import {
   omit,
 } from '../common';
 
-import { getDevBundles, getDistBundles } from './determine_bundles';
 import { filterById } from './filter_by_id';
 
 export interface Limits {
@@ -183,16 +183,15 @@ export class OptimizerConfig {
 
   static create(inputOptions: Options) {
     const options = OptimizerConfig.parseOptions(inputOptions);
-    const packages = getPackages(options.repoRoot);
 
-    const bundles = (options.dist ? getDistBundles : getDevBundles)(
-      [
-        ...packages.filter((p) => p.isBrowserCapablePackage() && !!p.manifest.sharedBrowserBundle),
-        ...packages.filter(getPluginPackagesFilter(options.pluginSelector)),
-      ],
-      options.outputRoot,
-      options.repoRoot
-    );
+    const allPackages = getPackages(options.repoRoot);
+    const bundlePackages = [
+      ...allPackages.filter((p) => p.isBrowserCapablePackage() && !!p.manifest.sharedBrowserBundle),
+      ...allPackages.filter(getPluginPackagesFilter(options.pluginSelector)),
+    ];
+    const bundles = options.dist
+      ? DistBundleZones.load(options.repoRoot, options.outputRoot, bundlePackages)
+      : bundlePackages.map((pkg) => Bundle.forPkg(options.repoRoot, options.outputRoot, pkg));
 
     return new OptimizerConfig(
       bundles,

@@ -9,6 +9,8 @@
 import Path from 'path';
 import { inspect } from 'util';
 
+import { Package } from '@kbn/repo-packages';
+
 import { BundleCache } from './bundle_cache';
 import { UnknownVals } from './ts_helpers';
 import { isObj, isString } from './ts_helpers';
@@ -52,6 +54,41 @@ export interface BundleSpec {
 }
 
 export class Bundle {
+  static forPkgs(sourceRoot: string, outputRoot: string, pkgs: Package[], id: string) {
+    return new Bundle({
+      id,
+      manifestPaths: pkgs.map((p) => p.manifestPath),
+      outputDir: Path.resolve(outputRoot, 'target/bundles', id),
+      sourceRoot,
+      banner:
+        `/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements.\n` +
+        ` * Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */\n`,
+      entries: pkgs.map((pkg) => ({
+        pkgId: pkg.id,
+        targets: pkg.getPublicDirs(),
+        pluginId: pkg.isPlugin() ? pkg.manifest.plugin.id : undefined,
+      })),
+    });
+  }
+  static forPkg(sourceRoot: string, outputRoot: string, pkg: Package) {
+    return new Bundle({
+      id: pkg.id,
+      manifestPaths: [pkg.manifestPath],
+      outputDir: Path.resolve(outputRoot, 'target/bundles', pkg.id),
+      sourceRoot,
+      banner:
+        `/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements.\n` +
+        ` * Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */\n`,
+      entries: [
+        {
+          pkgId: pkg.id,
+          targets: pkg.getPublicDirs(),
+          pluginId: pkg.isPlugin() ? pkg.manifest.plugin.id : undefined,
+        },
+      ],
+    });
+  }
+
   /** Unique identifier for this bundle */
   public readonly id: BundleSpec['id'];
   /** Absolute path to the root of the whole project source, repo root */

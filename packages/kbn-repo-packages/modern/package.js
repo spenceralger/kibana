@@ -34,7 +34,13 @@ class Package {
     const manifest = readPackageManifest(path);
     const dir = Path.dirname(path);
 
-    return new Package(repoRoot, dir, manifest, readPackageJson(Path.resolve(dir, 'package.json')));
+    return new Package(
+      repoRoot,
+      dir,
+      path,
+      manifest,
+      readPackageJson(Path.resolve(dir, 'package.json'))
+    );
   }
 
   /**
@@ -61,6 +67,11 @@ class Package {
      */
     dir,
     /**
+     * Path to the kibana.jsonc file
+     * @type {string}
+     */
+    manifestPath,
+    /**
      * Parsed kibana.jsonc manifest from the package
      * @type {import('./types').KibanaPackageManifest}
      */
@@ -84,6 +95,12 @@ class Package {
      * @readonly
      */
     this.normalizedRepoRelativeDir = normalize(Path.relative(repoRoot, dir));
+
+    /**
+     * The path to the packages manifest file
+     * @type {string}
+     */
+    this.manifestPath = manifestPath;
 
     /**
      * copy of the parsed kibana.jsonc manifest of the package
