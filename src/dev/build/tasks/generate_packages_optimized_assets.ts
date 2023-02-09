@@ -91,10 +91,6 @@ const getCategory = (relative: string) => {
     return 'npm';
   }
 
-  if (relative.includes('kbn-ui-shared-deps-src')) {
-    return 'src';
-  }
-
   throw new Error(`unable to categorize file [${relative}]`);
 };
 
@@ -141,10 +137,7 @@ export const GeneratePackagesOptimizedAssets: Task = {
     const npmAssetDir = build.resolvePath(
       `node_modules/@kbn/ui-shared-deps-npm/shared_built_assets`
     );
-    const srcAssetDir = build.resolvePath(
-      `node_modules/@kbn/ui-shared-deps-src/shared_built_assets`
-    );
-    const assetDirs = [npmAssetDir, srcAssetDir];
+    const assetDirs = [npmAssetDir];
 
     // process assets in each ui-shared-deps package
     for (const assetDir of assetDirs) {
@@ -162,11 +155,6 @@ export const GeneratePackagesOptimizedAssets: Task = {
       },
       {
         group: 'page load bundle size',
-        id: 'kbnUiSharedDeps-srcJs',
-        value: getSize(groups.get('src') ?? []),
-      },
-      {
-        group: 'page load bundle size',
         id: 'kbnUiSharedDeps-css',
         value: getSize(groups.get('css') ?? []),
       },
@@ -178,8 +166,8 @@ export const GeneratePackagesOptimizedAssets: Task = {
     ];
     log.verbose('metrics:', metrics);
 
-    // write unified metrics to the @kbn/ui-shared-deps-src asset dir
+    // write unified metrics to the @kbn/ui-shared-deps-npm asset dir
     log.debug('Create metrics.json');
-    await write(Path.resolve(srcAssetDir, 'metrics.json'), JSON.stringify(metrics, null, 2));
+    await write(Path.resolve(npmAssetDir, 'metrics.json'), JSON.stringify(metrics, null, 2));
   },
 };

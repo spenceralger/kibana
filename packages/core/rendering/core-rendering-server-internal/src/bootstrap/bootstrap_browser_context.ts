@@ -154,8 +154,6 @@ export function bootstrap({ theme, url, deps, init }: BootstrapData) {
               dom.addEventListener('error', fatal);
               if (id === '@kbn/ui-shared-deps-npm') {
                 jsonpCapture(id, 'dll', resolve);
-              } else if (id === '@kbn/ui-shared-deps-src') {
-                jsonpCapture(id, 'shared', resolve);
               } else {
                 dom.addEventListener('load', () => resolve());
               }
@@ -197,6 +195,7 @@ export function bootstrap({ theme, url, deps, init }: BootstrapData) {
 
       loader
         .ensure(init)
+        .then(() => loader.get('@kbn/browser-context-init'))
         .then(() => loader.get('@kbn/core/public'))
         .then((core) => core.__kbnBootstrap__(), fatal);
     };

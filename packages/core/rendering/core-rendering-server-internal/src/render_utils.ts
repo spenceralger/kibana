@@ -7,7 +7,6 @@
  */
 
 import UiSharedDepsNpm from '@kbn/ui-shared-deps-npm';
-import * as UiSharedDepsSrc from '@kbn/ui-shared-deps-src';
 import type { UiSettingsParams, UserProvidedValues } from '@kbn/core-ui-settings-common';
 
 export const getSettingValue = <T>(
@@ -40,7 +39,6 @@ export const getStylesheetPaths = ({
           `${regularBundlePath}/kbn-ui-shared-deps-npm/${UiSharedDepsNpm.darkCssDistFilename(
             themeVersion
           )}`,
-          `${regularBundlePath}/kbn-ui-shared-deps-src/${UiSharedDepsSrc.cssDistFilename}`,
           `${basePath}/node_modules/@kbn/ui-framework/dist/kui_dark.min.css`,
           `${basePath}/ui/legacy_dark_theme.min.css`,
         ]
@@ -48,7 +46,6 @@ export const getStylesheetPaths = ({
           `${regularBundlePath}/kbn-ui-shared-deps-npm/${UiSharedDepsNpm.lightCssDistFilename(
             themeVersion
           )}`,
-          `${regularBundlePath}/kbn-ui-shared-deps-src/${UiSharedDepsSrc.cssDistFilename}`,
           `${basePath}/node_modules/@kbn/ui-framework/dist/kui_light.min.css`,
           `${basePath}/ui/legacy_light_theme.min.css`,
         ]),

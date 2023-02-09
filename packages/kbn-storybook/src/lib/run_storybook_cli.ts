@@ -11,7 +11,6 @@ import { logger } from '@storybook/node-logger';
 import buildStandalone from '@storybook/react/standalone';
 import { Flags, run } from '@kbn/dev-cli-runner';
 import UiSharedDepsNpm from '@kbn/ui-shared-deps-npm';
-import * as UiSharedDepsSrc from '@kbn/ui-shared-deps-src';
 
 // @ts-expect-error internal dep of storybook
 import interpret from 'interpret'; // eslint-disable-line import/no-extraneous-dependencies
@@ -41,7 +40,6 @@ export function runStorybookCli({ configDir, name }: { configDir: string; name: 
 
       const staticDir = [
         UiSharedDepsNpm.distDir,
-        UiSharedDepsSrc.distDir,
         'src/plugins/kibana_react/public/assets:plugins/kibanaReact/assets',
       ];
       const config: Record<string, any> = {

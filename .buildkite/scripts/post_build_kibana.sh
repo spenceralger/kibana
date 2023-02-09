@@ -6,7 +6,7 @@ if [[ ! "${DISABLE_CI_STATS_SHIPPING:-}" ]]; then
   cmd=(
     "node" "scripts/ship_ci_stats"
       "--metrics" "target/optimizer_bundle_metrics.json"
-      "--metrics" "build/kibana/node_modules/@kbn/ui-shared-deps-src/shared_built_assets/metrics.json"
+      "--metrics" "build/kibana/node_modules/@kbn/ui-shared-deps-npm/shared_built_assets/metrics.json"
   )
 
   if [ "$BUILDKITE_PIPELINE_SLUG" == "kibana-on-merge" ]; then

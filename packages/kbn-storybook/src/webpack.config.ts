@@ -6,7 +6,6 @@
  * Side Public License, v 1.
  */
 
-import { externals } from '@kbn/ui-shared-deps-src';
 import { stringifyRequest } from 'loader-utils';
 import { resolve } from 'path';
 import webpack, { Configuration, Stats } from 'webpack';
@@ -73,7 +72,6 @@ export default ({ config: storybookConfig }: { config: Configuration }) => {
     devServer: {
       stats,
     },
-    externals,
     module: {
       rules: [
         {

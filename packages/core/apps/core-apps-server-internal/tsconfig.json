@@ -15,7 +15,6 @@
     "@kbn/config",
     "@kbn/config-schema",
     "@kbn/ui-shared-deps-npm",
-    "@kbn/ui-shared-deps-src",
     "@kbn/logging",
     "@kbn/core-base-server-internal",
     "@kbn/core-http-resources-server",

@@ -6,14 +6,8 @@
  * Side Public License, v 1.
  */
 
-require('core-js/stable');
-require('@babel/runtime/regenerator');
-
-if (typeof window.Event === 'object') {
-  // IE11 doesn't support unknown event types, required by react-use
-  // https://github.com/streamich/react-use/issues/73
-  window.Event = CustomEvent;
-}
-
-require('whatwg-fetch');
-require('symbol-observable');
+module.exports = {
+  preset: '@kbn/test/jest_node',
+  rootDir: '../..',
+  roots: ['<rootDir>/packages/kbn-browser-context-init'],
+};

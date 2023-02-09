@@ -109,7 +109,6 @@ export const BuildPackages: Task = {
       [
         'build',
         '//packages/kbn-ui-shared-deps-npm:shared_built_assets',
-        '//packages/kbn-ui-shared-deps-src:shared_built_assets',
         '//packages/kbn-monaco:target_workers',
         '--show_result=1',
         '--define=dist=true',
@@ -220,10 +219,7 @@ export const BuildPackages: Task = {
             },
           });
 
-          if (
-            pkg.manifest.id === '@kbn/ui-shared-deps-src' ||
-            pkg.manifest.id === '@kbn/ui-shared-deps-npm'
-          ) {
+          if (pkg.manifest.id === '@kbn/ui-shared-deps-npm') {
             await scanCopy({
               source: config.resolveFromRepo(
                 'bazel-bin',

@@ -2913,6 +2913,10 @@
   version "0.0.0"
   uid ""
 
+"@kbn/browser-context-init@link:packages/kbn-browser-context-init":
+  version "0.0.0"
+  uid ""
+
 "@kbn/canvas-plugin@link:x-pack/plugins/canvas":
   version "0.0.0"
   uid ""
@@ -5322,10 +5326,6 @@
   uid ""
 
 "@kbn/ui-shared-deps-npm@link:packages/kbn-ui-shared-deps-npm":
-  version "0.0.0"
-  uid ""
-
-"@kbn/ui-shared-deps-src@link:packages/kbn-ui-shared-deps-src":
   version "0.0.0"
   uid ""
 

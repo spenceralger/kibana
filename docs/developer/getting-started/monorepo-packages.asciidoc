@@ -92,6 +92,5 @@ yarn kbn watch
 - @kbn/tinymath
 - @kbn/ui-framework
 - @kbn/ui-shared-deps-npm
-- @kbn/ui-shared-deps-src
 - @kbn/utility-types
 - @kbn/utils

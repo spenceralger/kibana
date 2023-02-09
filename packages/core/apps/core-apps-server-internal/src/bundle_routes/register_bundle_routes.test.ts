@@ -10,7 +10,6 @@ import { registerRouteForBundleMock } from './register_bundle_routes.test.mocks'
 
 import type { PackageInfo } from '@kbn/config';
 import { httpServiceMock } from '@kbn/core-http-server-mocks';
-import type { InternalPluginInfo, UiPlugins } from '@kbn/core-plugins-base-server-internal';
 import { registerBundleRoutes } from './register_bundle_routes';
 import { FileHashCache } from './file_hash_cache';
 
@@ -21,20 +20,6 @@ const createPackageInfo = (parts: Partial<PackageInfo> = {}): PackageInfo => ({
   dist: true,
   branch: 'master',
   version: '8.0.0',
-});
-
-const createUiPlugins = (...ids: string[]): UiPlugins => ({
-  browserConfigs: new Map(),
-  public: new Map(),
-  internal: ids.reduce((map, id) => {
-    map.set(id, {
-      publicTargetDir: `/plugins/${id}/public-target-dir`,
-      publicAssetsDir: `/plugins/${id}/public-assets-dir`,
-      version: '8.0.0',
-      requiredBundles: [],
-    });
-    return map;
-  }, new Map<string, InternalPluginInfo>()),
 });
 
 describe('registerBundleRoutes', () => {
@@ -53,18 +38,9 @@ describe('registerBundleRoutes', () => {
       router,
       serverBasePath: '/server-base-path',
       packageInfo: createPackageInfo(),
-      uiPlugins: createUiPlugins(),
     });
 
     expect(registerRouteForBundleMock).toHaveBeenCalledTimes(4);
-
-    expect(registerRouteForBundleMock).toHaveBeenCalledWith(router, {
-      fileHashCache: expect.any(FileHashCache),
-      isDist: true,
-      bundlesPath: 'uiSharedDepsSrcDistDir',
-      publicPath: '/server-base-path/42/bundles/kbn-ui-shared-deps-src/',
-      routePath: '/42/bundles/kbn-ui-shared-deps-src/',
-    });
 
     expect(registerRouteForBundleMock).toHaveBeenCalledWith(router, {
       fileHashCache: expect.any(FileHashCache),
@@ -96,7 +72,6 @@ describe('registerBundleRoutes', () => {
       router,
       serverBasePath: '/server-base-path',
       packageInfo: createPackageInfo(),
-      uiPlugins: createUiPlugins('plugin-a', 'plugin-b'),
     });
 
     expect(registerRouteForBundleMock).toHaveBeenCalledTimes(6);

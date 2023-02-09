@@ -16,7 +16,6 @@ import TerserPlugin from 'terser-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
 import UiSharedDepsNpm from '@kbn/ui-shared-deps-npm';
-import * as UiSharedDepsSrc from '@kbn/ui-shared-deps-src';
 
 import { Bundle, BundleRemotes, WorkerConfig, parseDllManifest } from '../common';
 import { BundleRemotesPlugin } from './bundle_remotes_plugin';
@@ -64,8 +63,6 @@ export function getWebpackConfig(
         },
       },
     },
-
-    externals: UiSharedDepsSrc.externals,
 
     plugins: [
       new CleanWebpackPlugin(),

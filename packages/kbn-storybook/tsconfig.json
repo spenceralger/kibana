@@ -13,7 +13,6 @@
   ],
   "kbn_references": [
     "@kbn/ui-shared-deps-npm",
-    "@kbn/ui-shared-deps-src",
     "@kbn/repo-info",
     "@kbn/dev-cli-runner",
   ],

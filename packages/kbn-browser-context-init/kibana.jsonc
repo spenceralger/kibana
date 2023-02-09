@@ -1,0 +1,5 @@
+{
+  "type": "shared-browser",
+  "id": "@kbn/browser-context-init",
+  "owner": "@elastic/kibana-operations"
+}

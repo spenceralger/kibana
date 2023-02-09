@@ -74,7 +74,6 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
     const bundleIdsByPkgIds = getBundleIdsByPkgIds();
     const initBundleIds = [
       '@kbn/ui-shared-deps-npm',
-      '@kbn/ui-shared-deps-src',
       ...Array.from(
         new Set(
           [
