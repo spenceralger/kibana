@@ -6,10 +6,8 @@
  * Side Public License, v 1.
  */
 
-export { OptimizerConfig, DistBundleZones } from './src/optimizer';
-export * from './src/run_optimizer';
-export * from './src/log_optimizer_state';
-export * from './src/log_optimizer_progress';
-export * from './src/limits';
-export * from './src/cli';
-export * from './src/report_optimizer_timings';
+module.exports = {
+  preset: '@kbn/test/jest_node',
+  rootDir: '../..',
+  roots: ['<rootDir>/packages/kbn-optimize-optimizer-bundles-cli'],
+};

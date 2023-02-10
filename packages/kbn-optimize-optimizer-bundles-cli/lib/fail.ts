@@ -6,10 +6,12 @@
  * Side Public License, v 1.
  */
 
-export { OptimizerConfig, DistBundleZones } from './src/optimizer';
-export * from './src/run_optimizer';
-export * from './src/log_optimizer_state';
-export * from './src/log_optimizer_progress';
-export * from './src/limits';
-export * from './src/cli';
-export * from './src/report_optimizer_timings';
+import { createFailError } from '@kbn/dev-cli-errors';
+
+export function fail(msg: string): never {
+  throw createFailError(`
+    ${msg}, make sure to run the following before executing this command:
+
+      node scripts/build_kibana_platform_plugins --dist
+  `);
+}

@@ -4577,6 +4577,10 @@
   version "0.0.0"
   uid ""
 
+"@kbn/optimize-optimizer-bundles-cli@link:packages/kbn-optimize-optimizer-bundles-cli":
+  version "0.0.0"
+  uid ""
+
 "@kbn/optimizer-bundle-info@link:packages/kbn-optimizer-bundle-info":
   version "0.0.0"
   uid ""

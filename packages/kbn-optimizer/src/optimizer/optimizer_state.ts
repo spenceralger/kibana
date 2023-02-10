@@ -131,7 +131,7 @@ function getPkgStatsById(bundles: Bundle[]) {
       id,
       {
         id,
-        size: stats.size.reduce((a, n) => a + n, 0) / stats.size.length,
+        size: Math.round(stats.size.reduce((a, n) => a + n, 0) / stats.size.length),
         deps: Array.from(stats.deps),
       },
     ])

@@ -107,8 +107,8 @@ export function runOptimizer(config: OptimizerConfig) {
               pkgStatsPath,
               JSON.stringify(
                 {
-                  pkgStatsById: update.state.pkgStatsById
-                    ? Array.from(update.state.pkgStatsById)
+                  pkgStats: update.state.pkgStatsById
+                    ? Array.from(update.state.pkgStatsById.values())
                     : [],
                 },
                 null,

@@ -926,6 +926,8 @@
       "@kbn/oidc-provider-plugin/*": ["x-pack/test/security_api_integration/plugins/oidc_provider/*"],
       "@kbn/open-telemetry-instrumented-plugin": ["test/common/plugins/otel_metrics"],
       "@kbn/open-telemetry-instrumented-plugin/*": ["test/common/plugins/otel_metrics/*"],
+      "@kbn/optimize-optimizer-bundles-cli": ["packages/kbn-optimize-optimizer-bundles-cli"],
+      "@kbn/optimize-optimizer-bundles-cli/*": ["packages/kbn-optimize-optimizer-bundles-cli/*"],
       "@kbn/optimizer": ["packages/kbn-optimizer"],
       "@kbn/optimizer/*": ["packages/kbn-optimizer/*"],
       "@kbn/optimizer-bundle-info": ["packages/kbn-optimizer-bundle-info"],

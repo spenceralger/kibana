@@ -6,10 +6,5 @@
  * Side Public License, v 1.
  */
 
-export { OptimizerConfig, DistBundleZones } from './src/optimizer';
-export * from './src/run_optimizer';
-export * from './src/log_optimizer_state';
-export * from './src/log_optimizer_progress';
-export * from './src/limits';
-export * from './src/cli';
-export * from './src/report_optimizer_timings';
+require('../src/setup_node_env');
+require('@kbn/optimize-optimizer-bundles-cli');

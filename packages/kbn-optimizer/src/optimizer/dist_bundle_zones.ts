@@ -14,11 +14,13 @@ import { Bundle } from '../common';
 const CONFIG_PATH = require.resolve('../../dist_bundle_zones.json');
 
 interface BundleZoneManifest {
-  entry?: string[][];
+  zones?: string[][];
   async?: string[];
 }
 
 export class DistBundleZones {
+  static readonly PATH = CONFIG_PATH;
+
   static read(): BundleZoneManifest {
     try {
       return JSON.parse(Fs.readFileSync(CONFIG_PATH, 'utf8'));
@@ -34,7 +36,7 @@ export class DistBundleZones {
     const manifest = DistBundleZones.read();
     const unassigned = new Map(packages.map((p) => [p.id, p]));
 
-    const entryBundles = Array.from((manifest.entry ?? []).entries(), ([i, pkgIds]) => {
+    const entryBundles = Array.from((manifest.zones ?? []).entries(), ([i, pkgIds]) => {
       const pkgs = pkgIds.flatMap((pkgId) => unassigned.get(pkgId) ?? []);
       for (const pkg of pkgs) {
         unassigned.delete(pkg.id);
