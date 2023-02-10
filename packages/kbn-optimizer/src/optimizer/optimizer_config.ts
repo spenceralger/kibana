@@ -204,7 +204,7 @@ export class OptimizerConfig {
       options.dist,
       options.profileWebpack,
       options.themeTags,
-      Path.resolve(options.outputRoot, 'target/bundles/dep_map.json')
+      options.outputRoot
     );
   }
 
@@ -219,7 +219,7 @@ export class OptimizerConfig {
     public readonly dist: boolean,
     public readonly profileWebpack: boolean,
     public readonly themeTags: ThemeTags,
-    public readonly bundleDepsMapPath: string
+    public readonly outputRoot: string
   ) {}
 
   getWorkerConfig(optimizerCacheKey: unknown): WorkerConfig {

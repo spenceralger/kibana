@@ -10,7 +10,6 @@ import Path from 'path';
 
 import { REPO_ROOT } from '@kbn/repo-info';
 import { lastValueFrom } from 'rxjs';
-import { CiStatsMetric } from '@kbn/ci-stats-reporter';
 import {
   runOptimizer,
   OptimizerConfig,
@@ -18,7 +17,7 @@ import {
   reportOptimizerTimings,
 } from '@kbn/optimizer';
 
-import { Task, deleteAll, write, read } from '../lib';
+import { Task } from '../lib';
 
 export const BuildKibanaPlatformPlugins: Task = {
   description: 'Building distributable versions of Kibana platform plugins',
@@ -29,7 +28,6 @@ export const BuildKibanaPlatformPlugins: Task = {
       cache: false,
       watch: false,
       dist: true,
-      includeCoreBundle: true,
       inspectWorkers: false,
       limitsPath: Path.resolve(REPO_ROOT, 'packages/kbn-optimizer/limits.yml'),
       examples: buildConfig.pluginSelector.examples,
@@ -39,28 +37,6 @@ export const BuildKibanaPlatformPlugins: Task = {
     await lastValueFrom(
       runOptimizer(config).pipe(logOptimizerState(log, config), reportOptimizerTimings(log, config))
     );
-
-    const combinedMetrics: CiStatsMetric[] = [];
-    const metricFilePaths: string[] = [];
-    for (const bundle of config.bundles) {
-      if (bundle.ignoreMetrics) {
-        continue;
-      }
-
-      const path = Path.resolve(bundle.outputDir, 'metrics.json');
-      const metrics: CiStatsMetric[] = JSON.parse(await read(path));
-      combinedMetrics.push(...metrics);
-      metricFilePaths.push(path);
-    }
-
-    // write combined metrics to target
-    await write(
-      buildConfig.resolveFromTarget('optimizer_bundle_metrics.json'),
-      JSON.stringify(combinedMetrics, null, 2)
-    );
-
-    // delete all metric files
-    await deleteAll(metricFilePaths, log);
 
     // delete all bundle cache files
     await Promise.all(config.bundles.map((b) => b.cache.clear()));

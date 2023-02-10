@@ -87,7 +87,7 @@ const getCategory = (relative: string) => {
     return 'asyncChunk';
   }
 
-  if (relative.includes('kbn-ui-shared-deps-npm')) {
+  if (relative.startsWith('@kbn/ui-shared-deps-npm')) {
     return 'npm';
   }
 
@@ -99,7 +99,7 @@ function categorizeAssets(assetDirs: string[]) {
     globby
       .sync(['**/*'], {
         cwd: assetDir,
-        ignore: ['*-manifest.json', '*.gz', '*.br'],
+        ignore: ['**/*-manifest.json', '**/*.gz', '**/*.br'],
         absolute: true,
       })
       .map((path): { path: string; category: Category } => ({

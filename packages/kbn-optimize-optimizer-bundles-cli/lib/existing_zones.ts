@@ -25,7 +25,7 @@ function diff(a: Set<string>, b: Set<string>) {
 
 export function readExistingZones(
   stats: Stats,
-  pluginPkgIds: string[],
+  entryPkgIds: string[],
   allSharedPkgIds: Set<string>
 ) {
   const manifest = DistBundleZones.read();
@@ -43,7 +43,7 @@ export function readExistingZones(
     // the set of pkgIds between the zones and async list must match
     return undefined;
   }
-  if (pluginPkgIds.some((id) => !existingZoneIds.has(id))) {
+  if (entryPkgIds.some((id) => !existingZoneIds.has(id))) {
     // every pluginPkgId must be in the "zones" list somewhere
     return undefined;
   }

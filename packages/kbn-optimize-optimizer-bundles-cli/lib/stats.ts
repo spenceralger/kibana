@@ -6,10 +6,9 @@
  * Side Public License, v 1.
  */
 
-import Path from 'path';
 import Fs from 'fs';
+import Path from 'path';
 
-import { REPO_ROOT } from '@kbn/repo-info';
 import { fail } from './fail';
 
 export interface PkgStats {
@@ -19,21 +18,17 @@ export interface PkgStats {
 }
 
 export class Stats {
-  static read(allSharedPkgIds: Set<string>) {
+  static read(allSharedPkgIds: Set<string>, path: string) {
     try {
       return new Stats(
-        (
-          JSON.parse(
-            Fs.readFileSync(Path.resolve(REPO_ROOT, 'target/bundles/pkg_stats.json'), 'utf8')
-          ).pkgStats as PkgStats[]
-        ).map((stats) => ({
+        (JSON.parse(Fs.readFileSync(path, 'utf8')).pkgStats as PkgStats[]).map((stats) => ({
           ...stats,
           shared: allSharedPkgIds.has(stats.id),
         }))
       );
     } catch (error) {
       if (error.code === 'ENOENT') {
-        fail('target/bundles/pkg_stats.json is missing');
+        fail(`${Path.relative(process.cwd(), path)} is missing`);
       }
 
       throw error;

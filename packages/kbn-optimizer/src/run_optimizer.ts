@@ -31,8 +31,8 @@ export type OptimizerUpdate = Update<OptimizerEvent, OptimizerState>;
 export type OptimizerUpdate$ = Rx.Observable<OptimizerUpdate>;
 
 export function runOptimizer(config: OptimizerConfig) {
-  const bundleInfoPath = Path.resolve(config.repoRoot, 'target/bundles/info.json');
-  const pkgStatsPath = Path.resolve(config.repoRoot, 'target/bundles/pkg_stats.json');
+  const bundleInfoPath = Path.resolve(config.outputRoot, 'target/bundles/info.json');
+  const pkgStatsPath = Path.resolve(config.outputRoot, 'target/bundles/pkg_stats.json');
   const bundlePkgs = Object.fromEntries(
     config.bundles.map((b) => [b.id, b.entries.map((e) => e.pkgId)])
   );
@@ -96,6 +96,7 @@ export function runOptimizer(config: OptimizerConfig) {
         // write bundle deps to disk when bundleDeps on state update
         Rx.scan((prev, update) => {
           if (prev.state.bundleDeps !== update.state.bundleDeps) {
+            Fs.mkdirSync(Path.dirname(bundleInfoPath), { recursive: true });
             Fs.writeFileSync(
               bundleInfoPath,
               JSON.stringify({ deps: update.state.bundleDeps, pkgs: bundlePkgs }, null, 2)
@@ -103,6 +104,7 @@ export function runOptimizer(config: OptimizerConfig) {
           }
 
           if (prev.state.pkgStatsById !== update.state.pkgStatsById) {
+            Fs.mkdirSync(Path.dirname(pkgStatsPath), { recursive: true });
             Fs.writeFileSync(
               pkgStatsPath,
               JSON.stringify(

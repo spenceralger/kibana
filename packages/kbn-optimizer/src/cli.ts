@@ -15,8 +15,8 @@ import { createFlagError } from '@kbn/dev-cli-errors';
 
 import { logOptimizerState } from './log_optimizer_state';
 import { logOptimizerProgress } from './log_optimizer_progress';
-import { OptimizerConfig } from './optimizer';
 import { runOptimizer } from './run_optimizer';
+import { OptimizerConfig } from './optimizer';
 import { validateLimitsForAllBundles, updateBundleLimits } from './limits';
 import { reportOptimizerTimings } from './report_optimizer_timings';
 

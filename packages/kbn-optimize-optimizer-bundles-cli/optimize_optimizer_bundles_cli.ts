@@ -7,6 +7,7 @@
  */
 
 import Fs from 'fs';
+import Path from 'path';
 
 import { REPO_ROOT } from '@kbn/repo-info';
 import { run } from '@kbn/dev-cli-runner';
@@ -21,23 +22,37 @@ const MAX_SIZE_DELTA = 50_000;
 const MAX_SLOP_DELTA = 50_000;
 
 run(
-  async ({ log }) => {
+  async ({ log, flagsReader }) => {
     const allPackages = getPackages(REPO_ROOT);
 
     const pluginPkgIds = allPackages
       .filter(getPluginPackagesFilter({ browser: true, examples: false, testPlugins: false }))
       .map((p) => p.id);
 
+    const entryPkgIds = ['@kbn/browser-context-init', '@kbn/core', ...pluginPkgIds];
+
     const sharedBundlePkgIds = allPackages
-      .filter((p) => p.isBrowserCapablePackage() && !!p.manifest.sharedBrowserBundle)
+      .filter(
+        (p) =>
+          p.isBrowserCapablePackage() &&
+          !!p.manifest.sharedBrowserBundle &&
+          !entryPkgIds.includes(p.id)
+      )
       .map((p) => p.id);
 
-    const allSharedPkgIds = new Set([...pluginPkgIds, ...sharedBundlePkgIds]);
-    const stats = Stats.read(allSharedPkgIds);
-    const alloc = Allocation.pick(stats, pluginPkgIds, allSharedPkgIds);
+    const allSharedPkgIds = new Set([...entryPkgIds, ...sharedBundlePkgIds]);
+    const stats = Stats.read(
+      allSharedPkgIds,
+      Path.resolve(
+        REPO_ROOT,
+        flagsReader.boolean('from-build') ? 'build/kibana' : '',
+        'target/bundles/pkg_stats.json'
+      )
+    );
+    const alloc = Allocation.pick(stats, entryPkgIds, allSharedPkgIds);
 
     log.info('ideal allocation seems to be:\n', JSON.stringify(alloc, null, 2));
-    const existing = readExistingZones(stats, pluginPkgIds, allSharedPkgIds);
+    const existing = readExistingZones(stats, entryPkgIds, allSharedPkgIds);
 
     if (existing) {
       const sizeDelta = alloc.avgSize - existing.avgSize;
@@ -73,5 +88,12 @@ run(
       Writes output to the @kbn/optimizer's dist_bundle_zones.json file if a new
       allocation is determined to produce a significantly better balance.
     `,
+    flags: {
+      boolean: ['from-build'],
+      alias: { b: 'from-build' },
+      help: `
+        --from-build, -b   Read the pkg_stats from the build output, rather than the root target/bundles dir
+      `,
+    },
   }
 );

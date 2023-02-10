@@ -16,7 +16,7 @@ interface AllocationZone {
 }
 
 export class Allocation {
-  static pick(stats: Stats, pluginPkgIds: string[], allSharedPkgIds: Set<string>) {
+  static pick(stats: Stats, entryPkgIds: string[], allSharedPkgIds: Set<string>) {
     const sizeCache = new Map<string, number>();
     function getFullSize(start: string) {
       const cached = sizeCache.get(start);
@@ -52,33 +52,33 @@ export class Allocation {
 
     // sort the plugins and assign them to the allocation from the largest to
     // the smallest so that we can really pack the zones full
-    const sortedPlugins = Array.from(pluginPkgIds).sort((a, b) => getFullSize(b) - getFullSize(a));
-    for (const p of sortedPlugins) {
+    const sortedPkgIdsToAssign = Array.from(
+      new Set([
+        ...entryPkgIds,
+        ...entryPkgIds.flatMap((id) =>
+          stats.get(id).deps.filter((dep) => allSharedPkgIds.has(dep))
+        ),
+      ])
+    ).sort((a, b) => getFullSize(b) - getFullSize(a));
+    for (const p of sortedPkgIdsToAssign) {
       alloc = alloc.autoAssign(p);
     }
 
-    // asyncPkgsIds starts with every pkgId, but then each pkgId found in a zone is deleted below
-    const asyncPkgIds = new Set(allSharedPkgIds);
     const zones = alloc.zones.map(
       (z): AllocationZone => ({
         size: Math.round(z.size),
-        pkgIds: z.pkgIds.filter((id) => {
-          if (!allSharedPkgIds.has(id)) {
-            return false;
-          }
-
-          asyncPkgIds.delete(id);
-          return true;
-        }),
+        pkgIds: z.pkgIds.filter((id) => allSharedPkgIds.has(id)),
       })
     );
+
     const sizes = zones.map((z) => z.size);
+    const allSyncPkgIds = new Set(sortedPkgIdsToAssign);
 
     return {
       avgSize: Math.round(sizes.reduce((a, b) => a + b) / zones.length),
       slop: Math.max(...sizes) - Math.min(...sizes),
       zones,
-      asyncPackages: Array.from(asyncPkgIds),
+      asyncPackages: Array.from(allSharedPkgIds).filter((id) => !allSyncPkgIds.has(id)),
     };
   }
 
