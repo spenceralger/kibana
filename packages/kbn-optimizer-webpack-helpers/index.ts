@@ -25,4 +25,6 @@ export {
   isIgnoredModule,
   isNormalModule,
   getDependecies,
+  isInEntryChunk,
+  getModuleSize,
 } from './src/webpack_helpers';

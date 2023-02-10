@@ -92,7 +92,7 @@ export interface WebpackResolveData {
 
 interface Dependency {
   type: 'null' | 'cjs require';
-  module: unknown;
+  module: webpack.Module | null;
 }
 
 export function getDependecies(module: any): Dependency[] {
@@ -104,7 +104,7 @@ export function getDependecies(module: any): Dependency[] {
 }
 
 /** used for standard js/ts modules */
-export interface WebpackNormalModule {
+export interface WebpackNormalModule extends webpack.Module {
   type: string;
   /** absolute path to file on disk */
   resource: string;
@@ -120,7 +120,7 @@ export function isNormalModule(module: any): module is WebpackNormalModule {
 }
 
 /** module used for ignored code */
-export interface WebpackIgnoredModule {
+export interface WebpackIgnoredModule extends webpack.Module {
   type: string;
   /** unique string to identify this module with (starts with `ignored`) */
   identifierStr: string;
@@ -133,7 +133,7 @@ export function isIgnoredModule(module: any): module is WebpackIgnoredModule {
 }
 
 /** module replacing imports for webpack externals */
-export interface WebpackExternalModule {
+export interface WebpackExternalModule extends webpack.Module {
   type: string;
   id: string;
   /** JS used to get instance of External */
@@ -147,12 +147,12 @@ export function isExternalModule(module: any): module is WebpackExternalModule {
 }
 
 /** module replacing imports for webpack externals */
-export interface WebpackConcatenatedModule {
+export interface WebpackConcatenatedModule extends webpack.Module {
   type: string;
   id: number;
   dependencies: Dependency[];
   usedExports: string[];
-  modules: unknown[];
+  modules: webpack.Module[];
 }
 
 export function isConcatenatedModule(module: any): module is WebpackConcatenatedModule {
@@ -160,7 +160,7 @@ export function isConcatenatedModule(module: any): module is WebpackConcatenated
 }
 
 /** module replacing imports for DLL referenced */
-export interface WebpackDelegatedModule {
+export interface WebpackDelegatedModule extends webpack.Module {
   type: string;
   id: number;
   dependencies: unknown[];
@@ -175,4 +175,8 @@ export function isDelegatedModule(module: any): module is WebpackDelegatedModule
 export function getModulePath(module: WebpackNormalModule) {
   const queryIndex = module.resource.indexOf('?');
   return queryIndex === -1 ? module.resource : module.resource.slice(0, queryIndex);
+}
+
+export function getModuleSize(module: webpack.Module): number {
+  return ('size' in module && (module as any).size()) || 0;
 }

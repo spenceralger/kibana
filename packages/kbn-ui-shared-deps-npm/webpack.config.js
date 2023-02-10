@@ -145,6 +145,8 @@ module.exports = (_, argv) => {
     },
 
     resolve: {
+      extensions: ['.js', '.ts', '.json'],
+      mainFields: ['browser', 'main'],
       alias: {
         '@elastic/eui$': '@elastic/eui/optimize/es',
         moment: MOMENT_SRC,
@@ -153,7 +155,6 @@ module.exports = (_, argv) => {
         'react-dom$': 'react-dom/profiling',
         'scheduler/tracing': 'scheduler/tracing-profiling',
       },
-      extensions: ['.js', '.ts'],
     },
 
     optimization: {

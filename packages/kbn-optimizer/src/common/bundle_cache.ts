@@ -12,6 +12,12 @@ import Path from 'path';
 import webpack from 'webpack';
 import { RawSource } from 'webpack-sources';
 
+export interface PkgStat {
+  id: string;
+  size: number;
+  deps: string[];
+}
+
 export interface State {
   optimizerCacheKey?: unknown;
   cacheKey?: unknown;
@@ -21,6 +27,7 @@ export interface State {
   remoteBundleImportReqs?: string[];
   remoteBundleDeps?: string[];
   dllRefKeys?: string[];
+  pkgStats?: PkgStat[];
 }
 
 const DEFAULT_STATE: State = {};
@@ -110,6 +117,10 @@ export class BundleCache {
 
   public getOptimizerCacheKey() {
     return this.get().optimizerCacheKey;
+  }
+
+  public getPkgStats() {
+    return this.get().pkgStats;
   }
 
   public clear() {

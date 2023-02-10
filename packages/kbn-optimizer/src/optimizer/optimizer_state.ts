@@ -31,6 +31,12 @@ export type OptimizerEvent =
   | WorkerStatus
   | BundleCacheEvent;
 
+export interface PkgStat {
+  id: string;
+  size: number;
+  deps: string[];
+}
+
 export interface OptimizerState {
   phase: 'initializing' | 'initialized' | 'running' | 'issue' | 'success' | 'reallocating';
   startTime: number;
@@ -39,6 +45,7 @@ export interface OptimizerState {
   onlineBundles: Bundle[];
   offlineBundles: Bundle[];
   bundleDeps: Record<string, string[]>;
+  pkgStatsById?: Map<string, PkgStat>;
 }
 
 const msToSec = (ms: number) => Math.round(ms / 100) / 10;
@@ -96,6 +103,41 @@ function updateBundleDeps(deps: Record<string, string[]>, bundleId: string, newD
   return { ...deps, [bundleId]: newDeps };
 }
 
+function getPkgStatsById(bundles: Bundle[]) {
+  const tempStatsById = new Map<string, { id: string; size: number[]; deps: Set<string> }>();
+
+  for (const stat of bundles.flatMap((b) => b.cache.getPkgStats())) {
+    if (!stat) {
+      continue;
+    }
+
+    const existing = tempStatsById.get(stat.id);
+    if (existing) {
+      existing.size.push(stat.size);
+      for (const dep of stat.deps) {
+        existing.deps.add(dep);
+      }
+    } else {
+      tempStatsById.set(stat.id, {
+        id: stat.id,
+        size: [stat.size],
+        deps: new Set(stat.deps),
+      });
+    }
+  }
+
+  return new Map(
+    Array.from(tempStatsById, ([id, stats]) => [
+      id,
+      {
+        id,
+        size: stats.size.reduce((a, n) => a + n, 0) / stats.size.length,
+        deps: Array.from(stats.deps),
+      },
+    ])
+  );
+}
+
 export function createOptimizerStateSummarizer(
   config: OptimizerConfig
 ): Summarizer<OptimizerEvent, OptimizerState> {
@@ -116,6 +158,9 @@ export function createOptimizerStateSummarizer(
     if (event.type === 'all bundles cached') {
       return createOptimizerState(state, {
         phase: 'success',
+        pkgStatsById: config.dist
+          ? getPkgStatsById([...state.offlineBundles, ...state.onlineBundles])
+          : undefined,
       });
     }
 
@@ -199,10 +244,17 @@ export function createOptimizerStateSummarizer(
         event,
       ];
 
+      const phase = getStatePhase(compilerStates);
+      let pkgStatsById = state.pkgStatsById;
+      if (config.dist && phase === 'success' && state.phase !== phase) {
+        pkgStatsById = getPkgStatsById([...state.offlineBundles, ...state.onlineBundles]);
+      }
+
       return createOptimizerState(state, {
-        phase: getStatePhase(compilerStates),
+        phase,
         compilerStates,
         bundleDeps,
+        pkgStatsById,
       });
     }
 

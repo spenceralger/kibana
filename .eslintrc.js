@@ -1737,6 +1737,7 @@ module.exports = {
       files: [
         'packages/kbn-{package-*,repo-*,dep-*}/**/*',
         'packages/kbn-find-used-node-modules/**/*',
+        'packages/kbn-optimizer/**/*',
       ],
       rules: {
         'max-classes-per-file': 'off',

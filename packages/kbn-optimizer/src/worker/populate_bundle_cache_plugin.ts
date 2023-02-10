@@ -9,7 +9,9 @@
 import Path from 'path';
 import { inspect } from 'util';
 
+import { findPackageForPath } from '@kbn/repo-packages';
 import webpack from 'webpack';
+import { SetMap } from '@kbn/set-map';
 import {
   isExternalModule,
   isNormalModule,
@@ -17,6 +19,8 @@ import {
   isConcatenatedModule,
   isDelegatedModule,
   getModulePath,
+  getModuleSize,
+  getDependecies,
 } from '@kbn/optimizer-webpack-helpers';
 
 import {
@@ -26,8 +30,20 @@ import {
   parseFilePath,
   Hashes,
   ParsedDllManifest,
+  PkgStat,
 } from '../common';
 import { BundleRemoteModule } from './bundle_remote_module';
+
+class ModuleMap extends SetMap<string, webpack.Module> {
+  #pkgIdByModule = new Map<webpack.Module, string>();
+  add(pkgId: string, value: webpack.Module) {
+    this.#pkgIdByModule.set(value, pkgId);
+    return super.add(pkgId, value);
+  }
+  getPkgId(module: webpack.Module) {
+    return this.#pkgIdByModule.get(module);
+  }
+}
 
 /**
  * sass-loader creates about a 40% overhead on the overall optimizer runtime, and
@@ -59,9 +75,12 @@ export class PopulateBundleCachePlugin {
         let moduleCount = 0;
         let workUnits = compilation.fileDependencies.size;
 
+        const modulesByPkgId = workerConfig.dist ? new ModuleMap() : undefined;
         const paths = new Set<string>();
         const rawHashes = new Map<string, string | null>();
-        const addReferenced = (path: string) => {
+        const dllRefKeys = new Set<string>();
+
+        function addReferenced(path: string) {
           if (paths.has(path)) {
             return;
           }
@@ -75,21 +94,14 @@ export class PopulateBundleCachePlugin {
           }
 
           return rawHashes.set(path, Hashes.hash(content));
-        };
-
-        const dllRefKeys = new Set<string>();
-
-        for (const p of bundle.manifestPaths) {
-          addReferenced(p);
         }
 
-        for (const module of compilation.modules) {
+        function trackModuleFromBuild(module: webpack.Module, isInEntryChunk: boolean) {
           if (isNormalModule(module)) {
             moduleCount += 1;
             const path = getModulePath(module);
             const parsedPath = parseFilePath(path);
 
-            // TODO: Does this need to be updated to support @kbn/ packages?
             if (!parsedPath.dirs.includes('node_modules')) {
               addReferenced(path);
 
@@ -101,7 +113,13 @@ export class PopulateBundleCachePlugin {
                 }
               }
 
-              continue;
+              if (isInEntryChunk && modulesByPkgId) {
+                const pkg = findPackageForPath(workerConfig.repoRoot, path);
+                if (pkg) {
+                  modulesByPkgId.add(pkg.id, module);
+                }
+              }
+              return;
             }
 
             const nmIndex = parsedPath.dirs.lastIndexOf('node_modules');
@@ -112,35 +130,98 @@ export class PopulateBundleCachePlugin {
               'package.json'
             );
             addReferenced(pkgJsonPath);
-            continue;
+            if (modulesByPkgId) {
+              if (isInEntryChunk) {
+                modulesByPkgId.add(
+                  parsedPath.dirs.slice(nmIndex + 1, nmIndex + 1 + (isScoped ? 2 : 1)).join('/'),
+                  module
+                );
+              }
+            }
+
+            return;
           }
 
           if (module instanceof BundleRemoteModule) {
             bundleRefExportIds.add(module.req.full);
             remoteBundleDeps.add(module.remote.bundleId);
-            continue;
+            return;
           }
 
           if (isConcatenatedModule(module)) {
-            moduleCount += module.modules.length;
-            continue;
+            for (const m of module.modules) {
+              trackModuleFromBuild(m, isInEntryChunk);
+            }
+            return;
           }
 
           if (isDelegatedModule(module)) {
             // delegated modules are the references to the ui-shared-deps-npm dll
             dllRefKeys.add(module.userRequest);
-            continue;
+            return;
           }
 
           if (isExternalModule(module) || isIgnoredModule(module)) {
-            continue;
+            return;
           }
 
           throw new Error(`Unexpected module type: ${inspect(module)}`);
         }
 
+        for (const p of bundle.manifestPaths) {
+          addReferenced(p);
+        }
+
+        for (const chunk of compilation.chunks as webpack.Chunk[]) {
+          const isInEntryChunk = chunk.canBeInitial();
+          for (const module of chunk.modulesIterable) {
+            trackModuleFromBuild(module as unknown as webpack.Module, isInEntryChunk);
+          }
+        }
+
         const referencedPaths = Array.from(paths).sort(ascending((p) => p));
         const sortedDllRefKeys = Array.from(dllRefKeys).sort(ascending((p) => p));
+
+        const pkgStats: PkgStat[] | undefined = modulesByPkgId ? [] : undefined;
+        if (modulesByPkgId && pkgStats) {
+          for (const [pkgId, moduleSet] of modulesByPkgId) {
+            const modules = Array.from(moduleSet);
+            const size = modules.reduce((a, m) => a + getModuleSize(m), 0);
+            pkgStats.push({
+              id: pkgId,
+              size,
+              deps:
+                pkgId === '@kbn/optimizer'
+                  ? []
+                  : Array.from(
+                      new Set(
+                        modules.flatMap((m) =>
+                          getDependecies(m).flatMap((dep) => {
+                            if (
+                              !dep.module ||
+                              isDelegatedModule(dep.module) ||
+                              dep.module instanceof BundleRemoteModule
+                            ) {
+                              return [];
+                            }
+
+                            const depId = modulesByPkgId.getPkgId(dep.module);
+                            if (depId === pkgId) {
+                              return [];
+                            }
+
+                            if (!depId) {
+                              return [];
+                            }
+
+                            return depId;
+                          })
+                        )
+                      )
+                    ),
+            });
+          }
+        }
 
         bundle.cache.set({
           remoteBundleImportReqs: Array.from(bundleRefExportIds).sort(ascending((p) => p)),
@@ -156,6 +237,7 @@ export class PopulateBundleCachePlugin {
           referencedPaths,
           dllRefKeys: sortedDllRefKeys,
           remoteBundleDeps: Array.from(remoteBundleDeps),
+          pkgStats,
         });
 
         // write the cache to the compilation so that it isn't cleaned by clean-webpack-plugin
