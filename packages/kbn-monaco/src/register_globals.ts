@@ -35,7 +35,7 @@ registerLanguage(ESQLLang);
  */
 registerTheme(ESQL_THEME_ID, buildESQlTheme());
 
-const monacoBundleDir = (window as any).__kbn?.getPublicDir('@kbn/monaco');
+const monacoBundleDir = (window as any).__kbn?.getPublicDir('monaco-workers');
 
 // @ts-ignore
 window.MonacoEnvironment = {

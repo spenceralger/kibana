@@ -47,8 +47,8 @@ export function registerBundleRoutes({
     isDist,
   });
   registerRouteForBundle(router, {
-    publicPath: `${serverBasePath}/${buildNum}/bundles/@kbn/monaco/`,
-    routePath: `/${buildNum}/bundles/@kbn/monaco/`,
+    publicPath: `${serverBasePath}/${buildNum}/bundles/monaco-workers/`,
+    routePath: `/${buildNum}/bundles/monaco-workers/`,
     bundlesPath: KbnMonaco.bundleDir,
     fileHashCache,
     isDist,

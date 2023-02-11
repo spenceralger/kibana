@@ -78,6 +78,7 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
         new Set(
           [
             '@kbn/core',
+            '@kbn/browser-context-init',
             ...filterUiPlugins({ uiPlugins, isAnonymousPage }).flatMap(([id]) => {
               const pkg = pkgsByPluginId.get(id);
               return pkg ? pkg.id : [];

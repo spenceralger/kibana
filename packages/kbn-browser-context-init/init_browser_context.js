@@ -24,4 +24,5 @@ require('@kbn/flot-charts');
 
 // mutate moment to include timezone information
 const Moment = require('moment');
+require('moment-timezone');
 Moment.tz.load(require('moment-timezone/data/packed/latest.json'));

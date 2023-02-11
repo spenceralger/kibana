@@ -75,7 +75,7 @@ export class PopulateBundleCachePlugin {
         let moduleCount = 0;
         let workUnits = compilation.fileDependencies.size;
 
-        const modulesByPkgId = workerConfig.dist ? new ModuleMap() : undefined;
+        const modulesByPkgId = new ModuleMap();
         const paths = new Set<string>();
         const rawHashes = new Map<string, string | null>();
         const dllRefKeys = new Set<string>();
@@ -197,12 +197,12 @@ export class PopulateBundleCachePlugin {
                       new Set(
                         modules.flatMap((m) =>
                           getDependecies(m).flatMap((dep) => {
-                            if (
-                              !dep.module ||
-                              isDelegatedModule(dep.module) ||
-                              dep.module instanceof BundleRemoteModule
-                            ) {
+                            if (!dep.module || isDelegatedModule(dep.module)) {
                               return [];
+                            }
+
+                            if (dep.module instanceof BundleRemoteModule) {
+                              return dep.module.remote.pkgId;
                             }
 
                             const depId = modulesByPkgId.getPkgId(dep.module);
